@@ -1,0 +1,189 @@
+/* Form Container Styles */
+.resident-form-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Profile Picture Styles */
+.profile-picture-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    cursor: pointer;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.profile-picture-container:hover {
+    transform: scale(1.02);
+}
+
+.profile-picture-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 3px solid #fff;
+}
+
+/* Tab Navigation Styles */
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 25px;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: #6c757d;
+    padding: 12px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    border: none;
+    color: #5c0000;
+}
+
+.nav-tabs .nav-link.active {
+    border: none;
+    color: #5c0000;
+    border-bottom: 3px solid #5c0000;
+    font-weight: 600;
+}
+
+.nav-tabs .nav-link i {
+    margin-right: 8px;
+}
+
+/* Card Styles */
+.form-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+}
+
+.form-card .card-body {
+    padding: 25px;
+}
+
+.form-card .card-title {
+    color: #5c0000;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+/* Form Control Styles */
+.form-label {
+    font-weight: 500;
+    color: #444;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #5c0000;
+    box-shadow: 0 0 0 0.2rem rgba(92, 0, 0, 0.1);
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    color: #5c0000;
+}
+
+/* Button Styles */
+.btn {
+    padding: 10px 20px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #5c0000;
+    border-color: #5c0000;
+}
+
+.btn-primary:hover {
+    background-color: #4a0000;
+    border-color: #4a0000;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .resident-form-container {
+        padding: 10px;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .form-card .card-body {
+        padding: 15px;
+    }
+
+    .row {
+        margin-right: -10px;
+        margin-left: -10px;
+    }
+
+    .col-md-6, .col-md-4 {
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+}
+
+/* Status Information Card */
+.status-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.status-card .card-body {
+    padding: 20px;
+}
+
+.status-card .card-title {
+    color: #5c0000;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* Navigation Buttons */
+.form-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}

@@ -1,0 +1,153 @@
+/* Dashboard Header Styles */
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+.dashboard-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+.dashboard-subtitle {
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+/* Stats Cards Styles */
+.stats-card {
+    padding: 1.5rem;
+    border-radius: 10px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.stats-card .number {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+.stats-card .label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+.stats-card i {
+    font-size: 2.5rem;
+    opacity: 0.8;
+}
+.blue-card {
+    background: linear-gradient(45deg, #2196F3, #1976D2);
+}
+.yellow-card {
+    background: linear-gradient(45deg, #FFC107, #FFA000);
+}
+.green-card {
+    background: linear-gradient(45deg, #4CAF50, #388E3C);
+}
+.red-card {
+    background: linear-gradient(45deg, #F44336, #D32F2F);
+}
+
+/* Content Card Styles */
+.content-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.content-card h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+/* Table Styles */
+.table {
+    margin-bottom: 0;
+}
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+.table td {
+    vertical-align: middle;
+}
+.table-hover tbody tr:hover {
+    background-color: rgba(33, 150, 243, 0.05);
+}
+
+/* Button Styles */
+.btn-group .btn {
+    margin: 0 2px;
+}
+.btn-warning {
+    color: #fff;
+}
+.btn-warning:hover {
+    color: #fff;
+}
+
+/* Modal Styles */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Search Input Styles */
+.search-input {
+    border-radius: 20px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border: 1px solid #dee2e6;
+}
+.search-input:focus {
+    border-color: #2196F3;
+    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+}
+
+/* Action Buttons */
+.action-buttons .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+.action-buttons .btn i {
+    font-size: 0.875rem;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Responsive Table */
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Filter Buttons */
+.filter-buttons .btn {
+    margin-right: 0.5rem;
+    border-radius: 20px;
+}
+.filter-buttons .btn.active {
+    background-color: #2196F3;
+    border-color: #2196F3;
+    color: white;
+} 

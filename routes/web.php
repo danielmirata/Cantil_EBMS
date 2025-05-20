@@ -1,0 +1,289 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Dashboard\ResidentDashboardController;
+use App\Http\Controllers\Dashboard\CaptainDashboardController;
+use App\Http\Controllers\Dashboard\OfficialDashboardController;
+use App\Http\Controllers\Dashboard\SecretaryDashboardController;
+use App\Http\Controllers\Dashboard\AdminDashboardController;
+use App\Http\Controllers\Secretary\ResidenceInformationController;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Secretary\OfficialController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\OfficialDocumentRequestController;
+use App\Http\Controllers\Secretary\OfficialDocumentRequestController as SecretaryOfficialDocumentRequestController;
+use App\Http\Controllers\ResidentDocumentRequestController;
+use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\BlotterController;
+use App\Http\Controllers\Resident\StatusController;
+use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\MapLocationController;
+use App\Http\Controllers\Resident\ResidentController;
+use App\Http\Controllers\HouseholdController;
+use App\Http\Controllers\SearchController;
+
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
+
+// Authentication Routes
+Route::middleware(['web'])->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
+});
+
+// Dashboard Routes
+Route::middleware(['web', 'auth'])->group(function () {
+    // Resident Dashboard
+    Route::get('/resident/dashboard', [ResidentDashboardController::class, 'index'])
+        ->name('resident.dashboard');
+    Route::get('/resident/services', [ResidentDashboardController::class, 'services'])
+        ->name('resident.services');
+    Route::get('/resident/documents', [ResidentDashboardController::class, 'documents'])
+        ->name('resident.documents');
+
+    // Captain Dashboard
+    Route::get('/captain/dashboard', [CaptainDashboardController::class, 'index'])
+        ->name('captain.dashboard');
+
+    // Official Dashboard
+    Route::get('/official/dashboard', [OfficialDashboardController::class, 'index'])
+        ->name('official.dashboard');
+
+    // Secretary Dashboard
+    Route::get('/secretary/dashboard', [SecretaryDashboardController::class, 'index'])
+        ->name('secretary.dashboard');
+    Route::get('/secretary/map', [SecretaryDashboardController::class, 'showMap'])
+        ->name('secretary.map');
+    Route::get('/secretary/map/view', [SecretaryDashboardController::class, 'showMap'])
+        ->name('map.view');
+
+    // Admin Dashboard
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
+        ->name('admin.dashboard');
+
+    // Secretary Routes
+    Route::get('/secretary/residence/new', [ResidenceInformationController::class, 'new_residence'])
+        ->name('secretary.residence.new');
+    Route::post('/secretary/residence/store', [ResidenceInformationController::class, 'store'])
+        ->name('secretary.residence.store');
+    Route::get('/secretary/residence', [ResidenceInformationController::class, 'all_residents'])
+        ->name('secretary.residence.all');
+    Route::get('/secretary/user/resident', [UserController::class, 'showResidents'])
+        ->name('secretary.user.resident');
+    // Archive Routes
+    Route::get('/secretary/residence/archived', [ResidenceInformationController::class, 'archived_residents'])
+        ->name('secretary.residence.archived');
+    Route::get('/secretary/residence/{id}', [ResidenceInformationController::class, 'show'])
+        ->name('secretary.residence.show');
+    Route::patch('/secretary/residence/{resident}/archive', [ResidenceInformationController::class, 'archive'])
+        ->name('secretary.residence.archive');
+    Route::patch('/secretary/residence/{resident}/restore', [ResidenceInformationController::class, 'restore'])
+        ->name('secretary.residence.restore');
+
+    // Official Routes
+    Route::get('/secretary/official/new', [OfficialController::class, 'create'])->name('officials.create');
+    Route::get('/secretary/official', [OfficialController::class, 'index'])->name('officials.index');
+    Route::get('/secretary/official/archived', [OfficialController::class, 'archived'])->name('officials.archived');
+    Route::post('/secretary/official', [OfficialController::class, 'store'])->name('officials.store');
+    Route::patch('/secretary/official/{official}/archive', [OfficialController::class, 'archive'])->name('officials.archive');
+    Route::patch('/secretary/official/{official}/restore', [OfficialController::class, 'restore'])->name('officials.restore');
+    Route::post('/secretary/official/{official}/profile-picture', [OfficialController::class, 'updateProfilePicture'])->name('officials.update-profile-picture');
+    Route::patch('/officials/{official}/update-photo', [OfficialController::class, 'updatePhoto'])->name('officials.update-photo');
+    Route::patch('/officials/{official}/update-info', [OfficialController::class, 'updateInfo'])->name('officials.update-info');
+
+    // profile-picture Routes
+    Route::get('/profile-picture/{filename}', function ($filename) {
+        $path = storage_path('app/private/profile_pictures/' . $filename);
+    
+        if (!file_exists($path)) {
+            abort(404);
+        }
+    
+        $mimeType = mime_content_type($path);
+        return response()->file($path, ['Content-Type' => $mimeType]);
+    })->name('profile.picture');
+ 
+    // SecretaryDocument Request Routes
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/secretary/documents', [SecretaryOfficialDocumentRequestController::class, 'index'])->name('secretary.documents.index');
+        Route::post('/secretary/documents/request', [SecretaryOfficialDocumentRequestController::class, 'store'])->name('secretary.barangay.document.request.store');
+        Route::put('/secretary/documents/request/status', [SecretaryOfficialDocumentRequestController::class, 'updateStatus'])->name('secretary.barangay.document.request.update.status');
+    });
+   
+    // User Management Routes
+    Route::put('/user/{user}', [UserController::class, 'update'])->name('user.update');
+    Route::put('/user/{user}/change-password', [UserController::class, 'changePassword'])->name('user.change-password');
+
+    // Resident Routes
+    Route::middleware(['auth'])->prefix('resident')->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [ResidentDashboardController::class, 'index'])->name('resident.dashboard');
+        Route::get('/services', [ResidentDashboardController::class, 'services'])->name('resident.services');
+        Route::get('/documents', [ResidentDashboardController::class, 'documents'])->name('resident.documents');
+        
+        // Document Requests
+        Route::get('/requestdocs', [ResidentDocumentRequestController::class, 'index'])->name('resident.requestdocs');
+
+        // Profile
+        Route::get('/profile', [ResidentDashboardController::class, 'profile'])->name('resident.profile');
+    });
+
+    Route::patch('/residents/{resident}/update-photo', [ResidenceInformationController::class, 'updatePhoto'])->name('residents.update-photo');
+    Route::patch('/residents/{resident}/update-info', [ResidenceInformationController::class, 'updateInfo'])->name('residents.update-info');
+
+    // Schedule Routes
+    Route::resource('schedules', ScheduleController::class)->except(['show']);
+
+    // Resident Document Request Routes
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/resident/requestdocs', [ResidentDocumentRequestController::class, 'index'])->name('resident.requestdocs');
+        Route::get('/resident/document-requests/{id}', [ResidentDocumentRequestController::class, 'show'])->name('resident.document.requests.show');
+        Route::put('/resident/document-requests/{id}/status', [ResidentDocumentRequestController::class, 'updateStatus'])->name('resident.document.requests.update.status');
+        Route::post('/resident/requestdocs', [ResidentDocumentRequestController::class, 'store'])->name('resident.requestdocs.submit');
+    });
+
+    // Complaint Routes
+    Route::get('/resident/complain', [ComplaintController::class, 'create'])->name('resident.complain');
+    Route::post('/resident/complain', [ComplaintController::class, 'store'])->name('resident.complain.store');
+
+    // Resident Status Routes
+    Route::get('/resident/complaints/status', [StatusController::class, 'complaintStatus'])
+        ->name('resident.complaints.status');
+    Route::get('/resident/documents/status', [StatusController::class, 'documentStatus'])
+        ->name('resident.documents.status');
+});
+
+// Officials Routes
+Route::prefix('officials')->group(function () {
+    Route::get('/', [OfficialController::class, 'index'])->name('officials.index');
+    Route::get('/create', [OfficialController::class, 'create'])->name('officials.create');
+    Route::post('/', [OfficialController::class, 'store'])->name('officials.store');
+    Route::patch('/{official}/archive', [OfficialController::class, 'archive'])->name('officials.archive');
+    Route::patch('/{official}/restore', [OfficialController::class, 'restore'])->name('officials.restore');
+    Route::get('/archived', [OfficialController::class, 'archived'])->name('officials.archived');
+    Route::post('/{official}/profile-picture', [OfficialController::class, 'updateProfilePicture'])->name('officials.update-profile-picture');
+});
+
+Route::get('/administrators', [UserController::class, 'showAdministrators'])->name('administrators.show');
+Route::get('/residents', [UserController::class, 'showResidents'])->name('residents.show');
+
+// Project Routes
+Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
+Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
+Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+Route::get('/projects/{project}/get', [ProjectController::class, 'getProject'])->name('projects.get');
+
+// Expense Routes
+Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
+Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+Route::get('/expenses/{expense}', [ExpenseController::class, 'getExpense'])->name('expenses.get');
+Route::patch('/expenses/{expense}/status', [ExpenseController::class, 'updateStatus'])->name('expenses.update.status');
+
+// Budget Routes
+Route::get('/budget', [BudgetController::class, 'index'])->name('budget.index');
+Route::post('/budget', [BudgetController::class, 'store'])->name('budget.store');
+Route::put('/budget/{budget}', [BudgetController::class, 'update'])->name('budget.update');
+Route::delete('/budget/{budget}', [BudgetController::class, 'destroy'])->name('budget.destroy');
+Route::get('/budget/{budget}', [BudgetController::class, 'show'])->name('budget.show');
+
+// Document Request Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/documents', [OfficialDocumentRequestController::class, 'index'])->name('documents.index');
+    Route::post('/documents/request', [OfficialDocumentRequestController::class, 'store'])->name('barangay.document.request.store');
+    Route::put('/documents/request/status', [OfficialDocumentRequestController::class, 'updateStatus'])->name('barangay.document.request.update.status');
+});
+
+// Document printing routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/secretary/documents/print/clearance/{id}', [App\Http\Controllers\Secretary\DocumentController::class, 'printClearance'])
+        ->name('secretary.documents.print.clearance');
+    Route::get('/secretary/documents/print/residency/{id}', [App\Http\Controllers\Secretary\DocumentController::class, 'printResidency'])
+        ->name('secretary.documents.print.residency');
+    Route::get('/secretary/documents/print/certification/{id}', [App\Http\Controllers\Secretary\DocumentController::class, 'printCertification'])
+        ->name('secretary.documents.print.certification');
+});
+
+// Secretary Complaint Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/secretary/complaints', [App\Http\Controllers\Secretary\ComplaintController::class, 'index'])->name('secretary.complaints.index');
+    Route::put('/secretary/complaints/status', [App\Http\Controllers\Secretary\ComplaintController::class, 'updateStatus'])->name('secretary.complaints.status');
+    Route::get('/secretary/complaints/{id}', [App\Http\Controllers\Secretary\ComplaintController::class, 'show'])->name('secretary.complaints.show');
+});
+
+// Blotter Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/secretary/blotter', [BlotterController::class, 'index'])->name('secretary.blotter');
+    Route::get('/secretary/blotter/create', [BlotterController::class, 'create'])->name('secretary.blotter.create');
+    Route::post('/secretary/blotter', [BlotterController::class, 'store'])->name('secretary.blotter.store');
+    Route::post('/secretary/blotter/transfer', [BlotterController::class, 'transferFromComplaint'])->name('secretary.blotter.transfer');
+    Route::put('/secretary/blotter/status', [BlotterController::class, 'updateStatus'])->name('secretary.blotter.status');
+});
+
+// Summon Printing Routes
+Route::get('/secretary/summon/print', [App\Http\Controllers\Secretary\SummonController::class, 'print'])->name('secretary.summon.print');
+
+// Activity Logs Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/secretary/activity-logs', [App\Http\Controllers\Secretary\ActivityLogController::class, 'index'])->name('secretary.activity-logs');
+    Route::get('/secretary/activity-logs/create', [App\Http\Controllers\Secretary\ActivityLogController::class, 'create'])->name('secretary.activity-logs.create');
+    Route::post('/secretary/activity-logs', [App\Http\Controllers\Secretary\ActivityLogController::class, 'store'])->name('secretary.activity-logs.store');
+    Route::get('/secretary/activity-logs/export', [App\Http\Controllers\Secretary\ActivityLogController::class, 'export'])->name('secretary.activity-logs.export');
+});
+
+// Map Location Routes
+Route::prefix('map-locations')->group(function () {
+    Route::get('/', [MapLocationController::class, 'index'])->name('map-locations.index');
+    Route::post('/', [MapLocationController::class, 'store'])->name('map-locations.store');
+    Route::delete('/{id}', [MapLocationController::class, 'destroy'])->name('map-locations.destroy');
+    Route::get('/households', [MapLocationController::class, 'getHouseholds'])->name('map-locations.households');
+    Route::get('/purok-stats/{purok}', [MapLocationController::class, 'getPurokStats'])->name('map-locations.purok-stats');
+    Route::put('/{id}', [MapLocationController::class, 'update']);
+});
+
+// Captain Routes
+Route::middleware(['auth'])->prefix('captain')->group(function () {
+    Route::get('/schedule', [App\Http\Controllers\Captain\CScheduleController::class, 'index'])->name('captain.schedule');
+    // Officials Routes
+    Route::get('/officials', [App\Http\Controllers\Captain\OfficialController::class, 'index'])->name('captain.officials.index');
+    Route::get('/officials/create', [App\Http\Controllers\Captain\OfficialController::class, 'create'])->name('captain.officials.create');
+    Route::post('/officials', [App\Http\Controllers\Captain\OfficialController::class, 'store'])->name('captain.officials.store');
+    Route::get('/officials/archived', [App\Http\Controllers\Captain\OfficialController::class, 'archived'])->name('captain.officials.archived');
+    Route::get('/officials/{official}', [App\Http\Controllers\Captain\OfficialController::class, 'show'])->name('captain.officials.show');
+    Route::get('/officials/{official}/edit', [App\Http\Controllers\Captain\OfficialController::class, 'edit'])->name('captain.officials.edit');
+    Route::patch('/officials/{official}', [App\Http\Controllers\Captain\OfficialController::class, 'update'])->name('captain.officials.update');
+    Route::patch('/officials/{official}/photo', [App\Http\Controllers\Captain\OfficialController::class, 'updatePhoto'])->name('captain.officials.update-photo');
+    Route::patch('/officials/{official}/archive', [App\Http\Controllers\Captain\OfficialController::class, 'archive'])->name('captain.officials.archive');
+    Route::patch('/officials/{official}/restore', [App\Http\Controllers\Captain\OfficialController::class, 'restore'])->name('captain.officials.restore');
+    
+    // Residents Routes
+    Route::get('/residents', [App\Http\Controllers\Captain\ResidentController::class, 'index'])->name('captain.residents.index');
+    Route::get('/residents/create', [App\Http\Controllers\Captain\ResidentController::class, 'create'])->name('captain.residents.create');
+    Route::post('/residents', [App\Http\Controllers\Captain\ResidentController::class, 'store'])->name('captain.residents.store');
+    Route::get('/residents/archived', [App\Http\Controllers\Captain\ResidentController::class, 'archived'])->name('captain.residents.archived');
+    Route::get('/residents/{resident}', [App\Http\Controllers\Captain\ResidentController::class, 'show'])->name('captain.residents.show');
+    Route::get('/residents/{resident}/edit', [App\Http\Controllers\Captain\ResidentController::class, 'edit'])->name('captain.residents.edit');
+    Route::patch('/residents/{resident}', [App\Http\Controllers\Captain\ResidentController::class, 'update'])->name('captain.residents.update');
+    Route::patch('/residents/{resident}/photo', [App\Http\Controllers\Captain\ResidentController::class, 'updatePhoto'])->name('captain.residents.update-photo');
+    Route::patch('/residents/{resident}/archive', [App\Http\Controllers\Captain\ResidentController::class, 'archive'])->name('captain.residents.archive');
+    Route::patch('/residents/{resident}/restore', [App\Http\Controllers\Captain\ResidentController::class, 'restore'])->name('captain.residents.restore');
+});
+
+Route::get('/households/{household}/members', [HouseholdController::class, 'getMembers'])->name('households.members');
+
+Route::get('/api/search', [SearchController::class, 'search'])->name('api.search');
