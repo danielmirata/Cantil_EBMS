@@ -89,7 +89,7 @@
                 <div class="d-flex">
                     <input type="text" id="searchInput" class="form-control me-2" placeholder="Search requests...">
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal">
-                        <i class="fas fa-plus"></i> New Request
+                        <i class="fas fa-plus"></i> Generate Certificate
                     </button>
                 </div>
             </div>
@@ -176,29 +176,40 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">New Document Request</h5>
+                    <h5 class="modal-title">Generate Certificate</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('secretary.barangay.document.request.store') }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Document Type</label>
+                            <label class="form-label">Certificate Type</label>
                             <select name="document_type" class="form-select" required>
-                                <option value="">Select Document Type</option>
+                                <option value="">Select Certificate Type</option>
                                 <option value="Barangay Clearance">Barangay Clearance</option>
                                 <option value="Certificate of Residency">Certificate of Residency</option>
                                 <option value="Certificate of Indigency">Certificate of Indigency</option>
-                                <option value="Barangay ID">Barangay ID</option>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">First Name</label>
+                            <input type="text" name="first_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" name="last_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <input type="text" name="address" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Purpose</label>
                             <textarea name="purpose" class="form-control" rows="3" required></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Date Needed</label>
-                            <input type="date" name="date_needed" class="form-control" required>
+                            <label class="form-label">Date Issued</label>
+                            <input type="date" name="date_issued" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Additional Information</label>
@@ -207,7 +218,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Submit Request</button>
+                        <button type="submit" class="btn btn-primary">Generate Certificate</button>
                     </div>
                 </form>
             </div>
@@ -544,6 +555,60 @@
                 } else {
                     alert('Printing is not available for this document type');
                 }
+            });
+
+            // Handle certificate generation form submission
+            $('#newRequestModal form').on('submit', function(e) {
+                e.preventDefault();
+                
+                var formData = new FormData(this);
+                var certificateType = formData.get('document_type');
+                
+                // Map certificate types to their corresponding routes
+                var routeMap = {
+                    'Barangay Clearance': '/secretary/certificates/clearance',
+                    'Certificate of Residency': '/secretary/certificates/residency',
+                    'Certificate of Indigency': '/secretary/certificates/certification'
+                };
+
+                // Send the form data to the appropriate route
+                $.ajax({
+                    url: routeMap[certificateType],
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            // Close the modal
+                            $('#newRequestModal').modal('hide');
+                            
+                            // Open the certificate in a new window for printing
+                            var printWindow = window.open(response.print_url, '_blank');
+                            if (printWindow) {
+                                printWindow.onload = function() {
+                                    printWindow.print();
+                                };
+                            }
+                            
+                            // Show success message
+                            alert('Certificate generated successfully!');
+                            
+                            // Reload the page to update the list
+                            location.reload();
+                        } else {
+                            alert(response.message || 'Error generating certificate. Please try again.');
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Error:', xhr.responseText);
+                        var errorMessage = 'Error generating certificate. Please try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        alert(errorMessage);
+                    }
+                });
             });
         });
     </script>

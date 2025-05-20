@@ -195,6 +195,11 @@
     </style>
 </head>
 <body>
+    @php
+        // Use $data if available, otherwise fallback to $request
+        $cert = $data ?? $request ?? null;
+        if (is_array($cert)) $cert = (object) $cert;
+    @endphp
     <div class="container mt-4 mb-4">
         <div class="certificate position-relative">
             <img src="{{ asset('img/cantil-e-logo.png') }}" class="position-absolute start-50 top-50 translate-middle" style="width: 80%; height: auto; opacity: 0.2; z-index: 0; pointer-events: none;" alt="Watermark">
@@ -227,19 +232,21 @@
             <div class="content-text">
                 <p>TO WHOM IT MAY CONCERN:</p>
                 
-                <p>THIS IS TO CERTIFY THAT, <span class="underline">{{ $request->first_name . ' ' . $request->last_name }}</span> of legal age, single/married, Filipino, is a resident of Address <span class="underline">{{ $request->address }}</span> Barangay Cantil-e Dumaguete City, Negros Oriental. And according to our record he/she is a person with good moral character with no pending case against him/her in the barangay.</p>
+                <p>THIS IS TO CERTIFY THAT, <span class="underline">{{ $cert->first_name . ' ' . $cert->last_name }}</span> of legal age, single/married, Filipino, is a resident of Address <span class="underline">{{ $cert->address }}</span> Barangay Cantil-e Dumaguete City, Negros Oriental. And according to our record he/she is a person with good moral character with no pending case against him/her in the barangay.</p>
                 
-                <p><strong>Further certifies that <span class="underline">{{ $request->first_name . ' ' . $request->last_name }}</span> is an indigent person and belongs to an indigent family.</strong></p>
+                <p><strong>Further certifies that <span class="underline">{{ $cert->first_name . ' ' . $cert->last_name }}</span> is an indigent person and belongs to an indigent family.</strong></p>
                 
                 <p>This certification is issued upon request of the above-named person for whatever legal purpose this may serve best.</p>
                 
                 <div class="purpose-field">
-                    <p><strong>PURPOSE: <span class="underline">{{ $request->purpose }}</span></strong></p>
+                    <p><strong>PURPOSE: <span class="underline">{{ $cert->purpose }}</span></strong></p>
                 </div>
                 
                 <div class="issuance-info">
                     <p>Issued this <span class="underline">{{ \Carbon\Carbon::now()->format('F d, Y') }}</span> Office of the Punong Barangay, Barangay Cantil-e, Dumaguete City, Negros oriental, Philippines.</p>
                 </div>
+                
+                <div>Res. Cert. No. <span class="underline">{{ $cert->request_id ?? 'N/A' }}</span></div>
                 
                 <div class="mt-5">
                     <div class="signature-line">
@@ -253,5 +260,10 @@
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.onload = function() {
+            window.print();
+        };
+    </script>
 </body>
 </html>

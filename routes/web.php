@@ -219,6 +219,16 @@ Route::middleware(['auth'])->group(function () {
         ->name('secretary.documents.print.certification');
 });
 
+// Certificate Generation Routes
+Route::middleware(['auth'])->group(function () {
+    Route::post('/secretary/certificates/clearance', [App\Http\Controllers\Secretary\CertificateController::class, 'generateClearance'])
+        ->name('secretary.certificates.clearance');
+    Route::post('/secretary/certificates/residency', [App\Http\Controllers\Secretary\CertificateController::class, 'generateResidency'])
+        ->name('secretary.certificates.residency');
+    Route::post('/secretary/certificates/certification', [App\Http\Controllers\Secretary\CertificateController::class, 'generateCertification'])
+        ->name('secretary.certificates.certification');
+});
+
 // Secretary Complaint Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/secretary/complaints', [App\Http\Controllers\Secretary\ComplaintController::class, 'index'])->name('secretary.complaints.index');

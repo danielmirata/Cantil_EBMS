@@ -230,6 +230,11 @@
     </style>
 </head>
 <body>
+    @php
+        // Use $data if available, otherwise fallback to $request
+        $cert = $data ?? $request ?? null;
+        if (is_array($cert)) $cert = (object) $cert;
+    @endphp
     <div class="container mt-4 mb-4">
         <div class="certificate position-relative">
             <img src="{{ asset('img/cantil-e-logo.png') }}" class="position-absolute start-50 top-50 translate-middle" style="width: 80%; height: auto; opacity: 0.2; z-index: 0; pointer-events: none;" alt="Watermark">
@@ -319,16 +324,16 @@
                 
                 <!-- Right Column - Clearance Content -->
                 <div class="col-8 clearance-column">
-                    <p>This is to certify that per official records on this barangay to date: <strong>MR./MRS./MS.</strong> <span class="underline">{{ $request->first_name . ' ' . $request->last_name }}</span> of legal age, single/married, Filipino, is a registered resident of <strong>Address</strong> <span class="underline">{{ $request->address }}</span> Barangay Cantil-e, Dumaguete City Negros Oriental. And according to our record she is a person with good moral character in our barangay.</p>
+                    <p>This is to certify that per official records on this barangay to date: <strong>MR./MRS./MS.</strong> <span class="underline">{{ $cert->first_name . ' ' . $cert->last_name }}</span> of legal age, single/married, Filipino, is a registered resident of <strong>Address</strong> <span class="underline">{{ $cert->address }}</span> Barangay Cantil-e, Dumaguete City Negros Oriental. And according to our record she is a person with good moral character in our barangay.</p>
                     
-                    <p>This clearance is issued upon request of <strong>MR / MRS. / MS.</strong> <span class="underline">{{ $request->first_name . ' ' . $request->last_name }}</span></p>
+                    <p>This clearance is issued upon request of <strong>MR / MRS. / MS.</strong> <span class="underline">{{ $cert->first_name . ' ' . $cert->last_name }}</span></p>
                     
                     <p class="mt-4">For:</p>
                     <div class="row">
                         <div class="col-6">
                             <div><span class="checkbox"></span> Student</div>
                             <div><span class="checkbox"></span> Employment</div>
-                            <div><span class="checkbox"></span> Others (Specify)<span class="underline">{{ $request->purpose }}</span></div>
+                            <div><span class="checkbox"></span> Others (Specify)<span class="underline">{{ $cert->purpose }}</span></div>
                         </div>
                         <div class="col-6">
                             <div><span class="checkbox"></span> Business</div>
@@ -346,7 +351,7 @@
                     </div>
                     
                     <div class="footer-info mt-5">
-                        <div>Res. Cert. No. <span class="underline">{{ $request->request_id }}</span></div>
+                        <div>Res. Cert. No. <span class="underline">{{ $cert->request_id ?? 'N/A' }}</span></div>
                         <div>Issued on: <span class="underline">{{ \Carbon\Carbon::now()->format('F d, Y') }}</span></div>
                         <div>Issued at: <span class="underline">Barangay Cantil-e, Dumaguete City</span></div>
                     </div>
@@ -357,5 +362,10 @@
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.onload = function() {
+            window.print();
+        };
+    </script>
 </body>
 </html>
