@@ -44,7 +44,7 @@ class ProjectController extends Controller
         $documents = [];
         if ($request->hasFile('documents')) {
             foreach ($request->file('documents') as $file) {
-                $path = $file->store('project-documents');
+                $path = $file->store('project-documents', 'public');
                 $documents[] = [
                     'name' => $file->getClientOriginalName(),
                     'path' => $path,
@@ -98,7 +98,7 @@ class ProjectController extends Controller
             // Store new documents
             $documents = [];
             foreach ($request->file('documents') as $file) {
-                $path = $file->store('project-documents');
+                $path = $file->store('project-documents', 'public');
                 $documents[] = [
                     'name' => $file->getClientOriginalName(),
                     'path' => $path,
