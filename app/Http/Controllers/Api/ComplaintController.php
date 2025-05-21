@@ -47,6 +47,9 @@ class ComplaintController extends Controller
             // Set default status
             $validated['status'] = 'Pending';
 
+            // Set user_id to the currently authenticated user
+            $validated['user_id'] = auth()->id();
+
             $complaint = Complaint::create($validated);
 
             return response()->json([

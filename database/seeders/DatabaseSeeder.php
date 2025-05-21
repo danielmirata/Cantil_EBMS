@@ -15,10 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+       
 
         $this->call([
             PositionSeeder::class,
@@ -35,5 +32,7 @@ class DatabaseSeeder extends Seeder
             'municipality' => 'Test Municipality',
             'zip_code' => '1234'
         ]);
+
+        $this->call(SecretaryUserSeeder::class);
     }
 }
