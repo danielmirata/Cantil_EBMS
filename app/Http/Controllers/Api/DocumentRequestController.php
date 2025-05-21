@@ -39,6 +39,9 @@ class DocumentRequestController extends Controller
                 $validated['id_photo'] = 'id_photos/' . $filename;
             }
 
+            // Set user_id to the currently authenticated user
+            $validated['user_id'] = auth()->id();
+
             $docRequest = ResidentDocumentRequest::create($validated);
 
             return response()->json([
@@ -66,5 +69,26 @@ class DocumentRequestController extends Controller
               ->header('Access-Control-Allow-Methods', 'POST, OPTIONS')
               ->header('Access-Control-Allow-Headers', 'Content-Type, Accept');
         }
+    }
+
+    public function myRequests(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $requests = ResidentDocumentRequest::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Fetched user document requests.',
+            'data' => $requests
+        ]);
     }
 }

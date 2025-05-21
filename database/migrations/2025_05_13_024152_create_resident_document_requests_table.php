@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('request_id')->unique()->default(DB::raw('CONCAT("REQ-", DATE_FORMAT(NOW(), "%Y%m%d"), "-", LPAD(FLOOR(RAND() * 10000), 4, "0"))'));
             $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->string('document_type');
             $table->string('first_name');
             $table->string('last_name');
