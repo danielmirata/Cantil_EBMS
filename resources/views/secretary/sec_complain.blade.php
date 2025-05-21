@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 </head>
+
 <body>
     @include('partials.secretary-sidebar')
 
@@ -19,17 +21,21 @@
         <!-- Top Navigation -->
         <div class="top-nav">
             <div class="dropdown secretary-dropdown">
-                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
+                    aria-expanded="false">
                     <i class="fas fa-user-circle"></i> Secretary
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a></li>
                     <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a></li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST" class="dropdown-item">
                             @csrf
-                            <button type="submit" class="btn btn-link p-0"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                            <button type="submit" class="btn btn-link p-0"><i class="fas fa-sign-out-alt"></i>
+                                Logout</button>
                         </form>
                     </li>
                 </ul>
@@ -108,25 +114,28 @@
                     </thead>
                     <tbody>
                         @forelse($complaints as $complaint)
-                        <tr>
-                            <td>#{{ $complaint->id }}</td>
-                            <td>{{ $complaint->complaint_type }}</td>
-                            <td>{{ $complaint->first_name . ' ' . $complaint->last_name }}</td>
-                            <td>{{ \Carbon\Carbon::parse($complaint->incident_date)->format('M d, Y') }}</td>
-                            <td>
-                                <span class="badge bg-{{ getStatusColor($complaint->status ?? 'Pending') }}">
-                                    {{ $complaint->status ?? 'Pending' }}
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-info view-complaint" data-bs-toggle="modal" data-bs-target="#viewModal" data-complaint="{{ json_encode($complaint) }}">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-primary update-complaint" data-bs-toggle="modal" data-bs-target="#updateStatusModal" data-complaint="{{ json_encode($complaint) }}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td>#{{ $complaint->id }}</td>
+                                <td>{{ $complaint->complaint_type }}</td>
+                                <td>{{ $complaint->first_name . ' ' . $complaint->last_name }}</td>
+                                <td>{{ \Carbon\Carbon::parse($complaint->incident_date)->format('M d, Y') }}</td>
+                                <td>
+                                    <span class="badge bg-{{ getStatusColor($complaint->status ?? 'Pending') }}">
+                                        {{ $complaint->status ?? 'Pending' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-info view-complaint" data-bs-toggle="modal"
+                                        data-bs-target="#viewModal" data-complaint="{{ json_encode($complaint) }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-primary update-complaint" data-bs-toggle="modal"
+                                        data-bs-target="#updateStatusModal"
+                                        data-complaint="{{ json_encode($complaint) }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
                         @empty
                             <tr>
                                 <td colspan="6" class="text-center">No complaints found</td>
@@ -156,19 +165,24 @@
                         <div class="col-md-6"><strong>Last Name:</strong> <span id="view-last-name"></span></div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-6"><strong>Contact Number:</strong> <span id="view-contact-number"></span></div>
+                        <div class="col-md-6"><strong>Contact Number:</strong> <span id="view-contact-number"></span>
+                        </div>
                         <div class="col-md-6"><strong>Email:</strong> <span id="view-email"></span></div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-12"><strong>Address:</strong> <span id="view-address"></span></div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-6"><strong>Complaint Type:</strong> <span id="view-complaint-type"></span></div>
-                        <div class="col-md-6"><strong>Incident Date:</strong> <span id="view-incident-date"></span></div>
+                        <div class="col-md-6"><strong>Complaint Type:</strong> <span id="view-complaint-type"></span>
+                        </div>
+                        <div class="col-md-6"><strong>Incident Date:</strong> <span id="view-incident-date"></span>
+                        </div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-6"><strong>Incident Time:</strong> <span id="view-incident-time"></span></div>
-                        <div class="col-md-6"><strong>Incident Location:</strong> <span id="view-incident-location"></span></div>
+                        <div class="col-md-6"><strong>Incident Time:</strong> <span id="view-incident-time"></span>
+                        </div>
+                        <div class="col-md-6"><strong>Incident Location:</strong> <span
+                                id="view-incident-location"></span></div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-12"><strong>Description:</strong> <span id="view-description"></span></div>
@@ -177,7 +191,8 @@
                         <div class="col-md-6">
                             <strong>Evidence Photo:</strong>
                             <div id="view-evidence-photo" class="mt-2">
-                                <img src="" alt="Evidence Photo" class="img-thumbnail" style="max-width: 200px; display: none;">
+                                <img src="" alt="Evidence Photo" class="img-thumbnail"
+                                    style="max-width: 200px; display: none;">
                                 <span class="no-photo">No photo available</span>
                             </div>
                         </div>
@@ -189,7 +204,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary transfer-to-blotter" data-bs-toggle="modal" data-bs-target="#transferToBlotterModal">
+                    <button type="button" class="btn btn-primary transfer-to-blotter" data-bs-toggle="modal"
+                        data-bs-target="#transferToBlotterModal">
                         <i class="fas fa-exchange-alt"></i> Transfer to Blotter
                     </button>
                 </div>
@@ -389,7 +405,8 @@
                     <h5 class="modal-title">Update Complaint Status</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="updateStatusForm" action="/secretary/complaints/status" method="POST" enctype="multipart/form-data">
+                <form id="updateStatusForm" action="/secretary/complaints/status" method="POST"
+                    enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="complaint_id" id="update-complaint-id">
@@ -426,7 +443,8 @@
                     <h5 class="modal-title">New Complaint</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="newComplaintForm" action="{{ route('secretary.complaints.store') }}" method="POST" enctype="multipart/form-data">
+                <form id="newComplaintForm" action="{{ route('secretary.complaints.store') }}" method="POST"
+                    enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <!-- Personal Information -->
@@ -529,7 +547,7 @@
             // Handle view modal data
             $('.view-complaint').on('click', function() {
                 var complaintData = $(this).data('complaint');
-                
+
                 $('#view-complaint-id').text(complaintData.id);
                 $('#view-status').text(complaintData.status || 'Pending');
                 $('#view-first-name').text(complaintData.first_name);
@@ -540,25 +558,29 @@
                 $('#view-complaint-type').text(complaintData.complaint_type);
                 $('#view-incident-date').text(moment(complaintData.incident_date).format('MMMM D, YYYY'));
                 $('#view-incident-time').text(
-                    complaintData.incident_time
-                        ? complaintData.incident_time.substring(11, 16)
-                        : 'N/A'
+                    complaintData.incident_time ?
+                    complaintData.incident_time.substring(11, 16) :
+                    'N/A'
                 );
                 $('#view-incident-location').text(complaintData.incident_location);
                 $('#view-description').text(complaintData.complaint_description);
                 $('#view-declaration').text(complaintData.declaration ? 'Yes' : 'No');
                 $('#view-created-at').text(moment(complaintData.created_at).format('MMMM D, YYYY h:mm A'));
-                
+
                 // Set the complaint ID for the transfer form
                 $('#transfer-complaint-id').val(complaintData.id);
-                
+
                 // Handle evidence photo display
                 var photoContainer = $('#view-evidence-photo');
                 var photoImg = photoContainer.find('img');
                 var noPhotoSpan = photoContainer.find('.no-photo');
-                
+
                 if (complaintData.evidence_photo) {
-                    photoImg.attr('src', '/storage/' + complaintData.evidence_photo);
+                    // If the path already contains 'uploads/evidence_photos', just prepend '/'. Otherwise, build the path.
+                    var imagePath = complaintData.evidence_photo.includes('uploads/evidence_photos') ?
+                        '/' + complaintData.evidence_photo.replace(/^\/+/, '') :
+                        '/uploads/evidence_photos/' + complaintData.evidence_photo.replace(/^.*[\\\/]/, '');
+                    photoImg.attr('src', imagePath);
                     photoImg.show();
                     noPhotoSpan.hide();
                 } else {
@@ -566,11 +588,11 @@
                     noPhotoSpan.show();
                 }
             });
-            
+
             // Handle update status modal data
             $('.update-complaint').on('click', function() {
                 var complaintData = $(this).data('complaint');
-                
+
                 $('#update-complaint-id').val(complaintData.id);
                 $('#update-status').val(complaintData.status || 'Pending');
                 $('#update-remarks').val(complaintData.remarks || '');
@@ -579,10 +601,10 @@
             // Handle form submission
             $('#updateStatusForm').on('submit', function(e) {
                 e.preventDefault();
-                
+
                 var formData = new FormData(this);
                 formData.append('_method', 'PUT');
-                
+
                 $.ajax({
                     url: $(this).attr('action'),
                     method: 'POST',
@@ -594,7 +616,8 @@
                             $('#updateStatusModal').modal('hide');
                             location.reload();
                         } else {
-                            alert(response.message || 'Error updating complaint. Please try again.');
+                            alert(response.message ||
+                                'Error updating complaint. Please try again.');
                         }
                     },
                     error: function(xhr) {
@@ -611,7 +634,7 @@
             // Handle transfer to blotter form submission
             $('#transferToBlotterForm').on('submit', function(e) {
                 e.preventDefault();
-                
+
                 $.ajax({
                     url: $(this).attr('action'),
                     method: 'POST',
@@ -622,7 +645,8 @@
                             $('#viewModal').modal('hide');
                             location.reload();
                         } else {
-                            alert(response.message || 'Error transferring complaint. Please try again.');
+                            alert(response.message ||
+                                'Error transferring complaint. Please try again.');
                         }
                     },
                     error: function(xhr) {
@@ -647,9 +671,9 @@
             // Handle new complaint form submission
             $('#newComplaintForm').on('submit', function(e) {
                 e.preventDefault();
-                
+
                 var formData = new FormData(this);
-                
+
                 $.ajax({
                     url: $(this).attr('action'),
                     method: 'POST',
@@ -661,7 +685,8 @@
                             $('#newComplaintModal').modal('hide');
                             location.reload();
                         } else {
-                            alert(response.message || 'Error submitting complaint. Please try again.');
+                            alert(response.message ||
+                                'Error submitting complaint. Please try again.');
                         }
                     },
                     error: function(xhr) {
@@ -683,33 +708,35 @@
 
         function formatTime(timeStr) {
             if (!timeStr) return 'N/A';
-            
+
             // Handle time string from database (HH:mm:ss format)
             const time = moment(timeStr, 'HH:mm:ss');
             if (time.isValid()) {
                 return time.format('h:mm A');
             }
-            
+
             // Fallback for other formats
             return timeStr;
         }
     </script>
 </body>
+
 </html>
 
 @php
-function getStatusColor($status) {
-    switch ($status) {
-        case 'Pending':
-            return 'warning';
-        case 'Under Investigation':
-            return 'info';
-        case 'Resolved':
-            return 'success';
-        case 'Rejected':
-            return 'danger';
-        default:
-            return 'secondary';
+    function getStatusColor($status)
+    {
+        switch ($status) {
+            case 'Pending':
+                return 'warning';
+            case 'Under Investigation':
+                return 'info';
+            case 'Resolved':
+                return 'success';
+            case 'Rejected':
+                return 'danger';
+            default:
+                return 'secondary';
+        }
     }
-}
 @endphp
