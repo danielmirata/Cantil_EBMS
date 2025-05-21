@@ -139,7 +139,8 @@ class ComplaintController extends Controller
         try {
             \Log::info('Fetching complaints...');
             
-            $complaints = Complaint::orderBy('created_at', 'desc')->get();
+            $complaints = Complaint::where('user_id', auth()->id())
+                ->orderBy('created_at', 'desc')->get();
             \Log::info('Complaints fetched successfully', ['count' => $complaints->count()]);
 
             $formattedComplaints = $complaints->map(function ($complaint) {
