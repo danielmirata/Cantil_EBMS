@@ -135,47 +135,48 @@ class ComplaintController extends Controller
     }
 
     public function index()
-    {
-        try {
-            \Log::info('Fetching complaints...');
-            
-            $complaints = Complaint::where('user_id', auth()->id())
-                ->orderBy('created_at', 'desc')->get();
-            \Log::info('Complaints fetched successfully', ['count' => $complaints->count()]);
+{
+    try {
+        \Log::info('Fetching complaints...');
+        
+        $complaints = Complaint::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')->get();
+        \Log::info('Complaints fetched successfully', ['count' => $complaints->count()]);
 
-            $formattedComplaints = $complaints->map(function ($complaint) {
-                return [
-                    'complaint_id' => $complaint->id,
-                    'complaint_type' => $complaint->complaint_type,
-                    'created_at' => $complaint->created_at,
-                    'status' => $complaint->status,
-                    'description' => $complaint->complaint_description,
-                    'location' => $complaint->incident_location,
-                    'has_evidence' => $complaint->evidence_photo ? '1' : '0',
-                    'remarks' => $complaint->remarks,
-                    'updated_at' => $complaint->updated_at
-                ];
-            });
+        $formattedComplaints = $complaints->map(function ($complaint) {
+            return [
+                'complaint_id' => $complaint->id,
+                'complaint_type' => $complaint->complaint_type,
+                'created_at' => $complaint->created_at,
+                'status' => $complaint->status,
+                'description' => $complaint->complaint_description,
+                'location' => $complaint->incident_location,
+                'has_evidence' => $complaint->evidence_photo ? '1' : '0',
+                'evidence_photo' => $complaint->evidence_photo, // Add this line
+                'remarks' => $complaint->remarks,
+                'updated_at' => $complaint->updated_at
+            ];
+        });
 
-            \Log::info('Complaints formatted successfully');
+        \Log::info('Complaints formatted successfully');
 
-            return response()->json([
-                'success' => true,
-                'complaints' => $formattedComplaints,
-                'message' => $formattedComplaints->isEmpty() ? 'No complaints found' : 'Complaints retrieved successfully'
-            ]);
+        return response()->json([
+            'success' => true,
+            'complaints' => $formattedComplaints,
+            'message' => $formattedComplaints->isEmpty() ? 'No complaints found' : 'Complaints retrieved successfully'
+        ]);
 
-        } catch (\Exception $e) {
-            \Log::error('Error in ComplaintController@index', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+    } catch (\Exception $e) {
+        \Log::error('Error in ComplaintController@index', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while fetching complaints',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while fetching complaints',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 } 
