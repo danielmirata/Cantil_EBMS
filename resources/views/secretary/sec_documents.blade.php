@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 </head>
+
 <body>
     @include('partials.secretary-sidebar')
 
@@ -19,17 +21,21 @@
         <!-- Top Navigation -->
         <div class="top-nav">
             <div class="dropdown secretary-dropdown">
-                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
+                    aria-expanded="false">
                     <i class="fas fa-user-circle"></i> Secretary
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a></li>
                     <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a></li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST" class="dropdown-item">
                             @csrf
-                            <button type="submit" class="btn btn-link p-0"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                            <button type="submit" class="btn btn-link p-0"><i class="fas fa-sign-out-alt"></i>
+                                Logout</button>
                         </form>
                     </li>
                 </ul>
@@ -93,11 +99,13 @@
                     </button>
                 </div>
             </div>
-            
+
             <div class="mb-3">
                 <div class="btn-group" role="group" aria-label="Request Type Filter">
-                    <button type="button" class="btn btn-outline-primary active" id="btn-show-official">Official Requests</button>
-                    <button type="button" class="btn btn-outline-secondary" id="btn-show-resident">Resident Requests</button>
+                    <button type="button" class="btn btn-outline-primary active" id="btn-show-official">Official
+                        Requests</button>
+                    <button type="button" class="btn btn-outline-secondary" id="btn-show-resident">Resident
+                        Requests</button>
                 </div>
             </div>
 
@@ -115,25 +123,27 @@
                     </thead>
                     <tbody>
                         @forelse($requests as $request)
-                        <tr data-request-type="official" class="request-row">
-                            <td>#{{ $request->request_id }}</td>
-                            <td>{{ $request->document_type }}</td>
-                            <td>{{ $request->user->name }}</td>
-                            <td>{{ $request->date_needed->format('M d, Y') }}</td>
-                            <td>
-                                <span class="badge bg-{{ getStatusColor($request->status) }}">
-                                    {{ $request->status }}
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-info view-request" data-bs-toggle="modal" data-bs-target="#viewModal" data-request="{{ json_encode($request) }}">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-primary update-request" data-bs-toggle="modal" data-bs-target="#updateStatusModal" data-request="{{ json_encode($request) }}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
-                        </tr>
+                            <tr data-request-type="official" class="request-row">
+                                <td>#{{ $request->request_id }}</td>
+                                <td>{{ $request->document_type }}</td>
+                                <td>{{ $request->user->name }}</td>
+                                <td>{{ $request->date_needed->format('M d, Y') }}</td>
+                                <td>
+                                    <span class="badge bg-{{ getStatusColor($request->status) }}">
+                                        {{ $request->status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-info view-request" data-bs-toggle="modal"
+                                        data-bs-target="#viewModal" data-request="{{ json_encode($request) }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-primary update-request" data-bs-toggle="modal"
+                                        data-bs-target="#updateStatusModal" data-request="{{ json_encode($request) }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
                         @empty
                             <tr>
                                 <td colspan="6" class="text-center">No official document requests found</td>
@@ -141,25 +151,29 @@
                         @endforelse
 
                         @forelse($residentRequests as $request)
-                        <tr data-request-type="resident" class="request-row" style="display: none;">
-                            <td>#{{ $request->request_id }}</td>
-                            <td>{{ $request->document_type }}</td>
-                            <td>{{ $request->first_name . ' ' . $request->last_name }}</td>
-                            <td>{{ \Carbon\Carbon::parse($request->date_needed)->format('M d, Y') }}</td>
-                            <td>
-                                <span class="badge bg-{{ getStatusColor($request->status) }}">
-                                    {{ ucfirst($request->status) }}
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-info view-resident-request" data-bs-toggle="modal" data-bs-target="#viewResidentModal" data-request="{{ json_encode($request) }}">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-primary update-request" data-bs-toggle="modal" data-bs-target="#updateStatusModal" data-request="{{ json_encode($request) }}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
-                        </tr>
+                            <tr data-request-type="resident" class="request-row" style="display: none;">
+                                <td>#{{ $request->request_id }}</td>
+                                <td>{{ $request->document_type }}</td>
+                                <td>{{ $request->first_name . ' ' . $request->last_name }}</td>
+                                <td>{{ \Carbon\Carbon::parse($request->date_needed)->format('M d, Y') }}</td>
+                                <td>
+                                    <span class="badge bg-{{ getStatusColor($request->status) }}">
+                                        {{ ucfirst($request->status) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-info view-resident-request" data-bs-toggle="modal"
+                                        data-bs-target="#viewResidentModal"
+                                        data-request="{{ json_encode($request) }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-primary update-request" data-bs-toggle="modal"
+                                        data-bs-target="#updateStatusModal"
+                                        data-request="{{ json_encode($request) }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
                         @empty
                             <tr data-request-type="resident" style="display: none;">
                                 <td colspan="6" class="text-center">No resident document requests found</td>
@@ -244,7 +258,7 @@
                             <p class="text-sm font-weight-bold mb-0" id="view-status"></p>
                         </div>
                     </div>
-                    
+
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <p class="text-sm mb-0 text-secondary">Document Type:</p>
@@ -294,7 +308,7 @@
                     @method('PUT')
                     <input type="hidden" name="request_id" id="update-request-id">
                     <div class="modal-body">
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <select class="form-select" id="update-status" name="status" required>
@@ -329,23 +343,28 @@
                 </div>
                 <div class="modal-body">
                     <div class="row mb-2">
-                        <div class="col-md-6"><strong>Request ID:</strong> <span id="resident-request-id"></span></div>
+                        <div class="col-md-6"><strong>Request ID:</strong> <span id="resident-request-id"></span>
+                        </div>
                         <div class="col-md-6"><strong>Status:</strong> <span id="resident-status"></span></div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-6"><strong>First Name:</strong> <span id="resident-first-name"></span></div>
+                        <div class="col-md-6"><strong>First Name:</strong> <span id="resident-first-name"></span>
+                        </div>
                         <div class="col-md-6"><strong>Last Name:</strong> <span id="resident-last-name"></span></div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-6"><strong>Contact Number:</strong> <span id="resident-contact-number"></span></div>
+                        <div class="col-md-6"><strong>Contact Number:</strong> <span
+                                id="resident-contact-number"></span></div>
                         <div class="col-md-6"><strong>Email:</strong> <span id="resident-email"></span></div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-12"><strong>Address:</strong> <span id="resident-address"></span></div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-6"><strong>Document Type:</strong> <span id="resident-document-type"></span></div>
-                        <div class="col-md-6"><strong>Date Needed:</strong> <span id="resident-date-needed"></span></div>
+                        <div class="col-md-6"><strong>Document Type:</strong> <span
+                                id="resident-document-type"></span></div>
+                        <div class="col-md-6"><strong>Date Needed:</strong> <span id="resident-date-needed"></span>
+                        </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-12"><strong>Purpose:</strong> <span id="resident-purpose"></span></div>
@@ -358,17 +377,20 @@
                         <div class="col-md-6">
                             <strong>ID Photo:</strong>
                             <div id="resident-id-photo" class="mt-2">
-                                <img src="" alt="ID Photo" class="img-thumbnail" style="max-width: 200px; display: none;">
+                                <img src="" alt="ID Photo" class="img-thumbnail"
+                                    style="max-width: 200px; display: none;">
                                 <span class="no-photo">No photo available</span>
                             </div>
                         </div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-6"><strong>Declaration:</strong> <span id="resident-declaration"></span></div>
+                        <div class="col-md-6"><strong>Declaration:</strong> <span id="resident-declaration"></span>
+                        </div>
                         <div class="col-md-6"><strong>Remarks:</strong> <span id="resident-remarks"></span></div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-12"><strong>Created At:</strong> <span id="resident-created-at"></span></div>
+                        <div class="col-md-12"><strong>Created At:</strong> <span id="resident-created-at"></span>
+                        </div>
                     </div>
                     <input type="hidden" id="resident-document-type-value">
                 </div>
@@ -396,7 +418,7 @@
             $('.view-request').on('click', function() {
                 var requestData = $(this).data('request');
                 var isResident = $(this).closest('tr').data('request-type') === 'resident';
-                
+
                 if (isResident) {
                     // For resident requests
                     $('#view-request-id').text(requestData.id);
@@ -405,7 +427,7 @@
                     $('#view-purpose').text(requestData.purpose);
                     $('#view-additional-info').text(requestData.notes || 'N/A');
                     $('#view-status').text(requestData.status);
-                    
+
                     if (requestData.remarks) {
                         $('#view-remarks').text(requestData.remarks);
                         $('#remarks-section').show();
@@ -420,7 +442,7 @@
                     $('#view-purpose').text(requestData.purpose);
                     $('#view-additional-info').text(requestData.additional_info || 'N/A');
                     $('#view-status').text(requestData.status);
-                    
+
                     if (requestData.remarks) {
                         $('#view-remarks').text(requestData.remarks);
                         $('#remarks-section').show();
@@ -429,16 +451,16 @@
                     }
                 }
             });
-            
+
             // Handle update status modal data
             $('.update-request').on('click', function() {
                 var requestData = $(this).data('request');
                 var isResident = $(this).closest('tr').data('request-type') === 'resident';
-                
+
                 $('#update-request-id').val(requestData.id);
                 $('#update-status').val(requestData.status);
                 $('#update-remarks').val(requestData.remarks || '');
-                
+
                 // Update form action based on request type
                 var form = $('#updateStatusForm');
                 if (isResident) {
@@ -451,10 +473,10 @@
             // Handle form submission
             $('#updateStatusForm').on('submit', function(e) {
                 e.preventDefault();
-                
+
                 var formData = new FormData(this);
                 formData.append('_method', 'PUT');
-                
+
                 $.ajax({
                     url: $(this).attr('action'),
                     method: 'POST',
@@ -466,7 +488,8 @@
                             $('#updateStatusModal').modal('hide');
                             location.reload();
                         } else {
-                            alert(response.message || 'Error updating request. Please try again.');
+                            alert(response.message ||
+                                'Error updating request. Please try again.');
                         }
                     },
                     error: function(xhr) {
@@ -501,6 +524,8 @@
             // Handle view resident modal data
             $('.view-resident-request').on('click', function() {
                 var requestData = $(this).data('request');
+                console.log('ID Photo Data:', requestData.id_photo); // Debug log
+
                 $('#resident-request-id').text(requestData.request_id);
                 $('#resident-status').text(requestData.status);
                 $('#resident-first-name').text(requestData.first_name);
@@ -513,31 +538,46 @@
                 $('#resident-purpose').text(requestData.purpose);
                 $('#resident-notes').text(requestData.notes || 'N/A');
                 $('#resident-id-type').text(requestData.id_type);
-                
+
                 // Handle ID photo display
                 var photoContainer = $('#resident-id-photo');
                 var photoImg = photoContainer.find('img');
                 var noPhotoSpan = photoContainer.find('.no-photo');
-                
+
                 if (requestData.id_photo) {
-                    photoImg.attr('src', '/storage/' + requestData.id_photo);
-                    photoImg.show();
-                    noPhotoSpan.hide();
+                    // If the path already contains 'uploads/id_photos', just prepend '/'. Otherwise, build the path.
+                    var imagePath = requestData.id_photo.includes('uploads/id_photos') ?
+                        '/' + requestData.id_photo.replace(/^\/+/, '') :
+                        '/uploads/id_photos/' + requestData.id_photo.replace(/^.*[\\\/]/, '');
+                    console.log('Setting image path to:', imagePath); // Debug log
+                    photoImg.attr('src', imagePath);
+                    photoImg.on('error', function() {
+                        console.log('Image failed to load:', imagePath); // Debug log
+                        photoImg.hide();
+                        noPhotoSpan.show();
+                    });
+                    photoImg.on('load', function() {
+                        console.log('Image loaded successfully:', imagePath); // Debug log
+                        photoImg.show();
+                        noPhotoSpan.hide();
+                    });
                 } else {
+                    console.log('No ID photo available'); // Debug log
                     photoImg.hide();
                     noPhotoSpan.show();
                 }
-                
+
                 $('#resident-declaration').text(requestData.declaration ? 'Yes' : 'No');
                 $('#resident-remarks').text(requestData.remarks || 'N/A');
-                $('#resident-created-at').text(moment(requestData.created_at).format('MMMM D, YYYY h:mm A'));
+                $('#resident-created-at').text(moment(requestData.created_at).format(
+                    'MMMM D, YYYY h:mm A'));
             });
 
             // Handle print document button click
             $('#printDocument').on('click', function() {
                 var documentType = $('#resident-document-type').text();
                 var requestId = $('#resident-request-id').text();
-                
+
                 // Map document types to their corresponding routes
                 var routeMap = {
                     'Barangay Clearance': '/secretary/documents/print/clearance/',
@@ -560,10 +600,10 @@
             // Handle certificate generation form submission
             $('#newRequestModal form').on('submit', function(e) {
                 e.preventDefault();
-                
+
                 var formData = new FormData(this);
                 var certificateType = formData.get('document_type');
-                
+
                 // Map certificate types to their corresponding routes
                 var routeMap = {
                     'Barangay Clearance': '/secretary/certificates/clearance',
@@ -582,7 +622,7 @@
                         if (response.success) {
                             // Close the modal
                             $('#newRequestModal').modal('hide');
-                            
+
                             // Open the certificate in a new window for printing
                             var printWindow = window.open(response.print_url, '_blank');
                             if (printWindow) {
@@ -590,14 +630,15 @@
                                     printWindow.print();
                                 };
                             }
-                            
+
                             // Show success message
                             alert('Certificate generated successfully!');
-                            
+
                             // Reload the page to update the list
                             location.reload();
                         } else {
-                            alert(response.message || 'Error generating certificate. Please try again.');
+                            alert(response.message ||
+                                'Error generating certificate. Please try again.');
                         }
                     },
                     error: function(xhr) {
@@ -613,23 +654,25 @@
         });
     </script>
 </body>
+
 </html>
 
 @php
-function getStatusColor($status) {
-    switch ($status) {
-        case 'Pending':
-            return 'warning';
-        case 'Processing':
-            return 'info';
-        case 'Ready for Pickup':
-            return 'primary';
-        case 'Completed':
-            return 'success';
-        case 'Rejected':
-            return 'danger';
-        default:
-            return 'secondary';
+    function getStatusColor($status)
+    {
+        switch ($status) {
+            case 'Pending':
+                return 'warning';
+            case 'Processing':
+                return 'info';
+            case 'Ready for Pickup':
+                return 'primary';
+            case 'Completed':
+                return 'success';
+            case 'Rejected':
+                return 'danger';
+            default:
+                return 'secondary';
+        }
     }
-}
 @endphp
