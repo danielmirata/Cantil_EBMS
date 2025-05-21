@@ -54,4 +54,49 @@ class ComplaintController extends Controller
         $complaint = Complaint::findOrFail($id);
         return response()->json($complaint);
     }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'contact_number' => 'required|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'complete_address' => 'required|string|max:500',
+            'complaint_type' => 'required|string|max:255',
+            'incident_date' => 'required|date',
+            'incident_time' => 'required',
+            'incident_location' => 'required|string|max:255',
+            'complaint_description' => 'required|string',
+            'evidence_photo' => 'nullable|image|max:2048',
+            'declaration' => 'required|accepted'
+        ]);
+
+        try {
+            $data = $request->all();
+            $data['status'] = 'Pending';
+            
+            // Convert declaration checkbox value to integer
+            $data['declaration'] = $request->has('declaration') ? 1 : 0;
+            
+            // Handle file upload if present
+            if ($request->hasFile('evidence_photo')) {
+                $path = $request->file('evidence_photo')->store('complaints/evidence', 'public');
+                $data['evidence_photo'] = $path;
+            }
+
+            $complaint = Complaint::create($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Complaint submitted successfully',
+                'complaint' => $complaint
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error submitting complaint: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 } 

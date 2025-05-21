@@ -232,6 +232,7 @@ Route::middleware(['auth'])->group(function () {
 // Secretary Complaint Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/secretary/complaints', [App\Http\Controllers\Secretary\ComplaintController::class, 'index'])->name('secretary.complaints.index');
+    Route::post('/secretary/complaints', [App\Http\Controllers\Secretary\ComplaintController::class, 'store'])->name('secretary.complaints.store');
     Route::put('/secretary/complaints/status', [App\Http\Controllers\Secretary\ComplaintController::class, 'updateStatus'])->name('secretary.complaints.status');
     Route::get('/secretary/complaints/{id}', [App\Http\Controllers\Secretary\ComplaintController::class, 'show'])->name('secretary.complaints.show');
 });

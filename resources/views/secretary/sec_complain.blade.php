@@ -418,6 +418,104 @@
         </div>
     </div>
 
+    <!-- New Complaint Modal -->
+    <div class="modal fade" id="newComplaintModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Complaint</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="newComplaintForm" action="{{ route('secretary.complaints.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <!-- Personal Information -->
+                        <h5 class="mb-3">Personal Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" name="first_name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" name="last_name" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Contact Number</label>
+                                <input type="tel" class="form-control" name="contact_number" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Complete Address</label>
+                                <textarea class="form-control" name="complete_address" rows="2" required></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Complaint Details -->
+                        <h5 class="mt-4 mb-3">Complaint Details</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Complaint Type</label>
+                                <select class="form-select" name="complaint_type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="Noise Complaint">Noise Complaint</option>
+                                    <option value="Property Dispute">Property Dispute</option>
+                                    <option value="Public Disturbance">Public Disturbance</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Incident Date</label>
+                                <input type="date" class="form-control" name="incident_date" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Incident Time</label>
+                                <input type="time" class="form-control" name="incident_time" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Incident Location</label>
+                                <input type="text" class="form-control" name="incident_location" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" name="complaint_description" rows="3" required></textarea>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Evidence Photo</label>
+                                <input type="file" class="form-control" name="evidence_photo" accept="image/*">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" name="declaration" required>
+                                    <label class="form-check-label">
+                                        I declare that all information provided is true and accurate
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Complaint</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -544,6 +642,42 @@
                 $("table tbody tr").filter(function() {
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
+            });
+
+            // Handle new complaint form submission
+            $('#newComplaintForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                var formData = new FormData(this);
+                
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            $('#newComplaintModal').modal('hide');
+                            location.reload();
+                        } else {
+                            alert(response.message || 'Error submitting complaint. Please try again.');
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Error:', xhr.responseText);
+                        var errorMessage = 'Error submitting complaint. Please try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        alert(errorMessage);
+                    }
+                });
+            });
+
+            // Reset form when modal is closed
+            $('#newComplaintModal').on('hidden.bs.modal', function() {
+                $('#newComplaintForm')[0].reset();
             });
         });
 

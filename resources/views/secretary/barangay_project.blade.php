@@ -103,6 +103,55 @@
         .badge i {
             font-size: 0.9rem;
         }
+        .info-item {
+            margin-bottom: 1rem;
+        }
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        .badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-header {
+            border-radius: 10px 10px 0 0;
+        }
+        .modal-footer {
+            border-radius: 0 0 10px 10px;
+        }
+        .text-primary {
+            color: #0d6efd !important;
+        }
+        .custom-tabs .nav-link {
+            color: #6c757d;
+            font-weight: 500;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 1.1rem;
+            padding: 0.5rem 1.5rem;
+            transition: color 0.2s, border-bottom 0.2s;
+        }
+        .custom-tabs .nav-link.active {
+            color: #600000;
+            font-weight: bold;
+            border-bottom: 3px solid #600000;
+            background: none;
+        }
+        .custom-tabs .nav-link i {
+            font-size: 1.1rem;
+        }
+        .custom-tabs .nav-link:focus {
+            outline: none;
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
@@ -521,66 +570,150 @@
 
     <!-- View Project Modal -->
     <div class="modal fade" id="viewProjectModal" tabindex="-1" aria-labelledby="viewProjectModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
-                <div class="modal-header bg-info text-white">
+                <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="viewProjectModalLabel">
-                        <i class="fas fa-eye me-2"></i>Project Details
+                        <i class="fas fa-project-diagram me-2"></i>Project Information
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <h2 class="mb-4" id="viewProjectName"></h2>
-                            
-                            <div class="mb-4">
-                                <h5 class="text-muted mb-3">Project Information</h5>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <p><strong><i class="fas fa-map-marker-alt me-2"></i>Location:</strong></p>
-                                        <p class="text-muted" id="viewLocation"></p>
+                    <!-- Tab Navigation -->
+                    <ul class="nav nav-tabs custom-tabs mb-4" id="projectDetailsTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tab-info" data-bs-toggle="tab" data-bs-target="#tabInfoContent" type="button" role="tab" aria-controls="tabInfoContent" aria-selected="true">
+                                <i class="fas fa-user me-1"></i> <span>Project Info</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-financial" data-bs-toggle="tab" data-bs-target="#tabFinancialContent" type="button" role="tab" aria-controls="tabFinancialContent" aria-selected="false">
+                                <i class="fas fa-money-check-alt me-1"></i> <span>Financials</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-documents" data-bs-toggle="tab" data-bs-target="#tabDocumentsContent" type="button" role="tab" aria-controls="tabDocumentsContent" aria-selected="false">
+                                <i class="fas fa-folder-open me-1"></i> <span>Documents & Notes</span>
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="projectDetailsTabsContent">
+                        <!-- Project Info Tab -->
+                        <div class="tab-pane fade show active" id="tabInfoContent" role="tabpanel" aria-labelledby="tab-info">
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <h2 class="card-title mb-0" id="viewProjectName"></h2>
                                     </div>
-                                    <div class="col-md-6">
-                                        <p><strong><i class="fas fa-calendar-alt me-2"></i>Timeline:</strong></p>
-                                        <p class="text-muted" id="viewTimeline"></p>
+                                    <div class="mb-4">
+                                        <h5 class="text-muted mb-3 border-bottom pb-2">
+                                            <i class="fas fa-info-circle me-2"></i>Project Information
+                                        </h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <p class="mb-1"><strong><i class="fas fa-map-marker-alt me-2 text-primary"></i>Location:</strong></p>
+                                                    <p class="text-muted ps-4" id="viewLocation"></p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <p class="mb-1"><strong><i class="fas fa-calendar-alt me-2 text-primary"></i>Timeline:</strong></p>
+                                                    <p class="text-muted ps-4" id="viewTimeline"></p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <h5 class="text-muted mb-3">Description</h5>
-                                <p class="text-muted" id="viewDescription"></p>
-                            </div>
-
-                            <div class="mb-4">
-                                <h5 class="text-muted mb-3">Financial Information</h5>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <p><strong><i class="fas fa-money-bill-wave me-2"></i>Budget:</strong></p>
-                                        <p class="text-muted" id="viewBudget"></p>
+                                    <div class="mb-4">
+                                        <h5 class="text-muted mb-3 border-bottom pb-2">
+                                            <i class="fas fa-align-left me-2"></i>Description
+                                        </h5>
+                                        <p class="text-muted ps-4" id="viewDescription"></p>
                                     </div>
-                                    <div class="col-md-6">
-                                        <p><strong><i class="fas fa-hand-holding-usd me-2"></i>Funding Source:</strong></p>
-                                        <p class="text-muted" id="viewFundingSource"></p>
+                                    <div class="mb-4">
+                                        <h5 class="text-muted mb-3 border-bottom pb-2">
+                                            <i class="fas fa-tasks me-2"></i>Status & Priority
+                                        </h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <p class="mb-1"><strong>Status:</strong></p>
+                                                    <span class="badge" id="viewStatus"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <p class="mb-1"><strong>Priority:</strong></p>
+                                                    <p class="mb-0 ps-4" id="viewPriority"></p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card bg-light">
+                        <!-- Financials Tab -->
+                        <div class="tab-pane fade" id="tabFinancialContent" role="tabpanel" aria-labelledby="tab-financial">
+                            <div class="card shadow-sm mb-4">
                                 <div class="card-body">
-                                    <h5 class="text-muted mb-3">Project Status</h5>
-                                    <div class="d-flex align-items-center mb-3">
-                                        <span class="badge" id="viewStatus"></span>
+                                    <div class="mb-4">
+                                        <h5 class="text-muted mb-3 border-bottom pb-2">
+                                            <i class="fas fa-money-bill-wave me-2"></i>Financial Information
+                                        </h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <p class="mb-1"><strong><i class="fas fa-money-bill-wave me-2 text-primary"></i>Budget:</strong></p>
+                                                    <p class="text-muted ps-4" id="viewBudget"></p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <p class="mb-1"><strong><i class="fas fa-hand-holding-usd me-2 text-primary"></i>Funding Source:</strong></p>
+                                                    <p class="text-muted ps-4" id="viewFundingSource"></p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-
-                                    <h5 class="text-muted mb-3">Priority Level</h5>
-                                    <p class="mb-0" id="viewPriority"></p>
-
-                                    <div id="viewNotesContainer" style="display: none;">
-                                        <h5 class="text-muted mb-3 mt-4">Additional Notes</h5>
-                                        <p class="mb-0" id="viewNotes"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Documents & Notes Tab -->
+                        <div class="tab-pane fade" id="tabDocumentsContent" role="tabpanel" aria-labelledby="tab-documents">
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <h5 class="text-muted mb-3 border-bottom pb-2">
+                                            <i class="fas fa-file-alt me-2"></i>Project Documents
+                                        </h5>
+                                        <div id="viewDocuments" class="text-muted ps-4">
+                                            <!-- Documents will be populated here -->
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <h5 class="text-muted mb-3 border-bottom pb-2">
+                                            <i class="fas fa-sticky-note me-2"></i>Additional Notes
+                                        </h5>
+                                        <p class="text-muted ps-4" id="viewNotes"></p>
+                                    </div>
+                                    <div class="mb-4">
+                                        <h5 class="text-muted mb-3 border-bottom pb-2">
+                                            <i class="fas fa-clock me-2"></i>Timestamps
+                                        </h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <p class="mb-1"><strong><i class="fas fa-calendar-plus me-2 text-primary"></i>Created At:</strong></p>
+                                                    <p class="text-muted ps-4" id="viewCreatedAt"></p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <p class="mb-1"><strong><i class="fas fa-calendar-edit me-2 text-primary"></i>Updated At:</strong></p>
+                                                    <p class="text-muted ps-4" id="viewUpdatedAt"></p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -717,13 +850,31 @@
                         $('#viewBudget').text(`₱${formatNumber(project.budget)}`);
                         $('#viewFundingSource').text(project.funding_source || 'Not specified');
                         $('#viewPriority').text(project.priority || 'Not specified');
+                        $('#viewNotes').text(project.notes || 'No additional notes');
+                        $('#viewCreatedAt').text(formatDate(project.created_at));
+                        $('#viewUpdatedAt').text(formatDate(project.updated_at));
                         
-                        // Handle notes
-                        if (project.notes) {
-                            $('#viewNotesContainer').show();
-                            $('#viewNotes').text(project.notes);
+                        // Handle documents
+                        const documentsContainer = $('#viewDocuments');
+                        documentsContainer.empty();
+                        if (project.documents && project.documents.length > 0) {
+                            const documentsList = $('<ul class="list-unstyled"></ul>');
+                            project.documents.forEach(doc => {
+                                let fileName = doc.path || doc.name || doc;
+                                // Remove leading 'project-documents/' if present
+                                fileName = fileName.replace(/^project-documents[\\/]/, '');
+                                const docUrl = `/storage/project-documents/${fileName}`;
+                                const docName = doc.name || doc.original_name || doc.path || doc;
+                                documentsList.append(`
+                                    <li class="mb-2">
+                                        <i class="fas fa-file me-2 text-primary"></i>
+                                        <a href="${docUrl}" target="_blank" class="text-primary text-decoration-underline">${docName}</a>
+                                    </li>
+                                `);
+                            });
+                            documentsContainer.append(documentsList);
                         } else {
-                            $('#viewNotesContainer').hide();
+                            documentsContainer.html('<p class="text-muted"><i class="fas fa-info-circle me-2"></i>No documents attached</p>');
                         }
                         
                         // Update status badge
@@ -742,7 +893,7 @@
                         }[project.status] || 'question-circle';
                         
                         $('#viewStatus').html(`
-                            <span class="badge bg-${statusClass} text-white px-3 py-2">
+                            <span class="badge bg-${statusClass} text-white">
                                 <i class="fas fa-${statusIcon} me-1"></i>
                                 ${project.status}
                             </span>
@@ -760,10 +911,41 @@
                     },
                     error: function(xhr) {
                         console.error('Error fetching project details:', xhr);
-                        alert('Error loading project details. Please try again.');
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to load project details. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
                     }
                 });
             };
+
+            // Helper function to format dates
+            function formatDate(dateString) {
+                return new Date(dateString).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+
+            // Helper function to format numbers
+            function formatNumber(number) {
+                return new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(number);
+            }
+
+            // Helper function to format dates for input[type=date]
+            function toDateInputValue(date) {
+                if (!date) return '';
+                const d = new Date(date);
+                const month = ('0' + (d.getMonth() + 1)).slice(-2);
+                const day = ('0' + d.getDate()).slice(-2);
+                return d.getFullYear() + '-' + month + '-' + day;
+            }
 
             // Edit Project Function
             window.editProject = function(id) {
@@ -777,8 +959,8 @@
                         $('#project_name').val(project.project_name);
                         $('#location').val(project.location);
                         $('#description').val(project.description);
-                        $('#start_date').val(project.start_date);
-                        $('#end_date').val(project.end_date);
+                        $('#start_date').val(toDateInputValue(project.start_date));
+                        $('#end_date').val(toDateInputValue(project.end_date));
                         $('#budget').val(project.budget);
                         $('#status').val(project.status);
                         $('#priority').val(project.priority);
@@ -820,23 +1002,6 @@
                     });
                 }
             };
-
-            // Helper function to format dates
-            function formatDate(dateString) {
-                return new Date(dateString).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                });
-            }
-
-            // Helper function to format numbers
-            function formatNumber(number) {
-                return new Intl.NumberFormat('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }).format(number);
-            }
         });
     </script>
 </body>
