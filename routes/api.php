@@ -28,6 +28,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/complaints', [ComplaintController::class, 'store']);
     Route::post('/complaints/track', [ComplaintController::class, 'track']);
 
+    // Profile Routes
+    Route::get('/profile', [ApiAuthController::class, 'viewProfile']);
+    Route::put('/profile', [ApiAuthController::class, 'editProfile']);
+    Route::post('/logout', [ApiAuthController::class, 'logout']);
+
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
