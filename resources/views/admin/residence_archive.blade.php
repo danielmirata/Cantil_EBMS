@@ -48,7 +48,13 @@
                                         </td>
                                         <td>{{ $resident->contact_number }}</td>
                                         <td>{{ $resident->house_number }}, {{ $resident->street }}</td>
-                                        <td>{{ $resident->deleted_at->format('M d, Y h:i A') }}</td>
+                                        <td>
+                                            @if($resident->deleted_at)
+                                                {{ \Carbon\Carbon::parse($resident->deleted_at)->format('M d, Y h:i A') }}
+                                            @else
+                                                {{ \Carbon\Carbon::parse($resident->archived_at)->format('M d, Y h:i A') }}
+                                            @endif
+                                        </td>
                                         <td class="text-center">
                                             <div class="btn-group" role="group">
                                                 <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#residentModal{{ $resident->id }}">
@@ -72,6 +78,10 @@
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
+                                                    <div class="alert alert-warning">
+                                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                                        This resident was archived on {{ \Carbon\Carbon::parse($resident->archived_at)->format('F d, Y') }}
+                                                    </div>
                                                     <div class="row">
                                                         <!-- Profile Section -->
                                                         <div class="col-md-4 text-center border-end mb-3">
@@ -91,126 +101,228 @@
                                                                 <p class="text-muted">{{ $resident->residency_status }}</p>
                                                             </div>
                                                         </div>
-
-                                                        <!-- Information Section -->
+                                                        <!-- Information Tabs -->
                                                         <div class="col-md-8">
-                                                            <div class="row g-3">
-                                                                <!-- Personal Information -->
-                                                                <div class="col-12">
-                                                                    <h6 class="text-primary mb-3"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Date of Birth</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->date_of_birth->format('F d, Y') }}</p>
+                                                            <ul class="nav nav-tabs" id="residentTabs{{ $resident->id }}" role="tablist">
+                                                                <li class="nav-item" role="presentation">
+                                                                    <button class="nav-link active" id="personal-tab{{ $resident->id }}" data-bs-toggle="tab" 
+                                                                            data-bs-target="#personal{{ $resident->id }}" type="button" role="tab" 
+                                                                            aria-controls="personal{{ $resident->id }}" aria-selected="true">
+                                                                        <i class="fas fa-user me-1"></i> Personal
+                                                                    </button>
+                                                                </li>
+                                                                <li class="nav-item" role="presentation">
+                                                                    <button class="nav-link" id="contact-tab{{ $resident->id }}" data-bs-toggle="tab" 
+                                                                            data-bs-target="#contact{{ $resident->id }}" type="button" role="tab" 
+                                                                            aria-controls="contact{{ $resident->id }}" aria-selected="false">
+                                                                        <i class="fas fa-address-card me-1"></i> Contact & Address
+                                                                    </button>
+                                                                </li>
+                                                                <li class="nav-item" role="presentation">
+                                                                    <button class="nav-link" id="family-tab{{ $resident->id }}" data-bs-toggle="tab" 
+                                                                            data-bs-target="#family{{ $resident->id }}" type="button" role="tab" 
+                                                                            aria-controls="family{{ $resident->id }}" aria-selected="false">
+                                                                        <i class="fas fa-users me-1"></i> Family
+                                                                    </button>
+                                                                </li>
+                                                                <li class="nav-item" role="presentation">
+                                                                    <button class="nav-link" id="status-tab{{ $resident->id }}" data-bs-toggle="tab" 
+                                                                            data-bs-target="#status{{ $resident->id }}" type="button" role="tab" 
+                                                                            aria-controls="status{{ $resident->id }}" aria-selected="false">
+                                                                        <i class="fas fa-info-circle me-1"></i> Status
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                            <div class="tab-content p-3 border border-top-0 rounded-bottom" id="residentTabContent{{ $resident->id }}">
+                                                                <!-- Personal Information Tab -->
+                                                                <div class="tab-pane fade show active" id="personal{{ $resident->id }}" role="tabpanel" 
+                                                                     aria-labelledby="personal-tab{{ $resident->id }}">
+                                                                    <div class="row g-3">
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Full Name</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->first_name }} {{ $resident->middle_name }} {{ $resident->last_name }} {{ $resident->suffix }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Date of Birth</span>
+                                                                                <p class="fw-bold mb-1">{{ \Carbon\Carbon::parse($resident->date_of_birth)->format('F d, Y') }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Gender</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->gender }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Civil Status</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->civil_status }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Nationality</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->nationality }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Religion</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->religion }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Place of Birth</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->place_of_birth }}</p>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Place of Birth</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->place_of_birth }}</p>
+                                                                <!-- Contact & Address Tab -->
+                                                                <div class="tab-pane fade" id="contact{{ $resident->id }}" role="tabpanel" 
+                                                                     aria-labelledby="contact-tab{{ $resident->id }}">
+                                                                    <div class="row g-3">
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Email Address</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->email ?? 'N/A' }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Contact Number</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->contact_number }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-12">
+                                                                            <hr class="text-muted my-2">
+                                                                            <h6 class="text-primary mb-3"><i class="fas fa-map-marker-alt me-2"></i>Address</h6>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">House Number</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->house_number }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Street</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->street }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Barangay</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->barangay }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Municipality</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->municipality }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Zip Code</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->zip }}</p>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Gender</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->gender }}</p>
+                                                                <!-- Family Information Tab -->
+                                                                <div class="tab-pane fade" id="family{{ $resident->id }}" role="tabpanel" 
+                                                                     aria-labelledby="family-tab{{ $resident->id }}">
+                                                                    <div class="row g-3">
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Father's Name</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->father_name ?? 'N/A' }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Mother's Name</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->mother_name ?? 'N/A' }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-12">
+                                                                            <hr class="text-muted my-2">
+                                                                            <h6 class="text-primary mb-3"><i class="fas fa-user-shield me-2"></i>Guardian Information</h6>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Guardian's Name</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->guardian_name ?: 'N/A' }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Guardian's Contact</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->guardian_contact ?: 'N/A' }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="info-item">
+                                                                                <span class="text-muted fs-6">Relation to Guardian</span>
+                                                                                <p class="fw-bold mb-1">{{ $resident->guardian_relation ?: 'N/A' }}</p>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Civil Status</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->civil_status }}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Nationality</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->nationality }}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Religion</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->religion }}</p>
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Contact Information -->
-                                                                <div class="col-12">
-                                                                    <hr class="text-muted my-2">
-                                                                    <h6 class="text-primary mb-3"><i class="fas fa-address-book me-2"></i>Contact Information</h6>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Email Address</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->email ?? 'N/A' }}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Contact Number</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->contact_number }}</p>
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Address Information -->
-                                                                <div class="col-12">
-                                                                    <hr class="text-muted my-2">
-                                                                    <h6 class="text-primary mb-3"><i class="fas fa-map-marker-alt me-2"></i>Address</h6>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">House Number</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->house_number }}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Street</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->street }}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Barangay</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->barangay }}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Municipality</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->municipality }}</p>
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Family Information -->
-                                                                <div class="col-12">
-                                                                    <hr class="text-muted my-2">
-                                                                    <h6 class="text-primary mb-3"><i class="fas fa-users me-2"></i>Family Information</h6>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Father's Name</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->father_name ?? 'N/A' }}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Mother's Name</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->mother_name ?? 'N/A' }}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Guardian's Name</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->guardian_name }}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="info-item">
-                                                                        <span class="text-muted fs-6">Guardian's Contact</span>
-                                                                        <p class="fw-bold mb-1">{{ $resident->guardian_contact }}</p>
+                                                                <!-- Status Information Tab -->
+                                                                <div class="tab-pane fade" id="status{{ $resident->id }}" role="tabpanel" 
+                                                                     aria-labelledby="status-tab{{ $resident->id }}">
+                                                                    <div class="row g-3">
+                                                                        <div class="col-md-6">
+                                                                            <div class="card h-100">
+                                                                                <div class="card-body">
+                                                                                    <h6 class="card-title text-primary">
+                                                                                        <i class="fas fa-home me-2"></i>Residency Status
+                                                                                    </h6>
+                                                                                    <p class="card-text fw-bold mb-0">{{ $resident->residency_status }}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="card h-100">
+                                                                                <div class="card-body">
+                                                                                    <h6 class="card-title text-primary">
+                                                                                        <i class="fas fa-vote-yea me-2"></i>Voter Status
+                                                                                    </h6>
+                                                                                    <p class="card-text fw-bold mb-0">{{ $resident->voters }}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="card h-100">
+                                                                                <div class="card-body">
+                                                                                    <h6 class="card-title text-primary">
+                                                                                        <i class="fas fa-wheelchair me-2"></i>PWD Status
+                                                                                    </h6>
+                                                                                    <p class="card-text fw-bold mb-0">
+                                                                                        {{ $resident->pwd }}
+                                                                                        @if($resident->pwd == 'Yes')
+                                                                                            <span class="d-block text-muted small">Type: {{ $resident->pwd_type }}</span>
+                                                                                        @endif
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="card h-100">
+                                                                                <div class="card-body">
+                                                                                    <h6 class="card-title text-primary">
+                                                                                        <i class="fas fa-user-friends me-2"></i>Single Parent Status
+                                                                                    </h6>
+                                                                                    <p class="card-text fw-bold mb-0">{{ $resident->single_parent }}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -219,6 +331,9 @@
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="button" class="btn btn-success restore-btn" data-id="{{ $resident->id }}">
+                                                        <i class="fas fa-undo me-1"></i>Restore Resident
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>

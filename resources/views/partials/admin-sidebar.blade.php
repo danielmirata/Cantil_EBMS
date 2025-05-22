@@ -42,14 +42,14 @@
                         <span>Activity Logs</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('secretary.map') }}">
+                <li class="{{ request()->routeIs('admin.map') ? 'active' : '' }}">
+                    <a href="{{ route('admin.map') }}">
                         <i class="fas fa-map-marked-alt"></i>
                         <span>Map View</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('secretary.map') }}">
+                <li class="{{ request()->routeIs('admin.backup.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.backup.index') }}">
                         <i class="fas fa-database"></i>
                         <span>Backup/Restore</span>
                     </a>

@@ -29,6 +29,7 @@ use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\Admin\AdminMapController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -329,9 +330,9 @@ Route::middleware(['auth'])->group(function () {
     // Official Archive Routes
     Route::get('/admin/officials', [App\Http\Controllers\Admin\OfficialController::class, 'index'])
         ->name('admin.officials.index');
-    Route::get('/officials/archived', [App\Http\Controllers\Admin\OfficialController::class, 'archived'])
+    Route::get('/admin/officials/archived', [App\Http\Controllers\Admin\OfficialController::class, 'archived'])
         ->name('admin.officials.archived');
-    Route::patch('/officials/{official}/restore', [App\Http\Controllers\Admin\OfficialController::class, 'restore'])
+    Route::patch('/admin/officials/{official}/restore', [App\Http\Controllers\Admin\OfficialController::class, 'restore'])
         ->name('admin.officials.restore');
 
     // Resident Archive Routes
@@ -339,4 +340,24 @@ Route::middleware(['auth'])->group(function () {
         ->name('admin.residence.archived');
     Route::patch('/residence/{resident}/restore', [App\Http\Controllers\Admin\ResidenceController::class, 'restore'])
         ->name('admin.residence.restore');
+});
+
+// Backup and Restore Routes
+Route::prefix('admin')->group(function () {
+    Route::get('/backup', [App\Http\Controllers\Admin\BackupController::class, 'index'])->name('admin.backup.index');
+    Route::post('/backup/create', [App\Http\Controllers\Admin\BackupController::class, 'create'])->name('admin.backup.create');
+    Route::post('/backup/restore', [App\Http\Controllers\Admin\BackupController::class, 'restore'])->name('admin.backup.restore');
+    Route::get('/backup/download/{filename}', [App\Http\Controllers\Admin\BackupController::class, 'download'])->name('admin.backup.download');
+    Route::delete('/backup/delete/{filename}', [App\Http\Controllers\Admin\BackupController::class, 'delete'])->name('admin.backup.delete');
+});
+
+// Admin Map Routes
+Route::prefix('admin')->group(function () {
+    Route::get('/map', [App\Http\Controllers\Admin\AdminMapController::class, 'index'])->name('admin.map');
+    Route::get('/map-locations', [App\Http\Controllers\Admin\AdminMapController::class, 'getLocations']);
+    Route::post('/map-locations', [App\Http\Controllers\Admin\AdminMapController::class, 'store']);
+    Route::put('/map-locations/{id}', [App\Http\Controllers\Admin\AdminMapController::class, 'update']);
+    Route::delete('/map-locations/{id}', [App\Http\Controllers\Admin\AdminMapController::class, 'destroy']);
+    Route::get('/map-locations/households', [App\Http\Controllers\Admin\AdminMapController::class, 'getHouseholds']);
+    Route::get('/map-locations/search', [App\Http\Controllers\Admin\AdminMapController::class, 'search']);
 });

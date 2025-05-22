@@ -29,8 +29,12 @@ class OfficialController extends Controller
      */
     public function archived()
     {
-        $archived_officials = Official::onlyTrashed()
-            ->with('position')
+        $archived_officials = Official::with('position')
+            ->withTrashed()
+            ->where(function($query) {
+                $query->whereNotNull('archived_at')
+                    ->orWhereNotNull('deleted_at');
+            })
             ->orderBy('archived_at', 'desc')
             ->get();
 
