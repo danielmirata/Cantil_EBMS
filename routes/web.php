@@ -27,6 +27,7 @@ use App\Http\Controllers\MapLocationController;
 use App\Http\Controllers\Resident\ResidentController;
 use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\Admin\UserManagementController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -298,3 +299,12 @@ Route::middleware(['auth'])->prefix('captain')->group(function () {
 Route::get('/households/{household}/members', [HouseholdController::class, 'getMembers'])->name('households.members');
 
 Route::get('/api/search', [SearchController::class, 'search'])->name('api.search');
+
+// Admin User Management Routes
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/users', [UserManagementController::class, 'index'])->name('admin.users.index');
+    Route::post('/users', [UserManagementController::class, 'store'])->name('admin.users.store');
+    Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('admin.users.update');
+    Route::put('/users/{user}/change-password', [UserManagementController::class, 'changePassword'])->name('admin.users.change-password');
+    Route::put('/users/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('admin.users.toggle-status');
+});

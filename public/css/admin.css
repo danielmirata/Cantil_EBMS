@@ -1,0 +1,269 @@
+/* Admin Layout Styles */
+:root {
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 80px;
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --accent-color: #3498db;
+    --text-color: #2c3e50;
+    --light-bg: #f8f9fa;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--light-bg);
+}
+
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+/* Sidebar Styles */
+#sidebar {
+    min-width: var(--sidebar-width);
+    max-width: var(--sidebar-width);
+    background: var(--primary-color);
+    color: #fff;
+    transition: all 0.3s;
+    position: fixed;
+    height: 100vh;
+    z-index: 999;
+}
+
+#sidebar.active {
+    min-width: var(--sidebar-collapsed-width);
+    max-width: var(--sidebar-collapsed-width);
+    text-align: center;
+}
+
+#sidebar.active .sidebar-header h3,
+#sidebar.active .sidebar-header p {
+    display: none;
+}
+
+#sidebar.active .sidebar-header strong {
+    display: block;
+}
+
+#sidebar ul li a {
+    padding: 15px;
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+#sidebar ul li a:hover {
+    background: var(--secondary-color);
+}
+
+#sidebar ul li.active > a {
+    background: var(--accent-color);
+}
+
+#sidebar ul li a i {
+    margin-right: 10px;
+}
+
+#sidebar.active ul li a {
+    padding: 15px 10px;
+    text-align: center;
+    font-size: 0.85em;
+}
+
+#sidebar.active ul li a i {
+    margin-right: 0;
+    display: block;
+    font-size: 1.8em;
+    margin-bottom: 5px;
+}
+
+#sidebar.active ul li a span {
+    display: none;
+}
+
+.sidebar-header {
+    padding: 20px;
+    background: var(--secondary-color);
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.sidebar-header p {
+    margin: 0;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+/* Content Styles */
+#content {
+    width: 100%;
+    min-height: 100vh;
+    transition: all 0.3s;
+    margin-left: var(--sidebar-width);
+}
+
+#sidebar.active + #content {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+/* Navbar Styles */
+.navbar {
+    padding: 15px 10px;
+    background: #fff;
+    border: none;
+    border-radius: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#sidebarCollapse {
+    background: var(--accent-color);
+    border: none;
+}
+
+#sidebarCollapse:hover {
+    background: var(--secondary-color);
+}
+
+/* Card Styles */
+.content-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.stats-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.stats-card i {
+    font-size: 2.5em;
+    opacity: 0.8;
+}
+
+.stats-card .number {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stats-card .label {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.blue-card {
+    border-left: 4px solid #3498db;
+}
+
+.yellow-card {
+    border-left: 4px solid #f1c40f;
+}
+
+.green-card {
+    border-left: 4px solid #2ecc71;
+}
+
+.red-card {
+    border-left: 4px solid #e74c3c;
+}
+
+/* Table Styles */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.action-buttons .btn {
+    margin: 0 2px;
+}
+
+/* Form Styles */
+.form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Modal Styles */
+.modal-header {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.modal-header .btn-close {
+    color: #fff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #sidebar {
+        margin-left: calc(-1 * var(--sidebar-width));
+    }
+    #sidebar.active {
+        margin-left: 0;
+    }
+    #content {
+        margin-left: 0;
+    }
+    #sidebar.active + #content {
+        margin-left: var(--sidebar-width);
+    }
+}
+
+/* Empty State Styles */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-state i {
+    font-size: 3em;
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #666;
+    margin: 0;
+}
+
+/* Search Input Styles */
+.search-input {
+    width: 300px;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 6px 10px;
+    font-weight: 500;
+}
+
+/* Alert Styles */
+.alert {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+} 
