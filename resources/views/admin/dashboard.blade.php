@@ -1,39 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Admin Dashboard</a>
-            <div class="navbar-nav ms-auto">
-                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-link nav-link">Logout</button>
-                </form>
-            </div>
-        </div>
-    </nav>
+@extends('layouts.admin_layout')
 
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Welcome, {{ auth()->user()->fullname }}</h4>
-                    </div>
-                    <div class="card-body">
-                        <p>This is your admin dashboard. You can manage all system settings and user accounts here.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+@section('styles')
+<link rel="stylesheet" href="{{ asset('css/shared-dashboard.css') }}">
+<style>
+    .stats-card {
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .stats-card .number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    .stats-card .label {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+    .stats-card i {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    .blue-card {
+        background: linear-gradient(45deg, #2196F3, #1976D2);
+    }
+    .yellow-card {
+        background: linear-gradient(45deg, #FFC107, #FFA000);
+    }
+    .green-card {
+        background: linear-gradient(45deg, #4CAF50, #388E3C);
+    }
+    .red-card {
+        background: linear-gradient(45deg, #F44336, #D32F2F);
+    }
+    .content-card {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+    }
+</style>
+@endsection
+
+@section('content')
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Admin Dashboard</h1>
+        <div class="dashboard-subtitle">Welcome back, {{ auth()->user()->fullname }}</div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html> 
+   
+@endsection
+
+@section('scripts')
+<script>
+$(document).ready(function() {
+    // Add any dashboard-specific JavaScript here
+});
+</script>
+@endsection 

@@ -146,6 +146,7 @@
                             <label for="accountTypeFilter">Account Type</label>
                             <select class="form-select" id="accountTypeFilter">
                                 <option value="">All Account Types</option>
+                                <option value="admin">Admin</option>
                                 <option value="secretary">Secretary</option>
                                 <option value="resident">Resident</option>
                             </select>
@@ -398,8 +399,8 @@ $(document).ready(function() {
             const fullname = row.find('td:eq(0)').text().toLowerCase();
             const username = row.find('td:eq(1)').text().toLowerCase();
             const email = row.find('td:eq(2)').text().toLowerCase();
-            const accountType = row.find('td:eq(3) .badge').text().toLowerCase();
-            const status = row.find('td:eq(4) .badge').text().toLowerCase();
+            const accountType = row.find('td:eq(3) .badge').text().toLowerCase().trim();
+            const status = row.find('td:eq(4) .badge').text().toLowerCase().trim();
 
             let show = true;
 
@@ -414,12 +415,12 @@ $(document).ready(function() {
 
             // Account type filter
             if (activeFilters.accountType) {
-                show = show && accountType === activeFilters.accountType.toLowerCase();
+                show = show && accountType === activeFilters.accountType.toLowerCase().trim();
             }
 
             // Status filter
             if (activeFilters.status) {
-                show = show && status === activeFilters.status.toLowerCase();
+                show = show && status === activeFilters.status.toLowerCase().trim();
             }
 
             row.toggle(show);

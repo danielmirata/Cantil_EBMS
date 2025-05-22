@@ -28,6 +28,7 @@ use App\Http\Controllers\Resident\ResidentController;
 use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\PositionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -307,4 +308,35 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('admin.users.update');
     Route::put('/users/{user}/change-password', [UserManagementController::class, 'changePassword'])->name('admin.users.change-password');
     Route::put('/users/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('admin.users.toggle-status');
+    
+    // Position Management Routes
+    Route::get('/role', [PositionController::class, 'index'])->name('admin.role');
+    Route::post('/role', [PositionController::class, 'store'])->name('positions.store');
+    Route::put('/role/{position}', [PositionController::class, 'update'])->name('positions.update');
+    Route::delete('/role/{position}', [PositionController::class, 'destroy'])->name('positions.destroy');
+});
+
+// Position Management Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/positions', [PositionController::class, 'index'])->name('positions.index');
+    Route::post('/positions', [PositionController::class, 'store'])->name('positions.store');
+    Route::put('/positions/{position}', [PositionController::class, 'update'])->name('positions.update');
+    Route::delete('/positions/{position}', [PositionController::class, 'destroy'])->name('positions.destroy');
+});
+
+// Admin Routes
+Route::middleware(['auth'])->group(function () {
+    // Official Archive Routes
+    Route::get('/admin/officials', [App\Http\Controllers\Admin\OfficialController::class, 'index'])
+        ->name('admin.officials.index');
+    Route::get('/officials/archived', [App\Http\Controllers\Admin\OfficialController::class, 'archived'])
+        ->name('admin.officials.archived');
+    Route::patch('/officials/{official}/restore', [App\Http\Controllers\Admin\OfficialController::class, 'restore'])
+        ->name('admin.officials.restore');
+
+    // Resident Archive Routes
+    Route::get('/residence/archived', [App\Http\Controllers\Admin\ResidenceController::class, 'archived'])
+        ->name('admin.residence.archived');
+    Route::patch('/residence/{resident}/restore', [App\Http\Controllers\Admin\ResidenceController::class, 'restore'])
+        ->name('admin.residence.restore');
 });
