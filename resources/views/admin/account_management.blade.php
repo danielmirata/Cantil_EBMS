@@ -148,6 +148,7 @@
                                 <option value="">All Account Types</option>
                                 <option value="admin">Admin</option>
                                 <option value="secretary">Secretary</option>
+                                <option value="official">Official</option>
                                 <option value="resident">Resident</option>
                             </select>
                         </div>
@@ -292,6 +293,7 @@
                         <select class="form-select @error('account_type') is-invalid @enderror" 
                                 id="account_type" name="account_type" required>
                             <option value="secretary" {{ old('account_type', $user->account_type) == 'secretary' ? 'selected' : '' }}>Secretary</option>
+                            <option value="official" {{ old('account_type', $user->account_type) == 'official' ? 'selected' : '' }}>Official</option>
                             <option value="resident" {{ old('account_type', $user->account_type) == 'resident' ? 'selected' : '' }}>Resident</option>
                         </select>
                         @error('account_type')

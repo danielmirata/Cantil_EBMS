@@ -61,6 +61,8 @@
             <option value="">Select Account Type</option>
             @if(isset($isModal))
                 <option value="secretary" {{ old('account_type') == 'secretary' ? 'selected' : '' }}>Secretary</option>
+                <option value="official" {{ old('account_type') == 'official' ? 'selected' : '' }}>Official</option>
+                <option value="captain" {{ old('account_type') == 'captain' ? 'selected' : '' }}>Captain</option>
                 <option value="resident" {{ old('account_type') == 'resident' ? 'selected' : '' }}>Resident</option>
             @else
                 <option value="resident" {{ old('account_type') == 'resident' ? 'selected' : '' }}>Resident</option>
