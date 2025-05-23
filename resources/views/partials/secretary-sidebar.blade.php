@@ -121,7 +121,7 @@
         </li>
         <li>
             <a href="{{ route('secretary.activity-logs') }}">
-                <i class="fas fa-history"></i> Activity Logs
+                <i class="fas fa-history"></i> Record Logs
             </a>
         </li>
     </ul>

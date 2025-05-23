@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/secretary-dashboard.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     @include('partials.secretary-sidebar')
@@ -34,88 +35,69 @@
         </div>
 
         <!-- Dashboard Header -->
-        <div class="dashboard-header">
+        <div class="dashboard-header mb-4">
             <h1 class="dashboard-title">Dashboard</h1>
             <div class="dashboard-subtitle">Secretary Dashboard</div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="row">
+        <!-- Stat Cards Row -->
+        <div class="row g-3 mb-4">
             <div class="col-md-3">
-                <div class="stats-card blue-card">
-                    <div>
-                        <div class="number">0</div>
-                        <div class="label">Registered residents</div>
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center">
+                        <div class="fw-bold fs-2 text-primary">{{ $registeredResidents }}</div>
+                        <div class="text-muted">Registered Residents</div>
                     </div>
-                    <i class="fas fa-users"></i>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card green-card">
-                    <div>
-                        <div class="number">0</div>
-                        <div class="label">Current officials</div>
-                    </div>
-                    <i class="fas fa-user-tie"></i>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="stats-card yellow-card">
-                    <div>
-                        <div class="number">0</div>
-                        <div class="label">Awaiting processing</div>
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center">
+                        <div class="fw-bold fs-2 text-success">{{ $currentOfficials }}</div>
+                        <div class="text-muted">Current Officials</div>
                     </div>
-                    <i class="fas fa-file-alt"></i>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="stats-card red-card">
-                    <div>
-                        <div class="number">0</div>
-                        <div class="label">Complaints & Blotters</div>
-                    </div>
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Content Cards -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="content-card">
-                    <h2>Resident Demographics</h2>
-                    <div id="demographics-chart" style="height: 300px;">
-                        <!-- Chart will be placed here -->
-                        <div class="text-center text-muted py-5">
-                            <i class="fas fa-chart-pie fa-3x mb-3"></i>
-                            <p>No demographic data available</p>
-                        </div>
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center">
+                        <div class="fw-bold fs-2 text-warning">{{ $awaitingProcessing }}</div>
+                        <div class="text-muted">Awaiting Processing</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="content-card">
-                    <h2>Document Requests</h2>
-                    <div id="document-requests" style="height: 300px;">
-                        <!-- Chart will be placed here -->
-                        <div class="text-center text-muted py-5">
-                            <i class="fas fa-file-alt fa-3x mb-3"></i>
-                            <p>No document requests available</p>
-                        </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center">
+                        <div class="fw-bold fs-2 text-danger">{{ $complaintsAndBlotters }}</div>
+                        <div class="text-muted">Complaints & Blotters</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="content-card">
-                    <h2>Monthly Cases Overview</h2>
-                    <div id="cases-chart" style="height: 300px;">
-                        <!-- Chart will be placed here -->
-                        <div class="text-center text-muted py-5">
-                            <i class="fas fa-chart-line fa-3x mb-3"></i>
-                            <p>No cases data available</p>
+        <!-- Main Chart and Donut Row -->
+        <div class="row g-3">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Resident Demographics</h5>
+                        <div style="height:320px;">
+                            <canvas id="demographics-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <h5 class="card-title mb-3">Processed Requests</h5>
+                        <div style="height:320px; width:100%; display:flex; align-items:center; justify-content:center;">
+                            <canvas id="donut-chart"></canvas>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <span class="fw-bold fs-4" id="donut-percent">{{ $processedPercent }}%</span>
+                            <div class="text-muted">of requests processed</div>
                         </div>
                     </div>
                 </div>
@@ -125,9 +107,43 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // You can add chart initialization code here using Chart.js or any other charting library
-        // Example:
-        // const demographicsChart = new Chart(document.getElementById('demographics-chart'), {...});
+        // Demographics Pie Chart
+        new Chart(document.getElementById('demographics-chart').getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: ['Male', 'Female', 'Senior Citizens', 'Youth'],
+                datasets: [{
+                    data: [{{ $male }}, {{ $female }}, {{ $seniorCitizens }}, {{ $youth }}],
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // Processed Requests Donut Chart
+        new Chart(document.getElementById('donut-chart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Processed', 'Unprocessed'],
+                datasets: [{
+                    data: [{{ $processedPercent }}, {{ 100 - $processedPercent }}],
+                    backgroundColor: ['#4e73df', '#e0e0e0'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '75%',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
+            }
+        });
     </script>
 </body>
 </html>

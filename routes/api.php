@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Api\Auth\ApiAuthController;
 use App\Http\Controllers\Api\DocumentRequestController;
 use App\Http\Controllers\Api\ComplaintController;
+use App\Http\Controllers\DashboardController;
 
 // Mobile API Routes
 Route::post('/mobile/login', [ApiAuthController::class, 'login']);
@@ -36,6 +37,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+});
+
+// Dashboard API Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard/statistics', [DashboardController::class, 'getStatistics']);
+    Route::get('/dashboard/charts', [DashboardController::class, 'getCharts']);
 });
 
 Route::get('/test', function () {

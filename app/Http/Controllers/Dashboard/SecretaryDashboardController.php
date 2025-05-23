@@ -11,7 +11,33 @@ class SecretaryDashboardController extends Controller
 {
     public function index()
     {
-        return view('secretary.dashboard');
+        $registeredResidents = \App\Models\ResidentsInformation::count();
+        $currentOfficials = \App\Models\Official::where('status', 'Active')->whereNull('archived_at')->count();
+        $awaitingProcessing = \App\Models\DocumentRequest::where('status', 'pending')->count();
+        $complaintsAndBlotters = \App\Models\Complaint::count();
+
+        // Demographics
+        $male = \App\Models\ResidentsInformation::where('gender', 'Male')->count();
+        $female = \App\Models\ResidentsInformation::where('gender', 'Female')->count();
+        $seniorCitizens = \App\Models\ResidentsInformation::whereRaw('TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) >= 60')->count();
+        $youth = \App\Models\ResidentsInformation::whereRaw('TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) BETWEEN 15 AND 30')->count();
+
+        // Processed Requests Donut
+        $totalRequests = \App\Models\DocumentRequest::count();
+        $processedRequests = \App\Models\DocumentRequest::whereIn('status', ['approved', 'rejected'])->count();
+        $processedPercent = $totalRequests > 0 ? round(($processedRequests / $totalRequests) * 100) : 0;
+
+        return view('secretary.dashboard', compact(
+            'registeredResidents',
+            'currentOfficials',
+            'awaitingProcessing',
+            'complaintsAndBlotters',
+            'male',
+            'female',
+            'seniorCitizens',
+            'youth',
+            'processedPercent'
+        ));
     }
 
     /**

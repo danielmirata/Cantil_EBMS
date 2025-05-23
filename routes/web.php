@@ -165,6 +165,18 @@ Route::middleware(['web', 'auth'])->group(function () {
         ->name('resident.complaints.status');
     Route::get('/resident/documents/status', [StatusController::class, 'documentStatus'])
         ->name('resident.documents.status');
+
+    // Walk-in Records Routes
+    Route::middleware(['auth'])->prefix('secretary/records')->group(function () {
+        Route::get('/', [App\Http\Controllers\Secretary\RecordController::class, 'index'])->name('secretary.records.index');
+        Route::get('/create', [App\Http\Controllers\Secretary\RecordController::class, 'create'])->name('secretary.records.create');
+        Route::post('/', [App\Http\Controllers\Secretary\RecordController::class, 'store'])->name('secretary.records.store');
+        Route::get('/{record}', [App\Http\Controllers\Secretary\RecordController::class, 'show'])->name('secretary.records.show');
+        Route::get('/{record}/edit', [App\Http\Controllers\Secretary\RecordController::class, 'edit'])->name('secretary.records.edit');
+        Route::put('/{record}', [App\Http\Controllers\Secretary\RecordController::class, 'update'])->name('secretary.records.update');
+        Route::delete('/{record}', [App\Http\Controllers\Secretary\RecordController::class, 'destroy'])->name('secretary.records.destroy');
+        Route::get('/export', [App\Http\Controllers\Secretary\RecordController::class, 'export'])->name('secretary.records.export');
+    });
 });
 
 // Officials Routes
@@ -254,10 +266,7 @@ Route::get('/secretary/summon/print', [App\Http\Controllers\Secretary\SummonCont
 
 // Activity Logs Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/secretary/activity-logs', [App\Http\Controllers\Secretary\ActivityLogController::class, 'index'])->name('secretary.activity-logs');
-    Route::get('/secretary/activity-logs/create', [App\Http\Controllers\Secretary\ActivityLogController::class, 'create'])->name('secretary.activity-logs.create');
-    Route::post('/secretary/activity-logs', [App\Http\Controllers\Secretary\ActivityLogController::class, 'store'])->name('secretary.activity-logs.store');
-    Route::get('/secretary/activity-logs/export', [App\Http\Controllers\Secretary\ActivityLogController::class, 'export'])->name('secretary.activity-logs.export');
+    Route::get('/secretary/activity-logs', [App\Http\Controllers\Secretary\RecordController::class, 'index'])->name('secretary.activity-logs');
 });
 
 // Map Location Routes
@@ -360,4 +369,9 @@ Route::prefix('admin')->group(function () {
     Route::delete('/map-locations/{id}', [App\Http\Controllers\Admin\AdminMapController::class, 'destroy']);
     Route::get('/map-locations/households', [App\Http\Controllers\Admin\AdminMapController::class, 'getHouseholds']);
     Route::get('/map-locations/search', [App\Http\Controllers\Admin\AdminMapController::class, 'search']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/dashboard/statistics', [DashboardController::class, 'getStatistics']);
+    Route::get('/dashboard/charts', [DashboardController::class, 'getCharts']);
 });

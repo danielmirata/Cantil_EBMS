@@ -146,14 +146,14 @@
                             <td>{{ $record->created_at->format('M d, Y h:i A') }}</td>
                             <td>
                                 <span class="badge bg-{{ getRequestTypeColor($record->request_type) }}">
-                                    {{ $record->request_type }}
+                                    {{ ucfirst($record->request_type) }}
                                 </span>
                             </td>
                             <td>{{ $record->resident_name }}</td>
                             <td>{{ $record->purpose }}</td>
                             <td>
                                 <span class="badge bg-{{ getStatusColor($record->status) }}">
-                                    {{ $record->status }}
+                                    {{ ucfirst($record->status) }}
                                 </span>
                             </td>
                             <td>{{ $record->processed_by }}</td>
@@ -161,9 +161,16 @@
                                 <button class="btn btn-sm btn-info view-record" data-bs-toggle="modal" data-bs-target="#viewModal" data-record="{{ json_encode($record) }}">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn btn-sm btn-warning edit-record" data-bs-toggle="modal" data-bs-target="#editModal" data-record="{{ json_encode($record) }}">
+                                <a href="{{ route('secretary.records.edit', $record) }}" class="btn btn-sm btn-warning">
                                     <i class="fas fa-edit"></i>
-                                </button>
+                                </a>
+                                <form action="{{ route('secretary.records.destroy', $record) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this record?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         @empty
@@ -238,9 +245,9 @@
                 var recordData = $(this).data('record');
                 
                 $('#view-datetime').text(moment(recordData.created_at).format('MMMM D, YYYY h:mm A'));
-                $('#view-type').text(recordData.request_type);
+                $('#view-type').text(recordData.request_type.charAt(0).toUpperCase() + recordData.request_type.slice(1));
                 $('#view-resident').text(recordData.resident_name);
-                $('#view-status').text(recordData.status);
+                $('#view-status').text(recordData.status.charAt(0).toUpperCase() + recordData.status.slice(1));
                 $('#view-purpose').text(recordData.purpose);
                 $('#view-processed-by').text(recordData.processed_by);
                 $('#view-remarks').text(recordData.remarks || 'N/A');
@@ -309,4 +316,4 @@ function getStatusColor($status) {
             return 'secondary';
     }
 }
-@endphp
+@endphp 
