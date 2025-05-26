@@ -14,7 +14,7 @@
             </a>
         </li>
         <li>
-            <a href="{{ route('schedules.index') }}">
+            <a href="{{ route('captain.schedule') }}">
                 <i class="fas fa-calendar"></i> Schedule
             </a>
         </li>
@@ -58,12 +58,12 @@
             </a>
         </li>
         <li>
-            <a href="{{ route('secretary.map') }}">
+            <a href="{{ route('captain.map') }}">
                 <i class="fas fa-map-marked-alt"></i> Barangay Map
             </a>
         </li>
         <li>
-            <a href="{{ route('expenses.index') }}">
+            <a href="{{ route('captain.inventory') }}">
                 <i class="fas fa-boxes"></i> Inventory
             </a>
         </li>

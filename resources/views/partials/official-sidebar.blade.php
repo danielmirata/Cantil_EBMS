@@ -9,12 +9,12 @@
     
     <ul class="sidebar-menu">
         <li>
-            <a href="{{ route('captain.dashboard') }}">
+            <a href="{{ route('official.dashboard') }}">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
         </li>
         <li>
-            <a href="{{ route('captain.schedule') }}">
+            <a href="{{ route('official.schedule') }}">
                 <i class="fas fa-calendar"></i> Schedule
             </a>
         </li>
@@ -24,12 +24,12 @@
                 <i class="fas fa-chevron-down float-end"></i>
             </a>
             <ul class="collapse submenu" id="officialSubmenu">
-               
                 <li>
-                    <a href="{{ route('captain.officials.index') }}">
-                        <i class="fas fa-circle "></i> List of Official
+                    <a href="{#">
+                        <i class="fas fa-circle"></i> List of Officials
                     </a>
                 </li>
+                
             </ul>
         </li>
         <li>
@@ -38,37 +38,34 @@
                 <i class="fas fa-chevron-down float-end"></i>
             </a>
             <ul class="collapse submenu" id="residenceSubmenu">
-               
                 <li>
-                    <a href="{{ route('captain.residents.index') }}">
-                        <i class="fas fa-circle "></i> All Residence
+                    <a href="#">
+                        <i class="fas fa-circle"></i> All Residents
                     </a>
                 </li>
-               
+                
             </ul>
         </li>
         <li>
-            <a href="{{ route('documents.index') }}">
+            <a href="#">
                 <i class="fas fa-file-alt"></i> Documents
             </a>
         </li>
         <li>
-            <a href="{{ route('projects.index') }}">
+            <a href="#">
                 <i class="fas fa-project-diagram"></i> Barangay Projects
             </a>
         </li>
         <li>
-            <a href="{{ route('secretary.map') }}">
+            <a href="#">
                 <i class="fas fa-map-marked-alt"></i> Barangay Map
             </a>
         </li>
         <li>
-            <a href="{{ route('expenses.index') }}">
+            <a href="#">
                 <i class="fas fa-boxes"></i> Inventory
             </a>
         </li>
-       
-     
     </ul>
 </div>
 

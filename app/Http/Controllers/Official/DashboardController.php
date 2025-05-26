@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Dashboard;
+namespace App\Http\Controllers\Official;
 
 use App\Http\Controllers\Controller;
 use App\Models\ResidentsInformation;
@@ -9,7 +9,7 @@ use App\Models\Official;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class OfficialDashboardController extends Controller
+class DashboardController extends Controller
 {
     public function index()
     {
@@ -110,4 +110,4 @@ class OfficialDashboardController extends Controller
             'purokDistribution' => $purokDistribution
         ]);
     }
-}
+} 

@@ -120,7 +120,7 @@
 
 <body class="g-sidenav-show bg-gray-100">
     <!-- Sidebar -->
-    @include('partials.official-sidebar')
+    @include('partials.captain-sidebar')
     
     <!-- Main content -->
     <main class="main-content position-relative border-radius-lg">

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/secretary-dashboard.css') }}">
 </head>
 <body>
-    @include('partials.official-sidebar')
+    @include('partials.captain-sidebar')
 
     <!-- Main Content -->
     <div class="main-content">

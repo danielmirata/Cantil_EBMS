@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Captain;
 
 use App\Http\Controllers\Controller;
 use App\Models\MapLocation;
@@ -10,55 +10,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class AdminMapController extends Controller
+class MapController extends Controller
 {
     public function index()
     {
-        return view('admin.map');
+        return view('captain.map');
     }
 
     public function getLocations()
     {
         $locations = MapLocation::with('household')->get();
         return response()->json($locations);
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'type' => 'required|string',
-            'coordinates' => 'required|string',
-            'title' => 'required|string',
-            'description' => 'nullable|string',
-            'household_id' => 'nullable|exists:households,id',
-            'color' => 'nullable|string'
-        ]);
-
-        $location = MapLocation::create($validated);
-        return response()->json($location);
-    }
-
-    public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'type' => 'required|string',
-            'coordinates' => 'required|string',
-            'title' => 'required|string',
-            'description' => 'nullable|string',
-            'household_id' => 'nullable|exists:households,id',
-            'color' => 'nullable|string'
-        ]);
-
-        $location = MapLocation::findOrFail($id);
-        $location->update($validated);
-        return response()->json($location);
-    }
-
-    public function destroy($id)
-    {
-        $location = MapLocation::findOrFail($id);
-        $location->delete();
-        return response()->json(['message' => 'Location deleted successfully']);
     }
 
     public function getHouseholds()

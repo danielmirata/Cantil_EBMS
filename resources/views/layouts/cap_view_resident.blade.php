@@ -17,7 +17,7 @@
 <body>
    
     <div class="d-flex">
-        @include('partials.official-sidebar')
+        @include('partials.captain-sidebar')
         
     </div>
     <div class="container-fluid">

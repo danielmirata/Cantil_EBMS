@@ -30,6 +30,13 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\Admin\AdminMapController;
+use App\Http\Controllers\MapController;
+use App\Http\Controllers\Official\DashboardController;
+use App\Http\Controllers\Official\ScheduleController as OfficialScheduleController;
+use App\Http\Controllers\Official\OfficialController as OfficialOfficialController;
+use App\Http\Controllers\Official\DocumentController;
+use App\Http\Controllers\Official\ProjectController as OfficialProjectController;
+use App\Http\Controllers\Official\InventoryController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -282,6 +289,7 @@ Route::prefix('map-locations')->group(function () {
 // Captain Routes
 Route::middleware(['auth'])->prefix('captain')->group(function () {
     Route::get('/schedule', [App\Http\Controllers\Captain\CScheduleController::class, 'index'])->name('captain.schedule');
+    Route::get('/inventory', [App\Http\Controllers\Captain\InventoryController::class, 'index'])->name('captain.inventory');
     // Officials Routes
     Route::get('/officials', [App\Http\Controllers\Captain\OfficialController::class, 'index'])->name('captain.officials.index');
     Route::get('/officials/create', [App\Http\Controllers\Captain\OfficialController::class, 'create'])->name('captain.officials.create');
@@ -374,4 +382,21 @@ Route::prefix('admin')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard/statistics', [DashboardController::class, 'getStatistics']);
     Route::get('/dashboard/charts', [DashboardController::class, 'getCharts']);
+});
+
+// Map Routes
+Route::middleware(['auth'])->group(function () {
+    // Captain Map Routes
+    Route::get('/captain/map', [App\Http\Controllers\Captain\MapController::class, 'index'])->name('captain.map');
+    Route::get('/captain/map-locations', [App\Http\Controllers\Captain\MapController::class, 'getLocations'])->name('captain.map.locations');
+    Route::get('/captain/map-locations/purok-stats/{purokName}', [App\Http\Controllers\Captain\MapController::class, 'getPurokStats'])->name('captain.map.purok.stats');
+    Route::get('/captain/map-locations/households', [App\Http\Controllers\Captain\MapController::class, 'getHouseholds'])->name('captain.map.households');
+    Route::get('/captain/api/search', [App\Http\Controllers\Captain\MapController::class, 'search'])->name('captain.map.search');
+});
+
+// Official Portal Routes
+Route::middleware(['auth',])->prefix('official')->group(function () {
+    // Dashboard
+    Route::get('/', [App\Http\Controllers\Dashboard\OfficialDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/schedule', [App\Http\Controllers\Official\ScheduleController::class, 'index'])->name('official.schedule');
 });
