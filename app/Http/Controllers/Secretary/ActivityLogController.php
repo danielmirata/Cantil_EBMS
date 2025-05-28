@@ -91,4 +91,10 @@ class ActivityLogController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    public function notifications()
+    {
+        $notifications = \App\Models\ActivityLog::orderBy('created_at', 'desc')->limit(10)->get();
+        return response()->json($notifications);
+    }
 } 

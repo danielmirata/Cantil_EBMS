@@ -419,3 +419,5 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/api/projects', [App\Http\Controllers\ProjectController::class, 'index']);
 Route::get('/api/projects/{id}', [App\Http\Controllers\ProjectController::class, 'show']);
+
+Route::get('/secretary/notifications', [App\Http\Controllers\Secretary\ActivityLogController::class, 'notifications'])->name('secretary.notifications');

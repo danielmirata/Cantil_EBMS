@@ -10,10 +10,34 @@ class ScheduleController extends Controller
     /**
      * Display a listing of the schedules.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $schedules = Schedule::latest()->get();
-        return view('secretary.Schedule.schedule', compact('schedules'));
+        $query = Schedule::latest();
+        $search = $request->input('search');
+        $dateSearch = null;
+        if ($search) {
+            // Try to parse the search as a date in human format
+            try {
+                $parsed = \Carbon\Carbon::parse($search);
+                $dateSearch = $parsed->format('Y-m-d');
+            } catch (\Exception $e) {
+                $dateSearch = null;
+            }
+            $query->where(function($q) use ($search, $dateSearch) {
+                $q->where('title', 'like', "%$search%")
+                  ->orWhere('description', 'like', "%$search%")
+                  ->orWhere('venue', 'like', "%$search%")
+                  ->orWhere('time', 'like', "%$search%")
+                ;
+                if ($dateSearch) {
+                    $q->orWhere('date', $dateSearch);
+                } else {
+                    $q->orWhere('date', 'like', "%$search%") ;
+                }
+            });
+        }
+        $schedules = $query->paginate(5)->appends(['search' => $search]);
+        return view('secretary.Schedule.schedule', compact('schedules', 'search'));
     }
 
     /**

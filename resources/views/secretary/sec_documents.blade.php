@@ -145,7 +145,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr>
+                            <tr data-request-type="official">
                                 <td colspan="6" class="text-center">No official document requests found</td>
                             </tr>
                         @endforelse

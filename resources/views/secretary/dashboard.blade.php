@@ -16,6 +16,17 @@
     <div class="main-content">
         <!-- Top Navigation -->
         <div class="top-nav">
+            <div class="dropdown me-3" style="display:inline-block;">
+                <button class="btn position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-count" style="display:none;">0</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" id="notification-list" style="width: 350px; max-height: 400px; overflow-y: auto;">
+                    <li class="dropdown-header">Notifications</li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="text-center text-muted" id="no-notifications">No notifications</li>
+                </ul>
+            </div>
             <div class="dropdown secretary-dropdown">
                 <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-user-circle"></i> Secretary
@@ -143,6 +154,35 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } }
             }
+        });
+
+        function fetchNotifications() {
+            fetch('/secretary/notifications')
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('notification-list');
+                    const count = document.getElementById('notification-count');
+                    list.innerHTML = '<li class="dropdown-header">Notifications</li><li><hr class="dropdown-divider"></li>';
+                    if (data.length === 0) {
+                        list.innerHTML += '<li class="text-center text-muted" id="no-notifications">No notifications</li>';
+                        count.style.display = 'none';
+                    } else {
+                        data.forEach(item => {
+                            list.innerHTML += `<li>
+                                <div class=\"dropdown-item\">
+                                    <div><strong>${item.transaction_type}</strong> - ${item.description}</div>
+                                    <small class=\"text-muted\">${new Date(item.created_at).toLocaleString()}</small>
+                                </div>
+                            </li>`;
+                        });
+                        count.textContent = data.length;
+                        count.style.display = '';
+                    }
+                });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchNotifications();
+            setInterval(fetchNotifications, 60000); // Refresh every 60 seconds
         });
     </script>
 </body>

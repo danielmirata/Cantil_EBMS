@@ -28,35 +28,28 @@
         <!-- Main Content -->
         <div class="main-content">
             <!-- Top Navigation -->
-            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
-                <div class="container-fluid">
-                    <button class="btn btn-link sidebar-toggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    
-                    <div class="d-flex align-items-center">
-                        <div class="dropdown">
-                            <button class="btn btn-link dropdown-toggle text-dark" type="button" id="userDropdown" data-bs-toggle="dropdown">
-                                <i class="fas fa-user-circle me-2"></i>
-                                {{ Auth::user()->name ?? 'User' }}
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form action="{{ route('logout') }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item text-danger">
-                                            <i class="fas fa-sign-out-alt me-2"></i>Logout
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <div class="top-nav">
+            <div class="dropdown secretary-dropdown">
+                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <i class="fas fa-user-circle"></i> Secretary
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li>
+                        <form action="{{ route('logout') }}" method="POST" class="dropdown-item">
+                            @csrf
+                            <button type="submit" class="btn btn-link p-0"><i class="fas fa-sign-out-alt"></i>
+                                Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
             <!-- Page Content -->
             <main class="content-wrapper">

@@ -2,6 +2,41 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/shared-dashboard.css') }}">
+<style>
+.action-buttons .action-btn {
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    margin-right: 6px;
+    padding: 4px 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.action-buttons .action-btn:last-child {
+    margin-right: 0;
+}
+.action-buttons .action-btn:hover, .action-buttons .action-btn:focus {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    opacity: 0.9;
+}
+.action-buttons .action-btn i {
+    font-size: 1.1em;
+    vertical-align: middle;
+}
+.action-buttons .btn-square {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.action-buttons .action-btn i {
+    font-size: 1.3em;
+}
+</style>
 @endsection
 
 @section('content')
@@ -198,6 +233,8 @@ $(document).ready(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
     });
+    // Enable Bootstrap tooltips
+    $('[data-bs-toggle="tooltip"]').tooltip();
 });
 </script>
 @endsection
