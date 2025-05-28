@@ -886,17 +886,35 @@
           layer.setStyle({ color: color });
         }
       }
-      if (layer && location && location.project) {
-        const popupContent = `
+      if (layer && location) {
+        let popupContent = `
           <div class="location-popup">
             <h5>${location.title}</h5>
-            ${location.description ? `<p>${location.description}</p>` : ''}
+            ${location.description ? `<p>${location.description}</p>` : ''}`;
+
+        // Add household details if available
+        if (location.household_id) {
+          popupContent += `
+            <div class="household-info">
+              <p><strong>Household:</strong> ${location.household ? `${location.household.house_number}, ${location.household.street}` : 'Loading...'}</p>
+              <button class="btn btn-primary btn-sm" onclick="viewHouseholdMembers(${location.household_id})">
+                <i class="fas fa-users"></i> View Household Members
+              </button>
+            </div>`;
+        }
+
+        // Add project button if available
+        if (location.project) {
+          popupContent += `
             <button class="btn btn-info btn-sm" onclick="showProjectDetails(${location.project.id})">
               <i class='fas fa-project-diagram'></i> View Project
-            </button>
+            </button>`;
+        }
+
+        popupContent += `
             <button class="btn btn-danger btn-sm" onclick="deleteLocation(${location.id})">Delete</button>
-          </div>
-        `;
+          </div>`;
+
         layer.bindPopup(popupContent);
       }
       return layer;
@@ -1189,14 +1207,27 @@
           window.tempMarker = null;
         }
         
-        const popupContent = `
+        let popupContent = `
           <div class="location-popup">
             <h5>${location.title}</h5>
-            ${data.description ? `<p>${data.description}</p>` : ''}
-            ${data.household_id ? `<p><strong>Household:</strong> ${document.getElementById('household').selectedOptions[0].text}</p>` : ''}
+            ${data.description ? `<p>${data.description}</p>` : ''}`;
+
+        // Add household details if available
+        if (data.household_id) {
+          const householdSelect = document.getElementById('household');
+          const selectedOption = householdSelect.selectedOptions[0];
+          popupContent += `
+            <div class="household-info">
+              <p><strong>Household:</strong> ${selectedOption.text}</p>
+              <button class="btn btn-primary btn-sm" onclick="viewHouseholdMembers(${data.household_id})">
+                <i class="fas fa-users"></i> View Household Members
+              </button>
+            </div>`;
+        }
+
+        popupContent += `
             <button class="btn btn-danger btn-sm" onclick="deleteLocation(${location.id})">Delete</button>
-          </div>
-        `;
+          </div>`;
         
         currentLayer.bindPopup(popupContent);
         drawnItems.addLayer(currentLayer);
