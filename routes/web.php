@@ -40,7 +40,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\Official\InventoryController as OfficialInventoryController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 })->name('home');
 
 // Authentication Routes
