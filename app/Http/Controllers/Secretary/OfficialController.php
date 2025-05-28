@@ -257,4 +257,15 @@ class OfficialController extends Controller
             return redirect()->back()->with('error', 'An unexpected error occurred. Please try again.');
         }
     }
+
+    public function show($id)
+    {
+        try {
+            $official = Official::with('position')->findOrFail($id);
+            return view('secretary.Official.partials.official_details', compact('official'));
+        } catch (\Exception $e) {
+            \Log::error('Error showing official: ' . $e->getMessage());
+            return response()->json(['error' => 'There was an error retrieving the official information.'], 500);
+        }
+    }
 } 

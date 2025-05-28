@@ -20,7 +20,8 @@ class MapLocationController extends Controller
                 'title' => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'household_id' => 'nullable|exists:households,id',
-                'color' => 'nullable|string|max:50'
+                'color' => 'nullable|string|max:50',
+                'project_id' => 'nullable|exists:projects,id',
             ]);
 
             // Verify coordinates can be decoded
@@ -56,7 +57,7 @@ class MapLocationController extends Controller
     public function index()
     {
         try {
-            $locations = MapLocation::with('household')->get();
+            $locations = MapLocation::with(['household', 'project'])->get();
             return response()->json($locations);
         } catch (\Exception $e) {
             Log::error('Error fetching map locations: ' . $e->getMessage());
@@ -153,7 +154,8 @@ class MapLocationController extends Controller
                 'title' => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'household_id' => 'nullable|exists:households,id',
-                'color' => 'nullable|string|max:50'
+                'color' => 'nullable|string|max:50',
+                'project_id' => 'nullable|exists:projects,id',
             ]);
 
             // Set null for empty household_id

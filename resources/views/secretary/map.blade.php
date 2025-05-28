@@ -25,7 +25,6 @@
     margin-right: 0.5rem;
   }
   #locationForm {
-    display: none;
     margin-top: 1rem;
     padding: 1rem;
     background: #f8f9fa;
@@ -120,6 +119,72 @@
     border: 2px solid #000;
     transform: scale(1.1);
   }
+
+  /* Project Details Modal Styles */
+  .custom-tabs .nav-link {
+    color: #6c757d;
+    font-weight: 500;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 1.1rem;
+    padding: 0.5rem 1.5rem;
+    transition: color 0.2s, border-bottom 0.2s;
+  }
+  .custom-tabs .nav-link.active {
+    color: #600000;
+    font-weight: bold;
+    border-bottom: 3px solid #600000;
+    background: none;
+  }
+  .custom-tabs .nav-link i {
+    font-size: 1.1rem;
+  }
+  .custom-tabs .nav-link:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  .info-item {
+    margin-bottom: 1rem;
+  }
+  .info-item:last-child {
+    margin-bottom: 0;
+  }
+  .badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+  .modal-body {
+    padding: 1.5rem;
+  }
+  .modal-header {
+    border-radius: 10px 10px 0 0;
+  }
+  .modal-footer {
+    border-radius: 0 0 10px 10px;
+  }
+  .text-primary {
+    color: #0d6efd !important;
+  }
+  .card {
+    border: none;
+    border-radius: 10px;
+  }
+  .badge.bg-success {
+    background-color: #198754 !important;
+  }
+  .badge.bg-primary {
+    background-color: #0d6efd !important;
+  }
+  .badge.bg-info {
+    background-color: #0dcaf0 !important;
+  }
+  .badge.bg-danger {
+    background-color: #dc3545 !important;
+  }
+  .badge i {
+    font-size: 0.9rem;
+  }
 </style>
 @endsection
 
@@ -153,40 +218,220 @@
           </div>
           <div id="map"></div>
 
-          <!-- Location Details Form -->
-          <form id="locationForm" class="needs-validation" novalidate>
-            @csrf
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="title" name="title" required>
+          <!-- Location Details Form Modal -->
+          <div class="modal fade" id="locationFormModal" tabindex="-1" aria-labelledby="locationFormModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="locationFormModalLabel">Add Location Details</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form id="locationForm" class="needs-validation" novalidate>
+                    @csrf
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="mb-3">
+                          <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="household" class="form-label">Link to Household (Optional)</label>
+                      <select class="form-select" id="household" name="household_id">
+                        <option value="">No Household</option>
+                      </select>
+                      <div class="form-text">Leave as "No Household" if this location is not associated with any household.</div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="description" class="form-label">Description (Optional)</label>
+                      <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter any additional details about this location"></textarea>
+                    </div>
+                    <div class="mb-3">
+                      <label for="color" class="form-label">Color (Optional)</label>
+                      <input type="color" class="form-control form-control-color" id="color" name="color" value="#ff0000">
+                      <div class="form-text">Choose a color for the shape or marker.</div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="project" class="form-label">Mark Project (Optional)</label>
+                      <select class="form-select" id="project" name="project_id">
+                        <option value="">No Project</option>
+                      </select>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-primary" id="saveLocationBtn">Save Location</button>
                 </div>
               </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label for="household" class="form-label">Link to Household (Optional)</label>
-                  <select class="form-select" id="household" name="household_id">
-                    <option value="">No Household</option>
-                  </select>
-                  <div class="form-text">Leave as "No Household" if this location is not associated with any household.</div>
+            </div>
+          </div>
+
+          <!-- Project Details Modal -->
+          <div class="modal fade" id="projectDetailsModal" tabindex="-1" aria-labelledby="projectDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+              <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                  <h5 class="modal-title" id="projectDetailsModalLabel">
+                    <i class="fas fa-project-diagram me-2"></i>Project Information
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <!-- Tab Navigation -->
+                  <ul class="nav nav-tabs custom-tabs mb-4" id="projectDetailsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link active" id="tab-info" data-bs-toggle="tab" data-bs-target="#tabInfoContent" type="button" role="tab" aria-controls="tabInfoContent" aria-selected="true">
+                        <i class="fas fa-user me-1"></i> <span>Project Info</span>
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="tab-financial" data-bs-toggle="tab" data-bs-target="#tabFinancialContent" type="button" role="tab" aria-controls="tabFinancialContent" aria-selected="false">
+                        <i class="fas fa-money-check-alt me-1"></i> <span>Financials</span>
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="tab-documents" data-bs-toggle="tab" data-bs-target="#tabDocumentsContent" type="button" role="tab" aria-controls="tabDocumentsContent" aria-selected="false">
+                        <i class="fas fa-folder-open me-1"></i> <span>Documents & Notes</span>
+                      </button>
+                    </li>
+                  </ul>
+                  <div class="tab-content" id="projectDetailsTabsContent">
+                    <!-- Project Info Tab -->
+                    <div class="tab-pane fade show active" id="tabInfoContent" role="tabpanel" aria-labelledby="tab-info">
+                      <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="card-title mb-0" id="viewProjectName"></h2>
+                          </div>
+                          <div class="mb-4">
+                            <h5 class="text-muted mb-3 border-bottom pb-2">
+                              <i class="fas fa-info-circle me-2"></i>Project Information
+                            </h5>
+                            <div class="row">
+                              <div class="col-md-6">
+                                <div class="info-item">
+                                  <p class="mb-1"><strong><i class="fas fa-map-marker-alt me-2 text-primary"></i>Location:</strong></p>
+                                  <p class="text-muted ps-4" id="viewLocation"></p>
+                                </div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="info-item">
+                                  <p class="mb-1"><strong><i class="fas fa-calendar-alt me-2 text-primary"></i>Timeline:</strong></p>
+                                  <p class="text-muted ps-4" id="viewTimeline"></p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="mb-4">
+                            <h5 class="text-muted mb-3 border-bottom pb-2">
+                              <i class="fas fa-align-left me-2"></i>Description
+                            </h5>
+                            <p class="text-muted ps-4" id="viewDescription"></p>
+                          </div>
+                          <div class="mb-4">
+                            <h5 class="text-muted mb-3 border-bottom pb-2">
+                              <i class="fas fa-tasks me-2"></i>Status & Priority
+                            </h5>
+                            <div class="row">
+                              <div class="col-md-6">
+                                <div class="info-item">
+                                  <p class="mb-1"><strong>Status:</strong></p>
+                                  <span class="badge" id="viewStatus"></span>
+                                </div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="info-item">
+                                  <p class="mb-1"><strong>Priority:</strong></p>
+                                  <p class="mb-0 ps-4" id="viewPriority"></p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Financials Tab -->
+                    <div class="tab-pane fade" id="tabFinancialContent" role="tabpanel" aria-labelledby="tab-financial">
+                      <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                          <div class="mb-4">
+                            <h5 class="text-muted mb-3 border-bottom pb-2">
+                              <i class="fas fa-money-bill-wave me-2"></i>Financial Information
+                            </h5>
+                            <div class="row">
+                              <div class="col-md-6">
+                                <div class="info-item">
+                                  <p class="mb-1"><strong><i class="fas fa-money-bill-wave me-2 text-primary"></i>Budget:</strong></p>
+                                  <p class="text-muted ps-4" id="viewBudget"></p>
+                                </div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="info-item">
+                                  <p class="mb-1"><strong><i class="fas fa-hand-holding-usd me-2 text-primary"></i>Funding Source:</strong></p>
+                                  <p class="text-muted ps-4" id="viewFundingSource"></p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Documents & Notes Tab -->
+                    <div class="tab-pane fade" id="tabDocumentsContent" role="tabpanel" aria-labelledby="tab-documents">
+                      <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                          <div class="mb-4">
+                            <h5 class="text-muted mb-3 border-bottom pb-2">
+                              <i class="fas fa-file-alt me-2"></i>Project Documents
+                            </h5>
+                            <div id="viewDocuments" class="text-muted ps-4">
+                              <!-- Documents will be populated here -->
+                            </div>
+                          </div>
+                          <div class="mb-4">
+                            <h5 class="text-muted mb-3 border-bottom pb-2">
+                              <i class="fas fa-sticky-note me-2"></i>Additional Notes
+                            </h5>
+                            <p class="text-muted ps-4" id="viewNotes"></p>
+                          </div>
+                          <div class="mb-4">
+                            <h5 class="text-muted mb-3 border-bottom pb-2">
+                              <i class="fas fa-clock me-2"></i>Timestamps
+                            </h5>
+                            <div class="row">
+                              <div class="col-md-6">
+                                <div class="info-item">
+                                  <p class="mb-1"><strong><i class="fas fa-calendar-plus me-2 text-primary"></i>Created At:</strong></p>
+                                  <p class="text-muted ps-4" id="viewCreatedAt"></p>
+                                </div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="info-item">
+                                  <p class="mb-1"><strong><i class="fas fa-calendar-edit me-2 text-primary"></i>Updated At:</strong></p>
+                                  <p class="text-muted ps-4" id="viewUpdatedAt"></p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Close
+                  </button>
+                  <button type="button" class="btn btn-warning" id="editFromViewBtn">
+                    <i class="fas fa-edit me-1"></i>Edit Project
+                  </button>
                 </div>
               </div>
             </div>
-            <div class="mb-3">
-              <label for="description" class="form-label">Description (Optional)</label>
-              <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter any additional details about this location"></textarea>
-            </div>
-            <div class="mb-3">
-              <label for="color" class="form-label">Color (Optional)</label>
-              <input type="color" class="form-control form-control-color" id="color" name="color" value="#ff0000">
-              <div class="form-text">Choose a color for the shape or marker.</div>
-            </div>
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary">Save Location</button>
-              <button type="button" class="btn btn-secondary" id="cancelForm">Cancel</button>
-            </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
@@ -195,6 +440,7 @@
 @endsection
 
 @section('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
 <script>
@@ -629,7 +875,7 @@
   }
 
   // Function to create layer from saved coordinates
-  function createLayer(type, coords, color) {
+  function createLayer(type, coords, color, location = null) {
     let layer;
     try {
       if (type === 'marker') {
@@ -639,6 +885,19 @@
         if (color) {
           layer.setStyle({ color: color });
         }
+      }
+      if (layer && location && location.project) {
+        const popupContent = `
+          <div class="location-popup">
+            <h5>${location.title}</h5>
+            ${location.description ? `<p>${location.description}</p>` : ''}
+            <button class="btn btn-info btn-sm" onclick="showProjectDetails(${location.project.id})">
+              <i class='fas fa-project-diagram'></i> View Project
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteLocation(${location.id})">Delete</button>
+          </div>
+        `;
+        layer.bindPopup(popupContent);
       }
       return layer;
     } catch (error) {
@@ -654,24 +913,9 @@
       locations.forEach(location => {
         try {
           const coords = JSON.parse(location.coordinates);
-          const layer = createLayer(location.type, coords, location.color);
+          const layer = createLayer(location.type, coords, location.color, location);
           
           if (layer) {
-            const popupContent = `
-              <div class="location-popup">
-                <h5>${location.title}</h5>
-                ${location.description ? `<p>${location.description}</p>` : ''}
-                ${location.household ? `
-                  <p><strong>Household:</strong> ${location.household.name} - ${location.household.house_number}, ${location.household.street}</p>
-                  <button class="btn btn-info btn-sm" onclick="viewHouseholdMembers(${location.household.id})">
-                    <i class="fas fa-users me-1"></i> View Members
-                  </button>
-                ` : ''}
-                <button class="btn btn-danger btn-sm" onclick="deleteLocation(${location.id})">Delete</button>
-              </div>
-            `;
-            
-            layer.bindPopup(popupContent);
             drawnItems.addLayer(layer);
           }
         } catch (error) {
@@ -844,11 +1088,26 @@
   });
 
   function showLocationForm(type, coordinates) {
-    document.getElementById('locationForm').style.display = 'block';
+    const modal = new bootstrap.Modal(document.getElementById('locationFormModal'));
+    document.getElementById('locationFormModalLabel').textContent = `Add ${type.charAt(0).toUpperCase() + type.slice(1)} Details`;
+    // Populate projects
+    fetch('/api/projects')
+      .then(response => response.json())
+      .then(projects => {
+        const projectSelect = document.getElementById('project');
+        projectSelect.innerHTML = '<option value="">No Project</option>';
+        projects.forEach(project => {
+          const option = document.createElement('option');
+          option.value = project.id;
+          option.textContent = `${project.project_name} (${project.status})`;
+          projectSelect.appendChild(option);
+        });
+      });
     document.getElementById('locationForm').onsubmit = function(e) {
       e.preventDefault();
       saveLocation(type, coordinates);
     };
+    modal.show();
   }
 
   // Drawing button handlers
@@ -900,7 +1159,7 @@
   document.getElementById('draw-polygon').addEventListener('click', () => startDrawing('polygon'));
   document.getElementById('draw-marker').addEventListener('click', () => startDrawing('marker'));
 
-  // Update the saveLocation function to handle markers better
+  // Update the saveLocation function
   function saveLocation(type, coordinates) {
     const form = document.getElementById('locationForm');
     const data = {
@@ -909,7 +1168,8 @@
       title: form.querySelector('#title').value,
       description: form.querySelector('#description').value || null,
       household_id: form.querySelector('#household').value || null,
-      color: form.querySelector('#color').value
+      color: form.querySelector('#color').value,
+      project_id: form.querySelector('#project').value || null
     };
 
     fetch('/map-locations', {
@@ -971,9 +1231,11 @@
   }
 
   function hideLocationForm() {
-    const form = document.getElementById('locationForm');
-    form.style.display = 'none';
-    form.reset();
+    const modal = bootstrap.Modal.getInstance(document.getElementById('locationFormModal'));
+    if (modal) {
+      modal.hide();
+    }
+    document.getElementById('locationForm').reset();
     
     if (window.tempMarker) {
       map.removeLayer(window.tempMarker);
@@ -987,7 +1249,12 @@
     document.getElementById('draw-marker').classList.remove('active');
   }
 
-  document.getElementById('cancelForm').onclick = hideLocationForm;
+  // Add event listener for save button
+  document.getElementById('saveLocationBtn').addEventListener('click', function() {
+    if (currentLayer && currentType) {
+      saveLocation(currentType, getCoordinates(currentLayer, currentType));
+    }
+  });
 
   // Trigger a resize event after map initialization to ensure proper rendering
   setTimeout(() => {
@@ -1073,5 +1340,143 @@
     
     return age;
   }
+
+  // Add showProjectDetails function
+  function showProjectDetails(projectId) {
+    console.log('Showing project details for ID:', projectId);
+    
+    $.ajax({
+      url: `/api/projects/${projectId}`,
+      type: 'GET',
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function(response) {
+        console.log('Project data received:', response);
+        
+        const project = response.project || response;
+        if (!project) {
+          console.error('No project data received');
+          alert('Error: No project data received');
+          return;
+        }
+        
+        // Update modal content
+        $('#viewProjectName').text(project.project_name || '');
+        $('#viewLocation').text(project.location || 'Not specified');
+        $('#viewTimeline').text(`${formatDate(project.start_date)} - ${formatDate(project.end_date)}`);
+        $('#viewDescription').text(project.description || '');
+        $('#viewBudget').text(`₱${formatNumber(project.budget)}`);
+        $('#viewFundingSource').text(project.funding_source || 'Not specified');
+        $('#viewPriority').text(project.priority || 'Not specified');
+        $('#viewNotes').text(project.notes || 'No additional notes');
+        $('#viewCreatedAt').text(formatDate(project.created_at));
+        $('#viewUpdatedAt').text(formatDate(project.updated_at));
+        
+        // Handle documents
+        const documentsContainer = $('#viewDocuments');
+        documentsContainer.empty();
+        if (project.documents && project.documents.length > 0) {
+          const documentsList = $('<ul class="list-unstyled"></ul>');
+          project.documents.forEach(doc => {
+            let fileName = doc.path || doc.name || doc;
+            fileName = fileName.replace(/^project-documents[\\/]/, '');
+            const docUrl = `/storage/project-documents/${fileName}`;
+            const docName = doc.name || doc.original_name || doc.path || doc;
+            documentsList.append(`
+              <li class="mb-2">
+                <i class="fas fa-file me-2 text-primary"></i>
+                <a href="${docUrl}" target="_blank" class="text-primary text-decoration-underline">${docName}</a>
+              </li>
+            `);
+          });
+          documentsContainer.append(documentsList);
+        } else {
+          documentsContainer.html('<p class="text-muted"><i class="fas fa-info-circle me-2"></i>No documents attached</p>');
+        }
+        
+        // Update status badge
+        const statusClass = {
+          'Completed': 'success',
+          'Ongoing': 'primary',
+          'Planning': 'info',
+          'On Hold': 'danger'
+        }[project.status] || 'secondary';
+        
+        const statusIcon = {
+          'Completed': 'check-circle',
+          'Ongoing': 'spinner fa-spin',
+          'Planning': 'clipboard-list',
+          'On Hold': 'pause-circle'
+        }[project.status] || 'question-circle';
+        
+        $('#viewStatus').html(`
+          <span class="badge bg-${statusClass} text-white">
+            <i class="fas fa-${statusIcon} me-1"></i>
+            ${project.status}
+          </span>
+        `);
+        
+        // Set edit button action
+        $('#editFromViewBtn').off('click').on('click', function() {
+          $('#projectDetailsModal').modal('hide');
+          editProject(projectId);
+        });
+        
+        // Show modal
+        const viewModal = new bootstrap.Modal(document.getElementById('projectDetailsModal'));
+        viewModal.show();
+      },
+      error: function(xhr, status, error) {
+        console.error('Error fetching project details:', {xhr, status, error});
+        alert('Error loading project details. Please try again.');
+      }
+    });
+  }
+
+  // Helper function to format dates
+  function formatDate(dateString) {
+    if (!dateString) return 'Not specified';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  // Helper function to format numbers
+  function formatNumber(number) {
+    if (!number) return '0.00';
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(number);
+  }
+
+  // Initialize tooltips and other Bootstrap components
+  $(document).ready(function() {
+    // Initialize tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+
+    // Initialize tabs
+    $('.nav-tabs a').on('click', function(e) {
+      e.preventDefault();
+      $(this).tab('show');
+    });
+
+    // Show first tab by default
+    $('.nav-tabs li:first-child a').tab('show');
+
+    // Handle modal events
+    $('#projectDetailsModal').on('shown.bs.modal', function() {
+      // Refresh tooltips when modal is shown
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+
+    $('#projectDetailsModal').on('hidden.bs.modal', function() {
+      // Clean up when modal is hidden
+      $('[data-toggle="tooltip"]').tooltip('dispose');
+    });
+  });
 </script>
 @endsection

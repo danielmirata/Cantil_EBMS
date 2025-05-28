@@ -203,24 +203,17 @@
         });
 
         // Handle view resident button clicks
-        $(document).on('click', '.view-resident', function() {
+        $('.view-resident').on('click', function() {
             const residentId = $(this).data('id');
-            // Load resident information via AJAX (fixed URL)
+            // Load resident information via AJAX
             $.get(`/secretary/residence/${residentId}`, function(data) {
                 $('#residentModal .modal-body').html(data);
                 $('#residentModal').modal('show');
-            }).fail(function(xhr) {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Failed to load resident details. Please try again.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
             });
         });
 
         // Handle update info button click
-        $(document).on('click', '#updateInfoBtn', function() {
+        $('#updateInfoBtn').on('click', function() {
             const residentId = $(this).data('id');
             // Load update form via AJAX
             $.get(`/secretary/residents/${residentId}/edit`, function(data) {

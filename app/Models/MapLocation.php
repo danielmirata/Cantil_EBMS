@@ -15,7 +15,8 @@ class MapLocation extends Model
         'title',
         'description',
         'household_id',
-        'color'
+        'color',
+        'project_id'
     ];
 
     protected $casts = [
@@ -25,5 +26,10 @@ class MapLocation extends Model
     public function household()
     {
         return $this->belongsTo(Household::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(\App\Models\Project::class);
     }
 } 

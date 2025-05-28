@@ -10,19 +10,14 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::latest()->get();
-        $totalProjects = Project::count();
-        $ongoingProjects = Project::where('status', 'Ongoing')->count();
-        $completedProjects = Project::where('status', 'Completed')->count();
-        $pendingProjects = Project::where('status', 'Planning')->count();
+        $projects = Project::all();
+        return view('secretary.barangay_project', compact('projects'));
+    }
 
-        return view('secretary.barangay_project', compact(
-            'projects',
-            'totalProjects',
-            'ongoingProjects',
-            'completedProjects',
-            'pendingProjects'
-        ));
+    public function show($id)
+    {
+        $project = Project::findOrFail($id);
+        return response()->json(['project' => $project]);
     }
 
     public function store(Request $request)
@@ -61,11 +56,6 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.index')
             ->with('success', 'Project created successfully.');
-    }
-
-    public function show(Project $project)
-    {
-        return response()->json(['project' => $project]);
     }
 
     public function edit(Project $project)

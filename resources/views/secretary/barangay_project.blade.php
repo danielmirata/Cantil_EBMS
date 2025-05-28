@@ -208,7 +208,12 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <p><strong><i class="fas fa-map-marker-alt mr-2"></i>Location:</strong></p>
-                                <p class="text-muted">{{ $project->location ?? 'Not specified' }}</p>
+                                <p class="text-muted d-flex align-items-center" id="viewLocationWrapper">
+                                    <span id="viewLocation"></span>
+                                    <button id="viewOnMapBtn" class="btn btn-outline-primary btn-sm ms-2" style="display:none;">
+                                        <i class="fas fa-map-marker-alt"></i> View on Map
+                                    </button>
+                                </p>
                             </div>
                             <div class="col-md-6">
                                 <p><strong><i class="fas fa-calendar-alt mr-2"></i>Timeline:</strong></p>
@@ -634,7 +639,12 @@
                                             <div class="col-md-6">
                                                 <div class="info-item">
                                                     <p class="mb-1"><strong><i class="fas fa-map-marker-alt me-2 text-primary"></i>Location:</strong></p>
-                                                    <p class="text-muted ps-4" id="viewLocation"></p>
+                                                    <p class="text-muted ps-4 d-flex align-items-center" id="viewLocationWrapper">
+                                                        <span id="viewLocation"></span>
+                                                        <button id="viewOnMapBtn" class="btn btn-outline-primary btn-sm ms-2" style="display:none;">
+                                                            <i class="fas fa-map-marker-alt"></i> View on Map
+                                                        </button>
+                                                    </p>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
@@ -866,6 +876,13 @@
                         // Update modal content
                         $('#viewProjectName').text(project.project_name);
                         $('#viewLocation').text(project.location || 'Not specified');
+                        if (project.id) {
+                            $('#viewOnMapBtn').show().off('click').on('click', function() {
+                                window.location.href = `/secretary/map?project=${project.id}`;
+                            });
+                        } else {
+                            $('#viewOnMapBtn').hide();
+                        }
                         $('#viewTimeline').text(`${formatDate(project.start_date)} - ${formatDate(project.end_date)}`);
                         $('#viewDescription').text(project.description);
                         $('#viewBudget').text(`₱${formatNumber(project.budget)}`);

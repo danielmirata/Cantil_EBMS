@@ -112,6 +112,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/secretary/official/{official}/profile-picture', [OfficialController::class, 'updateProfilePicture'])->name('officials.update-profile-picture');
     Route::patch('/officials/{official}/update-photo', [OfficialController::class, 'updatePhoto'])->name('officials.update-photo');
     Route::patch('/officials/{official}/update-info', [OfficialController::class, 'updateInfo'])->name('officials.update-info');
+    Route::get('/secretary/officials/{id}', [App\Http\Controllers\Secretary\OfficialController::class, 'show'])->name('secretary.officials.show');
 
     // profile-picture Routes
     Route::get('/profile-picture/{filename}', function ($filename) {
@@ -242,6 +243,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('secretary.documents.print.residency');
     Route::get('/secretary/documents/print/certification/{id}', [App\Http\Controllers\Secretary\DocumentController::class, 'printCertification'])
         ->name('secretary.documents.print.certification');
+    Route::get('/secretary/blotter/print', [App\Http\Controllers\Secretary\BlotterController::class, 'print'])
+        ->name('secretary.blotter.print');
 });
 
 // Certificate Generation Routes
@@ -413,3 +416,6 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/inventory/{id}', [OfficialInventoryController::class, 'destroy'])->name('inventory.destroy');
     Route::post('/inventory/use', [OfficialInventoryController::class, 'use'])->name('inventory.use');
 });
+
+Route::get('/api/projects', [App\Http\Controllers\ProjectController::class, 'index']);
+Route::get('/api/projects/{id}', [App\Http\Controllers\ProjectController::class, 'show']);
