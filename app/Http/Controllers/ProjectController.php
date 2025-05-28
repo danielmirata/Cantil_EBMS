@@ -8,9 +8,12 @@ use Illuminate\Support\Facades\Storage;
 
 class ProjectController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $projects = Project::all();
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json(['projects' => $projects]);
+        }
         return view('secretary.barangay_project', compact('projects'));
     }
 

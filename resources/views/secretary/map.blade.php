@@ -903,12 +903,26 @@
             </div>`;
         }
 
-        // Add project button if available
+        // Add project information if available
         if (location.project) {
+          const project = location.project;
+          const statusClass = {
+            'Completed': 'success',
+            'Ongoing': 'primary',
+            'Planning': 'info',
+            'On Hold': 'danger'
+          }[project.status] || 'secondary';
+
           popupContent += `
-            <button class="btn btn-info btn-sm" onclick="showProjectDetails(${location.project.id})">
-              <i class='fas fa-project-diagram'></i> View Project
-            </button>`;
+            <div class="project-info mt-2">
+              <h6 class="mb-2">Project Information</h6>
+              <p><strong>Project:</strong> ${project.project_name}</p>
+              <p><strong>Status:</strong> <span class="badge bg-${statusClass}">${project.status}</span></p>
+              <p><strong>Timeline:</strong> ${formatDate(project.start_date)} - ${formatDate(project.end_date)}</p>
+              <button class="btn btn-info btn-sm" onclick="showProjectDetails(${project.id})">
+                <i class='fas fa-project-diagram'></i> View Full Details
+              </button>
+            </div>`;
         }
 
         popupContent += `
@@ -931,10 +945,29 @@
       locations.forEach(location => {
         try {
           const coords = JSON.parse(location.coordinates);
-          const layer = createLayer(location.type, coords, location.color, location);
-          
-          if (layer) {
-            drawnItems.addLayer(layer);
+          // Fetch project details if project_id exists
+          if (location.project_id) {
+            fetch(`/api/projects/${location.project_id}`)
+              .then(response => response.json())
+              .then(projectData => {
+                location.project = projectData.project || projectData;
+                const layer = createLayer(location.type, coords, location.color, location);
+                if (layer) {
+                  drawnItems.addLayer(layer);
+                }
+              })
+              .catch(error => {
+                console.error('Error loading project:', error);
+                const layer = createLayer(location.type, coords, location.color, location);
+                if (layer) {
+                  drawnItems.addLayer(layer);
+                }
+              });
+          } else {
+            const layer = createLayer(location.type, coords, location.color, location);
+            if (layer) {
+              drawnItems.addLayer(layer);
+            }
           }
         } catch (error) {
           console.error('Error loading location:', error);
@@ -1108,19 +1141,30 @@
   function showLocationForm(type, coordinates) {
     const modal = new bootstrap.Modal(document.getElementById('locationFormModal'));
     document.getElementById('locationFormModalLabel').textContent = `Add ${type.charAt(0).toUpperCase() + type.slice(1)} Details`;
-    // Populate projects
+    
+    // Load projects for the dropdown
     fetch('/api/projects')
       .then(response => response.json())
       .then(projects => {
         const projectSelect = document.getElementById('project');
         projectSelect.innerHTML = '<option value="">No Project</option>';
-        projects.forEach(project => {
+        
+        // Check if projects is an array or has a projects property
+        const projectList = Array.isArray(projects) ? projects : (projects.projects || []);
+        
+        projectList.forEach(project => {
           const option = document.createElement('option');
           option.value = project.id;
           option.textContent = `${project.project_name} (${project.status})`;
           projectSelect.appendChild(option);
         });
+      })
+      .catch(error => {
+        console.error('Error loading projects:', error);
+        const projectSelect = document.getElementById('project');
+        projectSelect.innerHTML = '<option value="">Error loading projects</option>';
       });
+
     document.getElementById('locationForm').onsubmit = function(e) {
       e.preventDefault();
       saveLocation(type, coordinates);
@@ -1206,31 +1250,28 @@
           map.removeLayer(window.tempMarker);
           window.tempMarker = null;
         }
-        
-        let popupContent = `
-          <div class="location-popup">
-            <h5>${location.title}</h5>
-            ${data.description ? `<p>${data.description}</p>` : ''}`;
 
-        // Add household details if available
-        if (data.household_id) {
-          const householdSelect = document.getElementById('household');
-          const selectedOption = householdSelect.selectedOptions[0];
-          popupContent += `
-            <div class="household-info">
-              <p><strong>Household:</strong> ${selectedOption.text}</p>
-              <button class="btn btn-primary btn-sm" onclick="viewHouseholdMembers(${data.household_id})">
-                <i class="fas fa-users"></i> View Household Members
-              </button>
-            </div>`;
+        // If project_id exists, fetch project details
+        if (data.project_id) {
+          fetch(`/api/projects/${data.project_id}`)
+            .then(response => response.json())
+            .then(projectData => {
+              location.project = projectData.project || projectData;
+              let popupContent = createPopupContent(location, data);
+              currentLayer.bindPopup(popupContent);
+              drawnItems.addLayer(currentLayer);
+            })
+            .catch(error => {
+              console.error('Error loading project:', error);
+              let popupContent = createPopupContent(location, data);
+              currentLayer.bindPopup(popupContent);
+              drawnItems.addLayer(currentLayer);
+            });
+        } else {
+          let popupContent = createPopupContent(location, data);
+          currentLayer.bindPopup(popupContent);
+          drawnItems.addLayer(currentLayer);
         }
-
-        popupContent += `
-            <button class="btn btn-danger btn-sm" onclick="deleteLocation(${location.id})">Delete</button>
-          </div>`;
-        
-        currentLayer.bindPopup(popupContent);
-        drawnItems.addLayer(currentLayer);
       }
       
       hideLocationForm();
@@ -1241,6 +1282,55 @@
       console.error('Error saving location:', error);
       alert('Error saving location. Please try again.');
     });
+  }
+
+  // Helper function to create popup content
+  function createPopupContent(location, data) {
+    let popupContent = `
+      <div class="location-popup">
+        <h5>${location.title}</h5>
+        ${data.description ? `<p>${data.description}</p>` : ''}`;
+
+    // Add household details if available
+    if (data.household_id) {
+      const householdSelect = document.getElementById('household');
+      const selectedOption = householdSelect.selectedOptions[0];
+      popupContent += `
+        <div class="household-info">
+          <p><strong>Household:</strong> ${selectedOption.text}</p>
+          <button class="btn btn-primary btn-sm" onclick="viewHouseholdMembers(${data.household_id})">
+            <i class="fas fa-users"></i> View Household Members
+          </button>
+        </div>`;
+    }
+
+    // Add project information if available
+    if (location.project) {
+      const project = location.project;
+      const statusClass = {
+        'Completed': 'success',
+        'Ongoing': 'primary',
+        'Planning': 'info',
+        'On Hold': 'danger'
+      }[project.status] || 'secondary';
+
+      popupContent += `
+        <div class="project-info mt-2">
+          <h6 class="mb-2">Project Information</h6>
+          <p><strong>Project:</strong> ${project.project_name}</p>
+          <p><strong>Status:</strong> <span class="badge bg-${statusClass}">${project.status}</span></p>
+          <p><strong>Timeline:</strong> ${formatDate(project.start_date)} - ${formatDate(project.end_date)}</p>
+          <button class="btn btn-info btn-sm" onclick="showProjectDetails(${project.id})">
+            <i class='fas fa-project-diagram'></i> View Full Details
+          </button>
+        </div>`;
+    }
+
+    popupContent += `
+        <button class="btn btn-danger btn-sm" onclick="deleteLocation(${location.id})">Delete</button>
+      </div>`;
+
+    return popupContent;
   }
 
   function deleteLocation(id) {
@@ -1376,13 +1466,9 @@
   function showProjectDetails(projectId) {
     console.log('Showing project details for ID:', projectId);
     
-    $.ajax({
-      url: `/api/projects/${projectId}`,
-      type: 'GET',
-      headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-      },
-      success: function(response) {
+    fetch(`/api/projects/${projectId}`)
+      .then(response => response.json())
+      .then(response => {
         console.log('Project data received:', response);
         
         const project = response.project || response;
@@ -1457,12 +1543,11 @@
         // Show modal
         const viewModal = new bootstrap.Modal(document.getElementById('projectDetailsModal'));
         viewModal.show();
-      },
-      error: function(xhr, status, error) {
-        console.error('Error fetching project details:', {xhr, status, error});
+      })
+      .catch(error => {
+        console.error('Error fetching project details:', error);
         alert('Error loading project details. Please try again.');
-      }
-    });
+      });
   }
 
   // Helper function to format dates
