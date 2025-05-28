@@ -10,58 +10,20 @@ class Expense extends Model
     use HasFactory;
 
     protected $fillable = [
-        'project_id',
-        'date',
+        'budget_id',
         'description',
         'category',
         'amount',
-        'status',
-        'location',
-        'beneficiary',
-        'receipt_number',
-        'receipt_file_path',
-        'budget_allocation',
-        'budget_remaining'
+        'vendor',
+        'status'
     ];
 
     protected $casts = [
-        'date' => 'date',
-        'amount' => 'decimal:2',
-        'budget_remaining' => 'decimal:2'
+        'amount' => 'decimal:2'
     ];
 
-    public function project()
+    public function budget()
     {
-        return $this->belongsTo(Project::class);
-    }
-
-    public function approver()
-    {
-        return $this->belongsTo(User::class, 'approved_by');
-    }
-
-    public function scopePending($query)
-    {
-        return $query->where('status', 'Pending');
-    }
-
-    public function scopeApproved($query)
-    {
-        return $query->where('status', 'Approved');
-    }
-
-    public function scopeRejected($query)
-    {
-        return $query->where('status', 'Rejected');
-    }
-
-    public function scopeByCategory($query, $category)
-    {
-        return $query->where('category', $category);
-    }
-
-    public function scopeByBudgetAllocation($query, $allocation)
-    {
-        return $query->where('budget_allocation', $allocation);
+        return $this->belongsTo(Budget::class);
     }
 } 

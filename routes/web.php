@@ -36,7 +36,8 @@ use App\Http\Controllers\Official\ScheduleController as OfficialScheduleControll
 use App\Http\Controllers\Official\OfficialController as OfficialOfficialController;
 use App\Http\Controllers\Official\DocumentController;
 use App\Http\Controllers\Official\ProjectController as OfficialProjectController;
-use App\Http\Controllers\Official\InventoryController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\Official\InventoryController as OfficialInventoryController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -208,6 +209,8 @@ Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])->name
 Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
 Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 Route::get('/projects/{project}/get', [ProjectController::class, 'getProject'])->name('projects.get');
+Route::get('/projects/{project}/location', [ProjectController::class, 'getLocation']);
+Route::post('/projects/{project}/location', [ProjectController::class, 'updateLocation']);
 
 // Expense Routes
 Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
@@ -399,4 +402,14 @@ Route::middleware(['auth',])->prefix('official')->group(function () {
     // Dashboard
     Route::get('/', [App\Http\Controllers\Dashboard\OfficialDashboardController::class, 'index'])->name('dashboard');
     Route::get('/schedule', [App\Http\Controllers\Official\ScheduleController::class, 'index'])->name('official.schedule');
+});
+
+// Inventory Management Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/inventory', [OfficialInventoryController::class, 'index'])->name('inventory.index');
+    Route::post('/inventory', [OfficialInventoryController::class, 'store'])->name('inventory.store');
+    Route::get('/inventory/{id}', [OfficialInventoryController::class, 'show'])->name('inventory.show');
+    Route::put('/inventory/{id}', [OfficialInventoryController::class, 'update'])->name('inventory.update');
+    Route::delete('/inventory/{id}', [OfficialInventoryController::class, 'destroy'])->name('inventory.destroy');
+    Route::post('/inventory/use', [OfficialInventoryController::class, 'use'])->name('inventory.use');
 });

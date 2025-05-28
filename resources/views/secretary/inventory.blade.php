@@ -1,917 +1,773 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Barangay Cantil-E - Inventory & Expenses</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/secretary-dashboard.css') }}">
-    <!-- Add SweetAlert2 CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
-    <!-- Add jQuery first -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Add SweetAlert2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <style>
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            .print-content, .print-content * {
-                visibility: visible;
-            }
-            .print-content {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-            }
-            .no-print {
-                display: none !important;
-            }
-        }
-        .btn {
-            padding: 0.5rem 1rem;
-            font-weight: 500;
-            transition: all 0.2s ease-in-out;
-        }
+@extends('layouts.inve_layout')
 
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+@section('title', 'Inventory Management')
 
-        .btn-group .btn {
-            padding: 0.375rem 0.75rem;
-        }
+@section('header-title', 'Inventory Management')
+@section('header-subtitle', 'Manage inventory, budgets, and track expenses efficiently')
 
-        .btn-group .btn:hover {
-            transform: none;
-        }
+@section('navigation')
+<div class="border-bottom mb-4">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link{{ request()->query('tab', 'inventory') == 'inventory' ? ' active' : '' }}" href="{{ route('inventory.index', ['tab' => 'inventory']) }}">
+                <i class="fas fa-box me-2"></i>Inventory
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link{{ request()->query('tab') == 'budget' ? ' active' : '' }}" href="{{ route('inventory.index', ['tab' => 'budget']) }}">
+                <i class="fas fa-wallet me-2"></i>Budget Management
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link{{ request()->query('tab') == 'expenses' ? ' active' : '' }}" href="{{ route('inventory.index', ['tab' => 'expenses']) }}">
+                <i class="fas fa-receipt me-2"></i>Expenses
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link{{ request()->query('tab') == 'analytics' ? ' active' : '' }}" href="{{ route('inventory.index', ['tab' => 'analytics']) }}">
+                <i class="fas fa-chart-bar me-2"></i>Analytics
+            </a>
+        </li>
+    </ul>
+</div>
+@endsection
 
-        .btn-primary {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
+@section('styles')
+<style>
+.bg-primary {
+    background-color: #90caf9 !important;
+    /* Optionally, adjust text color for contrast */
+    color:rgb(52, 52, 54) !important;
+}
 
-        .btn-primary:hover {
-            background-color: #0b5ed7;
-            border-color: #0a58ca;
-        }
+.budget-blue {
+    background-color: #90caf9 !important;
+    color: rgb(52, 52, 54) !important;
+}
+</style>
+@endsection
 
-        .btn-outline-primary {
-            color: #0d6efd;
-            border-color: #0d6efd;
-        }
-
-        .btn-outline-primary:hover {
-            background-color: #0d6efd;
-            color: white;
-        }
-
-        .btn-info {
-            background-color: #0dcaf0;
-            border-color: #0dcaf0;
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-            border-color: #ffc107;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
-
-        .input-group {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .input-group-text {
-            border-right: none;
-        }
-
-        .input-group .form-control {
-            border-left: none;
-        }
-
-        .input-group .form-control:focus {
-            box-shadow: none;
-            border-color: #ced4da;
-        }
-
-        .gap-2 {
-            gap: 0.5rem;
-        }
-
-        .badge {
-            font-weight: 500;
-            padding: 0.5em 0.75em;
-        }
-
-        .badge-pill {
-            border-radius: 50rem;
-        }
-
-        .badge-success {
-            background-color: #198754;
-        }
-
-        .badge-warning {
-            background-color: #ffc107;
-            color: #000;
-        }
-
-        .badge-danger {
-            background-color: #dc3545;
-        }
-
-        .form-label {
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-
-        .form-control, .form-select {
-            border-radius: 0.375rem;
-            border: 1px solid #ced4da;
-            padding: 0.5rem 0.75rem;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-
-        .input-group-text {
-            background-color: #f8f9fa;
-            border: 1px solid #ced4da;
-        }
-
-        .form-check-input:checked {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-
-        .modal-content {
-            border: none;
-            border-radius: 0.5rem;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-        }
-
-        .modal-header {
-            border-top-left-radius: 0.5rem;
-            border-top-right-radius: 0.5rem;
-        }
-
-        .modal-footer {
-            border-bottom-left-radius: 0.5rem;
-            border-bottom-right-radius: 0.5rem;
-        }
-
-        .g-3 {
-            --bs-gutter-y: 1rem;
-        }
-    </style>
-</head>
-<body>
-    @include('partials.secretary-sidebar')
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Top Navigation -->
-        <div class="top-nav">
-            <div class="dropdown secretary-dropdown">
-                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle"></i> Secretary
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST" class="dropdown-item">
-                            @csrf
-                            <button type="submit" class="btn btn-link p-0"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                        </form>
-                    </li>
-                </ul>
+@section('content')
+<!-- Overview Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">Total Budget</h6>
+                <h3 class="mb-0">₱{{ number_format($totalBudget, 2) }}</h3>
             </div>
         </div>
-
-        <!-- Dashboard Header -->
-        <div class="dashboard-header">
-            <h1 class="dashboard-title">Inventory & Expenses</h1>
-            <div class="dashboard-subtitle">Manage and track barangay inventory and expenses</div>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="row">
-            <div class="col-md-3">
-                <div class="stats-card blue-card">
-                    <div>
-                        <div class="number">₱{{ number_format($totalBudget, 2) }}</div>
-                        <div class="label">Total Budget</div>
-                    </div>
-                    <i class="fas fa-wallet"></i>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card green-card">
-                    <div>
-                        <div class="number">₱{{ number_format($remainingBudget, 2) }}</div>
-                        <div class="label">Available Balance</div>
-                    </div>
-                    <i class="fas fa-chart-line"></i>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card yellow-card">
-                    <div>
-                        <div class="number">₱{{ number_format($totalExpenses, 2) }}</div>
-                        <div class="label">Total Expenses</div>
-                    </div>
-                    <i class="fas fa-money-bill-wave"></i>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card red-card">
-                    <div>
-                        <div class="number">₱{{ number_format($pendingExpenses, 2) }}</div>
-                        <div class="label">Pending Expenses</div>
-                    </div>
-                    <i class="fas fa-clock"></i>
-                </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title">Total Expenses</h6>
+                <h3 class="mb-0">₱{{ number_format($totalExpenses, 2) }}</h3>
             </div>
         </div>
-
-      
-        <!-- Filter & Search Section -->
-        <div class="content-card mt-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>Expenses List</h2>
-                <div class="d-flex gap-2">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white">
-                            <i class="fas fa-search"></i>
-                        </span>
-                        <input type="text" id="searchInput" class="form-control" placeholder="Search expenses...">
-                    </div>
-                    <button type="button" class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
-                        <i class="fas fa-plus"></i>
-                        <span>Add New Expense</span>
-                    </button>
-                    <button type="button" class="btn btn-outline-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addBudgetModal">
-                        <i class="fas fa-wallet"></i>
-                        <span>New Budget Entry</span>
-                    </button>
-                </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6 class="card-title">Remaining Budget</h6>
+                <h3 class="mb-0">₱{{ number_format($remainingBudget, 2) }}</h3>
             </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h6 class="card-title">Pending Expenses</h6>
+                <h3 class="mb-0">₱{{ number_format($pendingExpenses, 2) }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
 
+@php
+    $activeTab = request()->query('tab', 'inventory');
+@endphp
+
+@if($activeTab === 'inventory')
+    @if(($lowStockItems->count() ?? 0) > 0 || ($outOfStockItems->count() ?? 0) > 0)
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <div>
+                @if(($outOfStockItems->count() ?? 0) > 0)
+                    <strong>Out of Stock:</strong>
+                    @foreach($outOfStockItems as $item)
+                        <span class="badge bg-danger">{{ $item->name }}</span>
+                    @endforeach
+                    <br>
+                @endif
+                @if(($lowStockItems->count() ?? 0) > 0)
+                    <strong>Low Stock (≤ 5):</strong>
+                    @foreach($lowStockItems as $item)
+                        <span class="badge bg-warning text-dark">{{ $item->name }} ({{ $item->quantity }})</span>
+                    @endforeach
+                @endif
+            </div>
+        </div>
+    @endif
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Inventory Management</h4>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inventoryModal">
+                <i class="fas fa-plus me-2"></i>Add Item
+            </button>
+        </div>
+        <div class="card-body">
+            <!-- Filter Form -->
+            <form method="GET" action="{{ route('inventory.index') }}" class="row g-3 mb-3 align-items-end">
+                <input type="hidden" name="tab" value="inventory">
+                <div class="col-md-3">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" name="category">
+                        <option value="">All Categories</option>
+                        @foreach(($inventory ?? collect([]))->pluck('category')->unique()->filter() as $cat)
+                            <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Supplier</label>
+                    <select class="form-select" name="supplier">
+                        <option value="">All Suppliers</option>
+                        @foreach(($inventory ?? collect([]))->pluck('supplier')->unique()->filter() as $sup)
+                            <option value="{{ $sup }}" {{ request('supplier') == $sup ? 'selected' : '' }}>{{ $sup }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Item Name</label>
+                    <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Search by name">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+                </div>
+            </form>
             <div class="table-responsive">
-                <table class="table table-hover" id="expensesTable">
-                    <thead>
-                        <tr class="bg-primary text-white">
-                            <th class="align-middle">DATE</th>
-                            <th class="align-middle">DESCRIPTION</th>
-                            <th class="align-middle">CATEGORY</th>
-                            <th class="align-middle">LOCATION</th>
-                            <th class="align-middle">BENEFICIARY</th>
-                            <th class="align-middle">BUDGET ALLOCATION</th>
-                            <th class="align-middle">AMOUNT</th>
-                            <th class="align-middle">STATUS</th>
-                            <th class="align-middle">ACTIONS</th>
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Cost</th>
+                            <th>Supplier</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($expenses as $expense)
-                        <tr>
-                            <td>{{ date('M d, Y', strtotime($expense->date)) }}</td>
-                            <td class="font-weight-bold">{{ Str::limit($expense->description, 50) }}</td>
-                            <td>
-                                <span class="badge badge-light text-capitalize px-3 py-2" style="font-size:0.95rem;">
-                                    {{ $expense->category }}
-                                </span>
-                            </td>
-                            <td>{{ $expense->location }}</td>
-                            <td>{{ $expense->beneficiary ?? 'N/A' }}</td>
-                            <td>{{ $expense->budget_allocation ?? 'N/A' }}</td>
-                            <td class="font-weight-bold">₱{{ number_format($expense->amount, 2) }}</td>
-                            <td>
-                                @php
-                                    $statusClass = [
-                                        'Approved' => 'success',
-                                        'Pending' => 'warning',
-                                        'Rejected' => 'danger'
-                                    ][$expense->status] ?? 'secondary';
-                                    
-                                    $statusIcon = [
-                                        'Approved' => 'check-circle',
-                                        'Pending' => 'clock',
-                                        'Rejected' => 'times-circle'
-                                    ][$expense->status] ?? 'question-circle';
-                                @endphp
-                                
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-{{ $statusClass }} dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-{{ $statusIcon }} mr-1"></i>
-                                        {{ $expense->status }}
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        @if($expense->status !== 'Approved')
-                                            <li><a class="dropdown-item" href="#" onclick="updateExpenseStatus({{ $expense->id }}, 'Approved')">
-                                                <i class="fas fa-check-circle text-success"></i> Approve
-                                            </a></li>
-                                        @endif
-                                        @if($expense->status !== 'Pending')
-                                            <li><a class="dropdown-item" href="#" onclick="updateExpenseStatus({{ $expense->id }}, 'Pending')">
-                                                <i class="fas fa-clock text-warning"></i> Set Pending
-                                            </a></li>
-                                        @endif
-                                        @if($expense->status !== 'Rejected')
-                                            <li><a class="dropdown-item" href="#" onclick="updateExpenseStatus({{ $expense->id }}, 'Rejected')">
-                                                <i class="fas fa-times-circle text-danger"></i> Reject
-                                            </a></li>
-                                        @endif
-                                    </ul>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-info text-white" onclick="viewExpense({{ $expense->id }})" data-bs-toggle="tooltip" title="View Details">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-warning text-white" onclick="editExpense({{ $expense->id }})" data-bs-toggle="tooltip" title="Edit Expense">
+                        @forelse($inventory ?? [] as $item)
+                            <tr>
+                                <td>{{ $item->name }}
+                                    @if($item->quantity <= 0)
+                                        <span class="badge bg-danger ms-1">Out of Stock</span>
+                                    @elseif($item->quantity > 0 && $item->quantity <= 5)
+                                        <span class="badge bg-warning text-dark ms-1">Low</span>
+                                    @endif
+                                </td>
+                                <td>{{ $item->category }}</td>
+                                <td>{{ $item->quantity }} {{ $item->unit }}</td>
+                                <td>₱{{ number_format($item->cost, 2) }}</td>
+                                <td>{{ $item->supplier }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-2" onclick="editInventoryItem({{ $item->id }})">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-danger text-white" onclick="deleteExpense({{ $expense->id }})" data-bs-toggle="tooltip" title="Delete Expense">
-                                        <i class="fas fa-trash"></i>
+                                    <button class="btn btn-sm btn-outline-warning me-2" onclick="useInventoryItem({{ $item->id }}, '{{ $item->name }}', {{ $item->quantity }})">
+                                        <i class="fas fa-minus-circle"></i>
                                     </button>
-                                </div>
-                            </td>
-                        </tr>
+                                    <form action="{{ route('inventory.destroy', $item->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="type" value="inventory">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this item?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
                         @empty
-                        <tr>
-                            <td colspan="9" class="text-center py-4">
-                                <div class="my-3 text-muted">
-                                    <i class="fas fa-receipt fa-3x mb-3"></i>
-                                    <p>No expenses found. Click "Add New Expense" to create one.</p>
-                                </div>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No inventory items found. <button class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#inventoryModal">Add your first item</button></td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="card-footer bg-white">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <span class="text-muted">Showing {{ $expenses->firstItem() ?? 0 }} to {{ $expenses->lastItem() ?? 0 }} of {{ $expenses->total() }} expenses</span>
-                    </div>
-                    <div>
-                        {{ $expenses->links() }}
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
+@endif
 
-    <!-- Add Expense Modal -->
-    <div class="modal fade" id="addExpenseModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title d-flex align-items-center gap-2">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Add New Expense</span>
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ route('expenses.store') }}" method="POST" id="addExpenseForm" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-project-diagram"></i>
-                                        <span>Project (Optional)</span>
-                                    </label>
-                                    <select class="form-select" name="project_id">
-                                        <option value="">No Project</option>
-                                        @foreach($projects as $project)
-                                        <option value="{{ $project->id }}">{{ $project->project_name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-calendar"></i>
-                                        <span>Date</span>
-                                    </label>
-                                    <input type="date" class="form-control" name="date" required>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-align-left"></i>
-                                        <span>Description</span>
-                                    </label>
-                                    <textarea class="form-control" name="description" rows="3" required></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-tag"></i>
-                                        <span>Category</span>
-                                    </label>
-                                    <select class="form-select" name="category" required>
-                                        <option value="">Select Category</option>
-                                        <option value="Infrastructure">Infrastructure</option>
-                                        <option value="Health Services">Health Services</option>
-                                        <option value="Education">Education</option>
-                                        <option value="Social Services">Social Services</option>
-                                        <option value="Public Safety">Public Safety</option>
-                                        <option value="Environmental">Environmental</option>
-                                        <option value="Administrative">Administrative</option>
-                                        <option value="Events and Programs">Events and Programs</option>
-                                        <option value="Utilities">Utilities</option>
-                                        <option value="Maintenance">Maintenance</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-money-bill"></i>
-                                        <span>Amount</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">₱</span>
-                                        <input type="number" class="form-control" name="amount" step="0.01" required>
+@if($activeTab === 'budget')
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Budget Management</h4>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#budgetModal">
+                <i class="fas fa-plus me-2"></i>Add Budget
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                @forelse($budgets ?? [] as $budget)
+                    <div class="col-md-12">
+                        <div class="card budget-blue text-black mb-3 position-relative">
+                            <div class="card-body">
+                                <h4 class="fw-bold mb-3">{{ $budget->name }}</h4>
+                                <p class="mb-1">Total Budget: <span class="fw-bold">₱{{ number_format($budget->amount, 0) }}</span></p>
+                                <p class="mb-1">Allocated: <span class="fw-bold">₱{{ number_format($budget->allocated, 0) }}</span></p>
+                                <p class="mb-2">Remaining: <span class="fw-bold">₱{{ number_format($budget->remaining_amount, 0) }}</span></p>
+                                <div class="progress mb-2" style="height: 6px;">
+                                    <div class="progress-bar bg-info" role="progressbar"
+                                        style="width: {{ $budget->amount > 0 ? ($budget->allocated / $budget->amount) * 100 : 0 }}%;"
+                                        aria-valuenow="{{ $budget->allocated }}" aria-valuemin="0" aria-valuemax="{{ $budget->amount }}">
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        <span>Location</span>
-                                    </label>
-                                    <input type="text" class="form-control" name="location" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-users"></i>
-                                        <span>Beneficiary</span>
-                                    </label>
-                                    <input type="text" class="form-control" name="beneficiary">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-wallet"></i>
-                                        <span>Budget Allocation</span>
-                                    </label>
-                                    <select class="form-select" name="budget_allocation">
-                                        <option value="">Select Budget</option>
-                                        @foreach($budgets as $budget)
-                                        <option value="{{ $budget->category }}">{{ $budget->category }} (₱{{ number_format($budget->remaining_amount, 2) }} remaining)</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-file-invoice"></i>
-                                        <span>Receipt Number</span>
-                                    </label>
-                                    <input type="text" class="form-control" name="receipt_number">
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-file-upload"></i>
-                                        <span>Receipt File</span>
-                                    </label>
-                                    <input type="file" class="form-control" name="receipt_file" accept=".pdf,.jpg,.jpeg,.png">
-                                    <small class="text-muted">Accepted formats: PDF, JPG, JPEG, PNG</small>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-check-circle"></i>
-                                        <span>Status</span>
-                                    </label>
-                                    <select class="form-select" name="status" required>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Approved">Approved</option>
-                                        <option value="Rejected">Rejected</option>
-                                    </select>
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editBudget({{ $budget->id }})"><i class="fas fa-edit"></i></button>
+                                    <form action="{{ route('inventory.destroy', $budget->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="type" value="budget">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')"><i class="fas fa-trash"></i></button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary d-flex align-items-center gap-2" data-bs-dismiss="modal">
-                            <i class="fas fa-times"></i>
-                            <span>Cancel</span>
-                        </button>
-                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
-                            <i class="fas fa-save"></i>
-                            <span>Save Expense</span>
-                        </button>
-                    </div>
-                </form>
+                @empty
+                    <div class="col-12 text-center text-muted">No budgets found. <button class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#budgetModal">Add your first budget</button></div>
+                @endforelse
             </div>
         </div>
     </div>
+@endif
 
-    <!-- Add Budget Modal -->
-    <div class="modal fade" id="addBudgetModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title d-flex align-items-center gap-2">
-                        <i class="fas fa-wallet"></i>
-                        <span>Add New Budget Entry</span>
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+@if($activeTab === 'expenses')
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Expense Tracking</h4>
+            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#expenseModal">
+                <i class="fas fa-plus me-2"></i>Add Expense
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="d-flex justify-content-end mb-2 gap-2">
+                <button class="btn btn-outline-secondary" onclick="printExpensesTable()">
+                    <i class="fas fa-print me-1"></i> Print
+                </button>
+                <button class="btn btn-outline-danger" onclick="exportExpensesPDF()">
+                    <i class="fas fa-file-pdf me-1"></i> Export PDF
+                </button>
+            </div>
+            <!-- Filter Form -->
+            <form method="GET" action="{{ route('inventory.index') }}" class="row g-3 mb-3 align-items-end">
+                <input type="hidden" name="tab" value="expenses">
+                <div class="col-md-3">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" name="category">
+                        <option value="">All Categories</option>
+                        @foreach(($expenses ?? collect([]))->pluck('category')->unique()->filter() as $cat)
+                            <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <form action="{{ route('budget.store') }}" method="POST" id="addBudgetForm">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-money-bill"></i>
-                                        <span>Budget Amount</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">₱</span>
-                                        <input type="number" class="form-control" name="amount" step="0.01" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-calendar"></i>
-                                        <span>Budget Period</span>
-                                    </label>
-                                    <select class="form-select" name="period" required>
-                                        <option value="">Select Period</option>
-                                        <option value="Q1">Q1 (Jan-Mar)</option>
-                                        <option value="Q2">Q2 (Apr-Jun)</option>
-                                        <option value="Q3">Q3 (Jul-Sep)</option>
-                                        <option value="Q4">Q4 (Oct-Dec)</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label d-flex align-items-center gap-2">
-                                        <i class="fas fa-align-left"></i>
-                                        <span>Description</span>
-                                    </label>
-                                    <textarea class="form-control" name="description" rows="3"></textarea>
-                                </div>
-                            </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-control" name="date" value="{{ request('date') }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Search by description or vendor">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-info w-100">Filter</button>
+                </div>
+            </form>
+            <div class="table-responsive">
+                <table id="expensesTable" class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Vendor</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($expenses ?? [] as $expense)
+                            <tr>
+                                <td>{{ $expense->description }}</td>
+                                <td>{{ $expense->category }}</td>
+                                <td>₱{{ number_format($expense->amount, 2) }}</td>
+                                <td>{{ $expense->vendor }}</td>
+                                <td>{{ $expense->created_at ? $expense->created_at->format('Y-m-d') : '' }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-2" onclick="editExpense({{ $expense->id }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form action="{{ route('inventory.destroy', $expense->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="type" value="expense">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this expense?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No expenses found. <button class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#expenseModal">Add your first expense</button></td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+@endif
+
+@if($activeTab === 'analytics')
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Budget vs Allocation</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="budgetAllocationChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Inventory Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="inventoryStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+
+<!-- Inventory Modal -->
+<div class="modal fade" id="inventoryModal" tabindex="-1" aria-labelledby="inventoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ route('inventory.store') }}" id="inventoryForm">
+            @csrf
+            <input type="hidden" name="type" value="inventory">
+            <input type="hidden" name="_method" value="POST" id="inventoryMethod">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inventoryModalLabel">Add Inventory Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Item Name</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <input type="text" class="form-control" name="category" required>
+                    </div>
+                    <div class="mb-3 row">
+                        <div class="col">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" name="quantity" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Unit</label>
+                            <input type="text" class="form-control" name="unit" required>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary d-flex align-items-center gap-2" data-bs-dismiss="modal">
-                            <i class="fas fa-times"></i>
-                            <span>Cancel</span>
-                        </button>
-                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
-                            <i class="fas fa-save"></i>
-                            <span>Save Budget</span>
-                        </button>
+                    <div class="mb-3">
+                        <label class="form-label">Cost</label>
+                        <input type="number" class="form-control" name="cost" step="0.01" required>
                     </div>
-                </form>
+                    <div class="mb-3">
+                        <label class="form-label">Supplier</label>
+                        <input type="text" class="form-control" name="supplier" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Item</button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Initialize DataTable
-            $('#expensesTable').DataTable({
-                responsive: true,
-                autoWidth: false,
-                searching: false,
-                paging: false,
-                info: false
-            });
+<!-- Budget Modal -->
+<div class="modal fade" id="budgetModal" tabindex="-1" aria-labelledby="budgetModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ route('inventory.store') }}" id="budgetForm">
+            @csrf
+            <input type="hidden" name="type" value="budget">
+            <input type="hidden" name="_method" value="POST" id="budgetMethod">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="budgetModalLabel">Add Budget</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Budget Name</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Total Amount</label>
+                        <input type="number" class="form-control" name="amount" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Period</label>
+                        <input type="text" class="form-control" name="period" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Budget</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
-            // Initialize tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
+<!-- Expense Modal -->
+<div class="modal fade" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ route('inventory.store') }}" id="expenseForm">
+            @csrf
+            <input type="hidden" name="type" value="expense">
+            <input type="hidden" name="_method" value="POST" id="expenseMethod">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="expenseModalLabel">Add Expense</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Budget</label>
+                        <select class="form-control" name="budget_id" required>
+                            <option value="">Select Budget</option>
+                            @foreach($budgets ?? [] as $budget)
+                                <option value="{{ $budget->id }}">{{ $budget->name }} (₱{{ number_format($budget->remaining_amount, 2) }} remaining)</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control" name="description" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-control" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="Infrastructure">Infrastructure</option>
+                            <option value="Health Services">Health Services</option>
+                            <option value="Education">Education</option>
+                            <option value="Social Services">Social Services</option>
+                            <option value="Public Safety">Public Safety</option>
+                            <option value="Environmental">Environmental</option>
+                            <option value="Administrative">Administrative</option>
+                            <option value="Events and Programs">Events and Programs</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-control" name="amount" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vendor</label>
+                        <input type="text" class="form-control" name="vendor" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-info">Save Expense</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
-            // Handle search functionality
-            $('#searchInput').on('keyup', function() {
-                var value = $(this).val().toLowerCase();
-                $("table tbody tr").filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
-            });
+<!-- Use Item Modal -->
+<div class="modal fade" id="useItemModal" tabindex="-1" aria-labelledby="useItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ route('inventory.use') }}" id="useItemForm">
+            @csrf
+            <input type="hidden" name="item_id" id="useItemId">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="useItemModalLabel">Use Inventory Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Item Name</label>
+                        <input type="text" class="form-control" id="useItemName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Current Quantity</label>
+                        <input type="text" class="form-control" id="currentQuantity" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Quantity to Use</label>
+                        <input type="number" class="form-control" name="quantity" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Purpose/Notes</label>
+                        <textarea class="form-control" name="notes" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Use Item</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Hidden export table for PDF/CSV/Print -->
+<div id="expensesExportWrapper" style="display:none;">
+    <h3 class="text-center mb-3">Barangay Cantil-E Expenses</h3>
+    <table id="expensesExportTable" class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Vendor</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($expenses ?? [] as $expense)
+                <tr>
+                    <td>{{ $expense->description }}</td>
+                    <td>{{ $expense->category }}</td>
+                    <td>₱{{ number_format($expense->amount, 2) }}</td>
+                    <td>{{ $expense->vendor }}</td>
+                    <td>{{ $expense->created_at ? $expense->created_at->format('Y-m-d') : '' }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endsection
+
+@push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+// Edit Inventory Item
+function editInventoryItem(id) {
+    console.log('editInventoryItem called', id);
+    // Fetch item data and populate form
+    fetch(`/inventory/${id}?type=inventory`)
+        .then(response => response.json())
+        .then(data => {
+            const form = document.getElementById('inventoryForm');
+            form.action = `/inventory/${id}`;
+            document.getElementById('inventoryMethod').value = 'PUT';
+            form.querySelector('[name="name"]').value = data.name;
+            form.querySelector('[name="category"]').value = data.category;
+            form.querySelector('[name="quantity"]').value = data.quantity;
+            form.querySelector('[name="unit"]').value = data.unit;
+            form.querySelector('[name="cost"]').value = data.cost;
+            form.querySelector('[name="supplier"]').value = data.supplier;
+            document.getElementById('inventoryModalLabel').textContent = 'Edit Inventory Item';
+            new bootstrap.Modal(document.getElementById('inventoryModal')).show();
         });
+}
 
-        // Update Expense Status
-        function updateExpenseStatus(expenseId, newStatus) {
-            console.log('Updating status:', { expenseId, newStatus });
-            
-            Swal.fire({
-                title: 'Are you sure?',
-                text: `Do you want to change the status to ${newStatus}?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, update it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: `/expenses/${expenseId}/status`,
-                        type: 'PATCH',
-                        data: {
-                            status: newStatus,
-                            _token: '{{ csrf_token() }}'
-                        },
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            console.log('Status update response:', response);
-                            if (response.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Updated!',
-                                    text: response.message,
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error!',
-                                    text: response.message || 'Failed to update status'
-                                });
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Status update error:', {
-                                status: status,
-                                error: error,
-                                response: xhr.responseText
-                            });
-                            
-                            let errorMessage = 'Failed to update status';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMessage = xhr.responseJSON.message;
-                            } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                                errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
-                            }
-                            
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: errorMessage
-                            });
-                        }
-                    });
-                }
-            });
-        }
+// Edit Budget
+function editBudget(id) {
+    // Fetch budget data and populate form
+    fetch(`/inventory/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            const form = document.getElementById('budgetForm');
+            form.action = `/inventory/${id}`;
+            document.getElementById('budgetMethod').value = 'PUT';
+            form.querySelector('[name="name"]').value = data.name;
+            form.querySelector('[name="amount"]').value = data.amount;
+            form.querySelector('[name="period"]').value = data.period;
+            document.getElementById('budgetModalLabel').textContent = 'Edit Budget';
+            new bootstrap.Modal(document.getElementById('budgetModal')).show();
+        });
+}
 
-        // View Expense
-        function viewExpense(id) {
-            $.ajax({
-                url: `/expenses/${id}`,
-                type: 'GET',
-                success: function(response) {
-                    Swal.fire({
-                        title: 'Expense Details',
-                        html: `
-                            <div class="text-start">
-                                <p><strong>Date:</strong> ${moment(response.date).format('MMMM D, YYYY')}</p>
-                                <p><strong>Description:</strong> ${response.description}</p>
-                                <p><strong>Category:</strong> ${response.category}</p>
-                                <p><strong>Amount:</strong> ₱${parseFloat(response.amount).toFixed(2)}</p>
-                                <p><strong>Location:</strong> ${response.location}</p>
-                                <p><strong>Beneficiary:</strong> ${response.beneficiary || 'N/A'}</p>
-                                <p><strong>Budget Allocation:</strong> ${response.budget_allocation || 'N/A'}</p>
-                                <p><strong>Status:</strong> ${response.status}</p>
-                                <p><strong>Receipt Number:</strong> ${response.receipt_number || 'N/A'}</p>
-                            </div>
-                        `,
-                        width: '600px'
-                    });
+// Edit Expense
+function editExpense(id) {
+    // Fetch expense data and populate form
+    fetch(`/inventory/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            const form = document.getElementById('expenseForm');
+            form.action = `/inventory/${id}`;
+            document.getElementById('expenseMethod').value = 'PUT';
+            form.querySelector('[name="budget_id"]').value = data.budget_id;
+            form.querySelector('[name="description"]').value = data.description;
+            form.querySelector('[name="category"]').value = data.category;
+            form.querySelector('[name="amount"]').value = data.amount;
+            form.querySelector('[name="vendor"]').value = data.vendor;
+            document.getElementById('expenseModalLabel').textContent = 'Edit Expense';
+            new bootstrap.Modal(document.getElementById('expenseModal')).show();
+        });
+}
+
+// Analytics Charts
+@if($activeTab === 'analytics')
+document.addEventListener('DOMContentLoaded', function() {
+    // Budget vs Allocation Chart
+    const ctx = document.getElementById('budgetAllocationChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode(($budgets ?? collect([]))->pluck('name')) !!},
+            datasets: [
+                {
+                    label: 'Allocated',
+                    data: {!! json_encode(($budgets ?? collect([]))->map(function($b) { return $b->amount - $b->remaining_amount; })) !!},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 1
                 },
-                error: function(xhr) {
-                    Swal.fire(
-                        'Error!',
-                        'Failed to load expense details',
-                        'error'
-                    );
+                {
+                    label: 'Remaining',
+                    data: {!! json_encode(($budgets ?? collect([]))->pluck('remaining_amount')) !!},
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 1
                 }
-            });
-        }
-
-        // Edit Expense
-        function editExpense(id) {
-            $.ajax({
-                url: `/expenses/${id}`,
-                type: 'GET',
-                success: function(response) {
-                    $('#addExpenseModal').modal('show');
-                    const form = $('#addExpenseForm');
-                    form.attr('action', `/expenses/${id}`);
-                    form.find('input[name="_method"]').remove();
-                    form.append('<input type="hidden" name="_method" value="PUT">');
-
-                    // Convert date to YYYY-MM-DD if needed
-                    let dateValue = response.date;
-                    if (dateValue) {
-                        dateValue = moment(dateValue).format('YYYY-MM-DD');
-                    }
-
-                    form.find('select[name="project_id"]').val(response.project_id);
-                    form.find('input[name="date"]').val(dateValue);
-                    form.find('textarea[name="description"]').val(response.description);
-                    form.find('select[name="category"]').val(response.category);
-                    form.find('input[name="amount"]').val(response.amount);
-                    form.find('input[name="location"]').val(response.location);
-                    form.find('input[name="beneficiary"]').val(response.beneficiary);
-                    form.find('select[name="budget_allocation"]').val(response.budget_allocation);
-                    form.find('input[name="receipt_number"]').val(response.receipt_number);
-                    form.find('select[name="status"]').val(response.status);
-
-                    $('.modal-title span').text('Edit Expense');
-
-                    // Log all form field values after setting them
-                    console.log('--- Form values after populating for edit ---');
-                    console.log('project_id:', form.find('select[name="project_id"]').val());
-                    console.log('date:', form.find('input[name="date"]').val());
-                    console.log('description:', form.find('textarea[name="description"]').val());
-                    console.log('category:', form.find('select[name="category"]').val());
-                    console.log('amount:', form.find('input[name="amount"]').val());
-                    console.log('location:', form.find('input[name="location"]').val());
-                    console.log('beneficiary:', form.find('input[name="beneficiary"]').val());
-                    console.log('budget_allocation:', form.find('select[name="budget_allocation"]').val());
-                    console.log('receipt_number:', form.find('input[name="receipt_number"]').val());
-                    console.log('status:', form.find('select[name="status"]').val());
-                },
-                error: function(xhr) {
-                    Swal.fire(
-                        'Error!',
-                        'Failed to load expense details',
-                        'error'
-                    );
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
-            });
-        }
-
-        // Delete Expense
-        function deleteExpense(id) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: `/expenses/${id}`,
-                        type: 'DELETE',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                Swal.fire(
-                                    'Deleted!',
-                                    'The expense has been deleted.',
-                                    'success'
-                                ).then(() => {
-                                    location.reload();
-                                });
-                            }
-                        },
-                        error: function(xhr) {
-                            Swal.fire(
-                                'Error!',
-                                'Failed to delete expense',
-                                'error'
-                            );
-                        }
-                    });
-                }
-            });
-        }
-
-        // Handle form submission for both create and update
-        $('#addExpenseForm').on('submit', function(e) {
-            e.preventDefault();
-            const form = $(this);
-            const url = form.attr('action');
-            const method = form.find('input[name="_method"]').val() || 'POST';
-            const formData = new FormData(this);
-
-            // Add CSRF token
-            formData.append('_token', '{{ csrf_token() }}');
-
-            // Log the form data for debugging
-            console.log('Submitting form to:', url);
-            console.log('Method:', method);
-            for (let pair of formData.entries()) {
-                console.log(pair[0] + ': ' + pair[1]);
             }
+        }
+    });
 
-            $.ajax({
-                url: url,
-                type: method,
-                data: formData,
-                processData: false,
-                contentType: false,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    console.log('Success response:', response);
-                    if (response.success) {
-                        $('#addExpenseModal').modal('hide');
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: response.message || 'Expense has been saved successfully.',
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: response.message || 'Failed to save expense'
-                        });
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error response:', xhr.responseText);
-                    console.error('Status:', status);
-                    console.error('Error:', error);
-                    
-                    let errorMessage = 'Failed to save expense';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
-                    }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: errorMessage
-                    });
+    // Inventory Status Chart
+    const inventoryStatusCtx = document.getElementById('inventoryStatusChart').getContext('2d');
+    new Chart(inventoryStatusCtx, {
+        type: 'bar',
+        data: {
+            labels: ['In Stock', 'Low Stock', 'Out of Stock'],
+            datasets: [{
+                label: 'Number of Items',
+                data: [
+                    {{ $inStockCount ?? 0 }},
+                    {{ $lowStockCount ?? 0 }},
+                    {{ $outOfStockCount ?? 0 }}
+                ],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(255, 99, 132, 0.7)'
+                ],
+                borderColor: [
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 206, 86)',
+                    'rgb(255, 99, 132)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    precision: 0
                 }
-            });
-        });
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        afterBody: function(context) {
+                            const names = [
+                                {!! json_encode($inStockNames ?? []) !!},
+                                {!! json_encode($lowStockNames ?? []) !!},
+                                {!! json_encode($outOfStockNames ?? []) !!}
+                            ];
+                            const idx = context[0].dataIndex;
+                            if (names[idx].length === 0) return 'No items';
+                            return 'Items: ' + names[idx].join(', ');
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+@endif
 
-        // Reset form when modal is closed
-        $('#addExpenseModal').on('hidden.bs.modal', function() {
-            const form = $('#addExpenseForm');
-            form.attr('action', '{{ route("expenses.store") }}');
-            form.find('input[name="_method"]').remove();
-            form[0].reset();
-        });
-    </script>
-</body>
-</html>
+// Use Inventory Item
+function useInventoryItem(id, name, currentQuantity) {
+    document.getElementById('useItemId').value = id;
+    document.getElementById('useItemName').value = name;
+    document.getElementById('currentQuantity').value = currentQuantity;
+    document.getElementById('useItemForm').querySelector('[name="quantity"]').max = currentQuantity;
+    new bootstrap.Modal(document.getElementById('useItemModal')).show();
+}
+
+// Print Expenses Table
+function printExpensesTable() {
+    const wrapper = document.getElementById('expensesExportWrapper');
+    if (!wrapper) return;
+    const printWindow = window.open('', '', 'height=600,width=900');
+    printWindow.document.write('<html><head><title>Cantil-E Expenses</title>');
+    printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(wrapper.innerHTML);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => printWindow.print(), 500);
+}
+
+// Export Expenses Table as PDF
+function exportExpensesPDF() {
+    const wrapper = document.getElementById('expensesExportWrapper');
+    if (!wrapper) return;
+    // Temporarily show the export table
+    wrapper.style.display = 'block';
+    const opt = {
+        margin:       0.5,
+        filename:     'cantil-e-expenses.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+    };
+    html2pdf().from(wrapper).set(opt).save().then(() => {
+        // Hide the export table again
+        wrapper.style.display = 'none';
+    });
+}
+</script>
+<style>
+@media print {
+    body * { visibility: hidden !important; }
+    .card-body, .card-body * { visibility: visible !important; }
+    .sidebar, .navbar, .btn, .alert, .nav, .main-content > :not(.card) { display: none !important; }
+    .card-body { position: absolute; left: 0; top: 0; width: 100vw; background: white; }
+}
+</style>
+@endpush

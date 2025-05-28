@@ -10,10 +10,11 @@ return new class extends Migration
     {
         Schema::create('budgets', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->decimal('amount', 10, 2);
-            $table->decimal('remaining_amount', 10, 2);  
-            $table->text('description')->nullable();
-            $table->string('period'); // Q1, Q2, Q3, Q4
+            $table->decimal('allocated', 10, 2)->default(0);
+            $table->decimal('remaining_amount', 10, 2);
+            $table->string('period');
             $table->timestamps();
             $table->softDeletes();
         });

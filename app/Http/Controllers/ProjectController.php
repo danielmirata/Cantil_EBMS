@@ -38,7 +38,8 @@ class ProjectController extends Controller
             'priority' => 'required|in:High,Medium,Low',
             'funding_source' => 'required|string|max:255',
             'notes' => 'nullable|string',
-            'documents.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:10240'
+            'documents.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:10240',
+            'progress' => 'nullable|integer|min:0|max:100',
         ]);
 
         $documents = [];
@@ -85,7 +86,8 @@ class ProjectController extends Controller
             'priority' => 'required|in:High,Medium,Low',
             'funding_source' => 'required|string|max:255',
             'notes' => 'nullable|string',
-            'documents.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:10240'
+            'documents.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:10240',
+            'progress' => 'nullable|integer|min:0|max:100',
         ]);
 
         $documents = $project->documents ?? [];
@@ -128,5 +130,33 @@ class ProjectController extends Controller
         $project->delete();
 
         return response()->json(['message' => 'Project deleted successfully']);
+    }
+
+    public function getLocation(Project $project)
+    {
+        return response()->json([
+            'coordinates' => $project->coordinates,
+            'color' => $project->color,
+            'title' => $project->project_name,
+            'status' => $project->status,
+            'progress' => $project->progress
+        ]);
+    }
+
+    public function updateLocation(Request $request, Project $project)
+    {
+        $validated = $request->validate([
+            'coordinates' => 'required|string',
+            'color' => 'nullable|string'
+        ]);
+
+        // Verify coordinates can be decoded
+        $coordinates = json_decode($validated['coordinates'], true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json(['error' => 'Invalid coordinates format'], 422);
+        }
+
+        $project->update($validated);
+        return response()->json($project);
     }
 } 

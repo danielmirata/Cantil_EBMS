@@ -335,12 +335,13 @@
                 <table class="table table-hover mb-0" id="projectsTable">
                     <thead>
                         <tr class="bg-primary text-white">
-                            <th class="align-middle">ID</th>
+                            <!--<th class="align-middle">ID</th>-->
                             <th class="align-middle">PROJECT NAME</th>
                             <th class="align-middle">LOCATION</th>
                             <th class="align-middle">START DATE</th>
                             <th class="align-middle">END DATE</th>
                             <th class="align-middle">BUDGET</th>
+                            <th class="align-middle">PROGRESS</th>
                             <th class="align-middle">STATUS</th>
                             <th class="align-middle">ACTIONS</th>
                         </tr>
@@ -348,12 +349,18 @@
                     <tbody>
                         @forelse($projects as $project)
                         <tr>
-                            <td>{{ $project->id }}</td>
+                            <!--<td>{{ $project->id }}</td>-->
                             <td class="font-weight-bold">{{ $project->project_name }}</td>
                             <td>{{ $project->location ?? '-' }}</td>
                             <td>{{ date('M d, Y', strtotime($project->start_date)) }}</td>
                             <td>{{ date('M d, Y', strtotime($project->end_date)) }}</td>
                             <td>₱{{ number_format($project->budget, 2) }}</td>
+                            <td>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ isset($project->progress) ? $project->progress : 0 }}%;" aria-valuenow="{{ isset($project->progress) ? $project->progress : 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <div class="text-center small mt-1">{{ isset($project->progress) ? $project->progress : 0 }}%</div>
+                            </td>
                             <td>
                                 @php
                                     $statusClass = [
@@ -370,7 +377,6 @@
                                         'On Hold' => 'pause-circle'
                                     ][$project->status] ?? 'question-circle';
                                 @endphp
-                                
                                 <span class="badge bg-{{ $statusClass }} text-white px-3 py-2">
                                     <i class="fas fa-{{ $statusIcon }} me-1"></i>
                                     {{ $project->status }}
@@ -511,6 +517,21 @@
                                             <option value="Medium">Medium</option>
                                             <option value="Low">Low</option>
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Progress (%) -->
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <div class="form-group">
+                                        <label for="progress" class="form-label"><i class="fas fa-percent me-1"></i>Progress (%)</label>
+                                        <input type="range" class="form-range" id="progress" name="progress" min="0" max="100" value="0" oninput="$('#progressValue').text(this.value + '%'); $('#progressBar').css('width', this.value + '%').attr('aria-valuenow', this.value);">
+                                        <div class="d-flex justify-content-between">
+                                            <span id="progressValue">0%</span>
+                                        </div>
+                                        <div class="progress mt-2" style="height: 8px;">
+                                            <div class="progress-bar bg-primary" id="progressBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -966,6 +987,7 @@
                         $('#priority').val(project.priority);
                         $('#funding_source').val(project.funding_source);
                         $('#notes').val(project.notes);
+                        $('#progress').val(project.progress || 0).trigger('input');
                         
                         // Update form action
                         $('#addProjectForm').attr('action', `/projects/${id}`);
@@ -1002,6 +1024,13 @@
                     });
                 }
             };
+
+            // Progress slider sync for Add/Edit modal
+            $('#progress').on('input', function() {
+                let val = $(this).val();
+                $('#progressValue').text(val + '%');
+                $('#progressBar').css('width', val + '%').attr('aria-valuenow', val);
+            });
         });
     </script>
 </body>

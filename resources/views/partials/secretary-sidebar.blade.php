@@ -110,7 +110,7 @@
             </a>
         </li>
         <li>
-            <a href="{{ route('expenses.index') }}">
+            <a href="{{ route('inventory.index') }}">
                 <i class="fas fa-boxes"></i> Inventory
             </a>
         </li>

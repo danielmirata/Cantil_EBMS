@@ -20,7 +20,8 @@ class Project extends Model
         'priority',
         'funding_source',
         'notes',
-        'documents'
+        'documents',
+        'progress'
     ];
 
     protected $casts = [
