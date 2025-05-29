@@ -53,7 +53,7 @@
             </a>
         </li>
         <li>
-            <a href="{{ route('secretary.projects.index') }}">
+            <a href="{{ route('captain.projects.index') }}">
                 <i class="fas fa-project-diagram"></i> Barangay Projects
             </a>
         </li>

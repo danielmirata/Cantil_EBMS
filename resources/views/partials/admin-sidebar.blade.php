@@ -36,8 +36,8 @@
                         <span>Official Archive</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('secretary.activity-logs') }}">
+                <li class="{{ request()->routeIs('admin.activity-logs') ? 'active' : '' }}">
+                    <a href="{{ route('admin.activity-logs') }}">
                         <i class="fas fa-history"></i>
                         <span>Activity Logs</span>
                     </a>

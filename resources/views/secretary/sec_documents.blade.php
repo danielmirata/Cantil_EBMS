@@ -116,7 +116,8 @@
                             <th>Request ID</th>
                             <th>Document Type</th>
                             <th>Requested By</th>
-                            <th>Date Needed</th>
+                            <th>Account Name</th>
+                            <th>Date Requested</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -127,6 +128,7 @@
                                 <td>#{{ $request->request_id }}</td>
                                 <td>{{ $request->document_type }}</td>
                                 <td>{{ $request->user->name }}</td>
+                                <td>{{ $request->user->email }}</td>
                                 <td>{{ $request->date_needed->format('M d, Y') }}</td>
                                 <td>
                                     <span class="badge bg-{{ getStatusColor($request->status) }}">
@@ -146,7 +148,36 @@
                             </tr>
                         @empty
                             <tr data-request-type="official">
-                                <td colspan="6" class="text-center">No official document requests found</td>
+                                <td colspan="7" class="text-center">No official document requests found</td>
+                            </tr>
+                        @endforelse
+
+                        @forelse($captainRequests as $request)
+                            <tr data-request-type="official" class="request-row">
+                                <td>#{{ $request->id }}</td>
+                                <td>{{ $request->document_type }}</td>
+                                <td>{{ $request->user->name }} <span class="badge bg-info">Captain</span></td>
+                                <td>{{ $request->user->email }}</td>
+                                <td>{{ $request->created_at->format('M d, Y') }}</td>
+                                <td>
+                                    <span class="badge bg-{{ getStatusColor($request->status) }}">
+                                        {{ $request->status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-info view-request" data-bs-toggle="modal"
+                                        data-bs-target="#viewModal" data-request="{{ json_encode($request) }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-primary update-request" data-bs-toggle="modal"
+                                        data-bs-target="#updateStatusModal" data-request="{{ json_encode($request) }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr data-request-type="official">
+                                <td colspan="7" class="text-center">No captain document requests found</td>
                             </tr>
                         @endforelse
 
@@ -155,6 +186,7 @@
                                 <td>#{{ $request->request_id }}</td>
                                 <td>{{ $request->document_type }}</td>
                                 <td>{{ $request->first_name . ' ' . $request->last_name }}</td>
+                                <td>{{ $request->email }}</td>
                                 <td>{{ \Carbon\Carbon::parse($request->date_needed)->format('M d, Y') }}</td>
                                 <td>
                                     <span class="badge bg-{{ getStatusColor($request->status) }}">
@@ -176,7 +208,7 @@
                             </tr>
                         @empty
                             <tr data-request-type="resident" style="display: none;">
-                                <td colspan="6" class="text-center">No resident document requests found</td>
+                                <td colspan="7" class="text-center">No resident document requests found</td>
                             </tr>
                         @endforelse
                     </tbody>

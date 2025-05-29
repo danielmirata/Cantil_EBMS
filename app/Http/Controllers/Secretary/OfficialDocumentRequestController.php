@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Secretary;
 use App\Http\Controllers\Controller;
 use App\Models\OfficialDocumentRequest;
 use App\Models\ResidentDocumentRequest;
+use App\Models\DocumentRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -23,23 +24,33 @@ class OfficialDocumentRequestController extends Controller
             
         // Get resident document requests
         $residentRequests = ResidentDocumentRequest::latest()->get();
+        
+        // Get captain document requests
+        $captainRequests = DocumentRequest::with('user')->latest()->get();
             
         // Get counts for the stats cards
         $stats = [
-            'total_requests' => OfficialDocumentRequest::count() + ResidentDocumentRequest::count(),
+            'total_requests' => OfficialDocumentRequest::count() + 
+                              ResidentDocumentRequest::count() + 
+                              DocumentRequest::count(),
             'pending_requests' => OfficialDocumentRequest::where('status', 'Pending')->count() + 
-                                ResidentDocumentRequest::where('status', 'pending')->count(),
+                                ResidentDocumentRequest::where('status', 'pending')->count() +
+                                DocumentRequest::where('status', 'Pending')->count(),
             'processing_requests' => OfficialDocumentRequest::where('status', 'Processing')->count() + 
-                                   ResidentDocumentRequest::where('status', 'processing')->count(),
+                                   ResidentDocumentRequest::where('status', 'processing')->count() +
+                                   DocumentRequest::where('status', 'Processing')->count(),
             'ready_requests' => OfficialDocumentRequest::where('status', 'Ready for Pickup')->count() + 
-                              ResidentDocumentRequest::where('status', 'ready for pickup')->count(),
+                              ResidentDocumentRequest::where('status', 'ready for pickup')->count() +
+                              DocumentRequest::where('status', 'Ready for Pickup')->count(),
             'completed_requests' => OfficialDocumentRequest::where('status', 'Completed')->count() + 
-                                  ResidentDocumentRequest::where('status', 'completed')->count(),
+                                  ResidentDocumentRequest::where('status', 'completed')->count() +
+                                  DocumentRequest::where('status', 'Completed')->count(),
             'rejected_requests' => OfficialDocumentRequest::where('status', 'Rejected')->count() + 
-                                 ResidentDocumentRequest::where('status', 'rejected')->count(),
+                                 ResidentDocumentRequest::where('status', 'rejected')->count() +
+                                 DocumentRequest::where('status', 'Rejected')->count(),
         ];
 
-        return view('secretary.sec_documents', compact('requests', 'residentRequests', 'stats'));
+        return view('secretary.sec_documents', compact('requests', 'residentRequests', 'captainRequests', 'stats'));
     }
 
     public function store(Request $request)

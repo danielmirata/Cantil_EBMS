@@ -342,35 +342,59 @@ Route::prefix('map-locations')->group(function () {
 });
 
 // Captain Routes
-Route::middleware(['auth'])->prefix('captain')->group(function () {
-    Route::get('/schedule', [App\Http\Controllers\Captain\CScheduleController::class, 'index'])->name('captain.schedule');
-    Route::get('/inventory', [App\Http\Controllers\Captain\InventoryController::class, 'index'])->name('captain.inventory');
+Route::middleware(['auth'])->prefix('captain')->name('captain.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\Captain\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/schedule', [App\Http\Controllers\Captain\CScheduleController::class, 'index'])->name('schedule');
+    Route::get('/map', [App\Http\Controllers\Captain\MapController::class, 'index'])->name('map');
+    
+    // Inventory Management Routes
+    Route::get('/inventory', [App\Http\Controllers\Captain\InventoryController::class, 'index'])->name('inventory.index');
+    Route::post('/inventory', [App\Http\Controllers\Captain\InventoryController::class, 'store'])->name('inventory.store');
+    Route::get('/inventory/{id}', [App\Http\Controllers\Captain\InventoryController::class, 'show'])->name('inventory.show');
+    Route::put('/inventory/{id}', [App\Http\Controllers\Captain\InventoryController::class, 'update'])->name('inventory.update');
+    Route::delete('/inventory/{id}', [App\Http\Controllers\Captain\InventoryController::class, 'destroy'])->name('inventory.destroy');
+    Route::post('/inventory/use', [App\Http\Controllers\Captain\InventoryController::class, 'use'])->name('inventory.use');
+    
+    // Projects Routes
+    Route::prefix('projects')->name('projects.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Captain\ProjectController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\Captain\ProjectController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\Captain\ProjectController::class, 'store'])->name('store');
+        Route::get('/{project}', [App\Http\Controllers\Captain\ProjectController::class, 'show'])->name('show');
+        Route::get('/{project}/edit', [App\Http\Controllers\Captain\ProjectController::class, 'edit'])->name('edit');
+        Route::put('/{project}', [App\Http\Controllers\Captain\ProjectController::class, 'update'])->name('update');
+        Route::delete('/{project}', [App\Http\Controllers\Captain\ProjectController::class, 'destroy'])->name('destroy');
+    });
+
     // Officials Routes
-    Route::get('/officials', [App\Http\Controllers\Captain\OfficialController::class, 'index'])->name('captain.officials.index');
-    Route::get('/officials/create', [App\Http\Controllers\Captain\OfficialController::class, 'create'])->name('captain.officials.create');
-    Route::post('/officials', [App\Http\Controllers\Captain\OfficialController::class, 'store'])->name('captain.officials.store');
-    Route::get('/officials/archived', [App\Http\Controllers\Captain\OfficialController::class, 'archived'])->name('captain.officials.archived');
-    Route::get('/officials/{official}', [App\Http\Controllers\Captain\OfficialController::class, 'show'])->name('captain.officials.show');
-    Route::get('/officials/{official}/edit', [App\Http\Controllers\Captain\OfficialController::class, 'edit'])->name('captain.officials.edit');
-    Route::patch('/officials/{official}', [App\Http\Controllers\Captain\OfficialController::class, 'update'])->name('captain.officials.update');
-    Route::patch('/officials/{official}/photo', [App\Http\Controllers\Captain\OfficialController::class, 'updatePhoto'])->name('captain.officials.update-photo');
-    Route::patch('/officials/{official}/archive', [App\Http\Controllers\Captain\OfficialController::class, 'archive'])->name('captain.officials.archive');
-    Route::patch('/officials/{official}/restore', [App\Http\Controllers\Captain\OfficialController::class, 'restore'])->name('captain.officials.restore');
+    Route::get('/officials', [App\Http\Controllers\Captain\OfficialController::class, 'index'])->name('officials.index');
+    Route::get('/officials/create', [App\Http\Controllers\Captain\OfficialController::class, 'create'])->name('officials.create');
+    Route::post('/officials', [App\Http\Controllers\Captain\OfficialController::class, 'store'])->name('officials.store');
+    Route::get('/officials/archived', [App\Http\Controllers\Captain\OfficialController::class, 'archived'])->name('officials.archived');
+    Route::get('/officials/{official}', [App\Http\Controllers\Captain\OfficialController::class, 'show'])->name('officials.show');
+    Route::get('/officials/{official}/edit', [App\Http\Controllers\Captain\OfficialController::class, 'edit'])->name('officials.edit');
+    Route::patch('/officials/{official}', [App\Http\Controllers\Captain\OfficialController::class, 'update'])->name('officials.update');
+    Route::patch('/officials/{official}/photo', [App\Http\Controllers\Captain\OfficialController::class, 'updatePhoto'])->name('officials.update-photo');
+    Route::patch('/officials/{official}/archive', [App\Http\Controllers\Captain\OfficialController::class, 'archive'])->name('officials.archive');
+    Route::patch('/officials/{official}/restore', [App\Http\Controllers\Captain\OfficialController::class, 'restore'])->name('officials.restore');
     
     // Residents Routes
-    Route::get('/residents', [App\Http\Controllers\Captain\ResidentController::class, 'index'])->name('captain.residents.index');
-    Route::get('/residents/create', [App\Http\Controllers\Captain\ResidentController::class, 'create'])->name('captain.residents.create');
-    Route::post('/residents', [App\Http\Controllers\Captain\ResidentController::class, 'store'])->name('captain.residents.store');
-    Route::get('/residents/archived', [App\Http\Controllers\Captain\ResidentController::class, 'archived'])->name('captain.residents.archived');
-    Route::get('/residents/{resident}', [App\Http\Controllers\Captain\ResidentController::class, 'show'])->name('captain.residents.show');
-    Route::get('/residents/{resident}/edit', [App\Http\Controllers\Captain\ResidentController::class, 'edit'])->name('captain.residents.edit');
-    Route::patch('/residents/{resident}', [App\Http\Controllers\Captain\ResidentController::class, 'update'])->name('captain.residents.update');
-    Route::patch('/residents/{resident}/photo', [App\Http\Controllers\Captain\ResidentController::class, 'updatePhoto'])->name('captain.residents.update-photo');
-    Route::patch('/residents/{resident}/archive', [App\Http\Controllers\Captain\ResidentController::class, 'archive'])->name('captain.residents.archive');
-    Route::patch('/residents/{resident}/restore', [App\Http\Controllers\Captain\ResidentController::class, 'restore'])->name('captain.residents.restore');
+    Route::get('/residents', [App\Http\Controllers\Captain\ResidentController::class, 'index'])->name('residents.index');
+    Route::get('/residents/create', [App\Http\Controllers\Captain\ResidentController::class, 'create'])->name('residents.create');
+    Route::post('/residents', [App\Http\Controllers\Captain\ResidentController::class, 'store'])->name('residents.store');
+    Route::get('/residents/archived', [App\Http\Controllers\Captain\ResidentController::class, 'archived'])->name('residents.archived');
+    Route::get('/residents/{resident}', [App\Http\Controllers\Captain\ResidentController::class, 'show'])->name('residents.show');
+    Route::get('/residents/{resident}/edit', [App\Http\Controllers\Captain\ResidentController::class, 'edit'])->name('residents.edit');
+    Route::patch('/residents/{resident}', [App\Http\Controllers\Captain\ResidentController::class, 'update'])->name('residents.update');
+    Route::patch('/residents/{resident}/photo', [App\Http\Controllers\Captain\ResidentController::class, 'updatePhoto'])->name('residents.update-photo');
+    Route::patch('/residents/{resident}/archive', [App\Http\Controllers\Captain\ResidentController::class, 'archive'])->name('residents.archive');
+    Route::patch('/residents/{resident}/restore', [App\Http\Controllers\Captain\ResidentController::class, 'restore'])->name('residents.restore');
 
     // Documents Routes
     Route::get('/documents', [App\Http\Controllers\Captain\CaptainDocumentController::class, 'index'])->name('documents.index');
+    Route::post('/documents/request', [App\Http\Controllers\Captain\CaptainDocumentController::class, 'store'])->name('document.request.store');
+    Route::put('/documents/request/status', [App\Http\Controllers\Captain\CaptainDocumentController::class, 'updateStatus'])->name('document.request.update.status');
+    Route::get('/documents/print/{type}/{id}', [App\Http\Controllers\Captain\CaptainDocumentController::class, 'printDocument'])->name('document.print');
 });
 
 Route::get('/households/{household}/members', [HouseholdController::class, 'getMembers'])->name('households.members');
@@ -484,4 +508,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/documents', [OfficialFeatureController::class, 'documents'])->name('official.documents');
     Route::get('/projects', [OfficialFeatureController::class, 'projects'])->name('official.projects');
     Route::get('/map', [OfficialFeatureController::class, 'map'])->name('official.map');
+});
+
+// Admin Activity Logs Routes
+Route::middleware(['auth',])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/activity-logs', [App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-logs');
+    Route::get('/activity-logs/export', [App\Http\Controllers\Admin\ActivityLogController::class, 'export'])->name('activity-logs.export');
+    Route::get('/activity-logs/notifications', [App\Http\Controllers\Admin\ActivityLogController::class, 'notifications'])->name('activity-logs.notifications');
 });

@@ -121,9 +121,7 @@
                     <a href="{{ route('secretary.records.create') }}" class="btn btn-success me-2">
                         <i class="fas fa-plus"></i> New Record
                     </a>
-                    <button type="button" class="btn btn-primary" onclick="exportRecords()">
-                        <i class="fas fa-download"></i> Export Records
-                    </button>
+                     
                 </div>
             </div>
 
