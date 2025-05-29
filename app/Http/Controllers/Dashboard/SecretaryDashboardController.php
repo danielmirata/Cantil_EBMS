@@ -48,16 +48,26 @@ class SecretaryDashboardController extends Controller
      */
     public function showMap()
     {
-        // Define all puroks
+        // Define all puroks with their coordinates
         $puroks = [
-            'Purok Madasigon', 'Purok Mauswagon', 'Purok Mapahiuyom', 'Purok Matinabangon',
-            'Purok Twin Heart', 'Purok Malipayon', 'Purok Makugihon', 'Purok Maalagaron',
-            'Purok Matinagdanon', 'Purok Maabi-Abihon', 'Camella Homes', 'Lumina Homes'
+            ['name' => 'Purok Madasigon', 'latitude' => 9.280745008410356, 'longitude' => 123.27235221862794],
+            ['name' => 'Purok Mauswagon', 'latitude' => 9.281745008410356, 'longitude' => 123.27335221862794],
+            ['name' => 'Purok Mapahiuyom', 'latitude' => 9.282745008410356, 'longitude' => 123.27435221862794],
+            ['name' => 'Purok Matinabangon', 'latitude' => 9.283745008410356, 'longitude' => 123.27535221862794],
+            ['name' => 'Purok Twin Heart', 'latitude' => 9.284745008410356, 'longitude' => 123.27635221862794],
+            ['name' => 'Purok Malipayon', 'latitude' => 9.285745008410356, 'longitude' => 123.27735221862794],
+            ['name' => 'Purok Makugihon', 'latitude' => 9.286745008410356, 'longitude' => 123.27835221862794],
+            ['name' => 'Purok Maalagaron', 'latitude' => 9.287745008410356, 'longitude' => 123.27935221862794],
+            ['name' => 'Purok Matinagdanon', 'latitude' => 9.288745008410356, 'longitude' => 123.28035221862794],
+            ['name' => 'Purok Maabi-Abihon', 'latitude' => 9.289745008410356, 'longitude' => 123.28135221862794],
+            ['name' => 'Camella Homes', 'latitude' => 9.290745008410356, 'longitude' => 123.28235221862794],
+            ['name' => 'Lumina Homes', 'latitude' => 9.291745008410356, 'longitude' => 123.28335221862794]
         ];
 
-        $purokData = [];
-        
-        // Process each purok
+        // Get projects for the map
+        $projects = \App\Models\Project::all();
+
+        return view('secretary.map', compact('puroks', 'projects'));
         foreach ($puroks as $purok) {
             // Get all residents in this purok
             $residents = ResidentsInformation::where('street', 'like', '%' . $purok . '%')

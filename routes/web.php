@@ -35,9 +35,10 @@ use App\Http\Controllers\Official\DashboardController;
 use App\Http\Controllers\Official\ScheduleController as OfficialScheduleController;
 use App\Http\Controllers\Official\OfficialController as OfficialOfficialController;
 use App\Http\Controllers\Official\DocumentController;
-use App\Http\Controllers\Official\ProjectController as OfficialProjectController;
+use App\Http\Controllers\Official\Controller as OfficialProjectController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\Official\InventoryController as OfficialInventoryController;
+use App\Http\Controllers\Official\OfficialFeatureController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -88,6 +89,17 @@ Route::middleware(['web', 'auth'])->group(function () {
         ->name('secretary.residence.new');
     Route::post('/secretary/residence/store', [ResidenceInformationController::class, 'store'])
         ->name('secretary.residence.store');
+
+    // Inventory Routes
+    Route::prefix('inventory')->group(function () {
+        Route::get('/', [InventoryController::class, 'index'])->name('inventory.index');
+        Route::post('/', [InventoryController::class, 'store'])->name('inventory.store');
+        Route::get('/{id}', [InventoryController::class, 'show'])->name('inventory.show');
+        Route::put('/{id}', [InventoryController::class, 'update'])->name('inventory.update');
+        Route::delete('/{id}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+        Route::post('/use', [InventoryController::class, 'use'])->name('inventory.use');
+    });
+
     Route::get('/secretary/residence', [ResidenceInformationController::class, 'all_residents'])
         ->name('secretary.residence.all');
     Route::get('/secretary/user/resident', [UserController::class, 'showResidents'])
@@ -186,6 +198,37 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::delete('/{record}', [App\Http\Controllers\Secretary\RecordController::class, 'destroy'])->name('secretary.records.destroy');
         Route::get('/export', [App\Http\Controllers\Secretary\RecordController::class, 'export'])->name('secretary.records.export');
     });
+
+    // Official Routes
+    Route::prefix('official')->group(function () {
+        Route::get('/inventory', [OfficialInventoryController::class, 'index'])->name('official.inventory.index');
+        Route::post('/inventory', [OfficialInventoryController::class, 'store'])->name('official.inventory.store');
+        Route::get('/inventory/{id}', [OfficialInventoryController::class, 'show'])->name('official.inventory.show');
+        Route::put('/inventory/{id}', [OfficialInventoryController::class, 'update'])->name('official.inventory.update');
+        Route::delete('/inventory/{id}', [OfficialInventoryController::class, 'destroy'])->name('official.inventory.destroy');
+    });
+
+    // Secretary Project Routes
+    Route::prefix('secretary/projects')->name('secretary.projects.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Secretary\ProjectController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\Secretary\ProjectController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\Secretary\ProjectController::class, 'store'])->name('store');
+        Route::get('/{project}', [App\Http\Controllers\Secretary\ProjectController::class, 'show'])->name('show');
+        Route::get('/{project}/edit', [App\Http\Controllers\Secretary\ProjectController::class, 'edit'])->name('edit');
+        Route::put('/{project}', [App\Http\Controllers\Secretary\ProjectController::class, 'update'])->name('update');
+        Route::delete('/{project}', [App\Http\Controllers\Secretary\ProjectController::class, 'destroy'])->name('destroy');
+    });
+
+    // Secretary Inventory Routes
+    Route::prefix('secretary/inventory')->name('secretary.inventory.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Secretary\InventoryController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\Secretary\InventoryController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\Secretary\InventoryController::class, 'store'])->name('store');
+        Route::get('/{id}', [App\Http\Controllers\Secretary\InventoryController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [App\Http\Controllers\Secretary\InventoryController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [App\Http\Controllers\Secretary\InventoryController::class, 'update'])->name('update');
+        Route::delete('/{id}', [App\Http\Controllers\Secretary\InventoryController::class, 'destroy'])->name('destroy');
+    });
 });
 
 // Officials Routes
@@ -231,8 +274,8 @@ Route::get('/budget/{budget}', [BudgetController::class, 'show'])->name('budget.
 // Document Request Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/documents', [OfficialDocumentRequestController::class, 'index'])->name('documents.index');
-    Route::post('/documents/request', [OfficialDocumentRequestController::class, 'store'])->name('barangay.document.request.store');
-    Route::put('/documents/request/status', [OfficialDocumentRequestController::class, 'updateStatus'])->name('barangay.document.request.update.status');
+    Route::post('/documents/request', [OfficialDocumentRequestController::class, 'store'])->name('official.document.request.store');
+    Route::put('/documents/request/status', [OfficialDocumentRequestController::class, 'updateStatus'])->name('official.document.request.update.status');
 });
 
 // Document printing routes
@@ -403,21 +446,33 @@ Route::middleware(['auth'])->group(function () {
 // Official Portal Routes
 Route::middleware(['auth',])->prefix('official')->group(function () {
     // Dashboard
-    Route::get('/', [App\Http\Controllers\Dashboard\OfficialDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [App\Http\Controllers\Dashboard\OfficialDashboardController::class, 'index'])->name('official.dashboard');
     Route::get('/schedule', [App\Http\Controllers\Official\ScheduleController::class, 'index'])->name('official.schedule');
+    Route::post('/projects', [App\Http\Controllers\Official\OfficialProjectController::class, 'store'])->name('official.projects.store');
 });
 
-// Inventory Management Routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/inventory', [OfficialInventoryController::class, 'index'])->name('inventory.index');
-    Route::post('/inventory', [OfficialInventoryController::class, 'store'])->name('inventory.store');
-    Route::get('/inventory/{id}', [OfficialInventoryController::class, 'show'])->name('inventory.show');
-    Route::put('/inventory/{id}', [OfficialInventoryController::class, 'update'])->name('inventory.update');
-    Route::delete('/inventory/{id}', [OfficialInventoryController::class, 'destroy'])->name('inventory.destroy');
-    Route::post('/inventory/use', [OfficialInventoryController::class, 'use'])->name('inventory.use');
+// Official Inventory Routes
+Route::middleware(['auth',])->prefix('official/inventory')->name('official.inventory.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Official\InventoryController::class, 'index'])->name('index');
+    Route::post('/', [App\Http\Controllers\Official\InventoryController::class, 'store'])->name('store');
+    Route::get('/{id}', [App\Http\Controllers\Official\InventoryController::class, 'show'])->name('show');
+    Route::put('/{id}', [App\Http\Controllers\Official\InventoryController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\Official\InventoryController::class, 'destroy'])->name('destroy');
+    Route::post('/use', [App\Http\Controllers\Official\InventoryController::class, 'use'])->name('use');
 });
 
 Route::get('/api/projects', [App\Http\Controllers\ProjectController::class, 'index']);
 Route::get('/api/projects/{id}', [App\Http\Controllers\ProjectController::class, 'show']);
 
 Route::get('/secretary/notifications', [App\Http\Controllers\Secretary\ActivityLogController::class, 'notifications'])->name('secretary.notifications');
+
+// Official Feature Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [OfficialFeatureController::class, 'dashboard'])->name('official.dashboard');
+    Route::get('/schedule', [OfficialFeatureController::class, 'schedule'])->name('official.schedule');
+    Route::get('/officials', [OfficialFeatureController::class, 'officials'])->name('official.officials');
+    Route::get('/residents', [OfficialFeatureController::class, 'residents'])->name('official.residents');
+    Route::get('/documents', [OfficialFeatureController::class, 'documents'])->name('official.documents');
+    Route::get('/projects', [OfficialFeatureController::class, 'projects'])->name('official.projects');
+    Route::get('/map', [OfficialFeatureController::class, 'map'])->name('official.map');
+});

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Secretary;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Inventory;
 use App\Models\Budget;
@@ -32,6 +33,11 @@ class InventoryController extends Controller
         switch ($activeTab) {
             case 'inventory':
                 $data['inventory'] = Inventory::all();
+                // Fetch low stock and out of stock items for the inventory tab
+                $data['lowStockItems'] = Inventory::where('quantity', '>', 0)
+                                                    ->where('quantity', '<=', 5)
+                                                    ->get();
+                $data['outOfStockItems'] = Inventory::where('quantity', '<=', 0)->get();
                 break;
             case 'budget':
                 $data['budgets'] = Budget::all();
@@ -43,6 +49,17 @@ class InventoryController extends Controller
             case 'analytics':
                 $data['budgets'] = Budget::all();
                 $data['expenses'] = Expense::with('budget')->get();
+                // Fetch low stock and out of stock items for analytics
+                $data['lowStockItems'] = Inventory::where('quantity', '>', 0)
+                                                    ->where('quantity', '<=', 5)
+                                                    ->get();
+                $data['outOfStockItems'] = Inventory::where('quantity', '<=', 0)->get();
+                $data['inStockCount'] = Inventory::where('quantity', '>', 5)->count();
+                $data['lowStockCount'] = $data['lowStockItems']->count();
+                $data['outOfStockCount'] = $data['outOfStockItems']->count();
+                $data['inStockNames'] = Inventory::where('quantity', '>', 5)->pluck('name')->toArray();
+                $data['lowStockNames'] = $data['lowStockItems']->pluck('name')->toArray();
+                $data['outOfStockNames'] = $data['outOfStockItems']->pluck('name')->toArray();
                 break;
         }
 
@@ -204,60 +221,37 @@ class InventoryController extends Controller
         return redirect()->route('inventory.index', ['tab' => $type])->with('success', 'Item updated successfully');
     }
 
-    public function use(Request $request)
-    {
-        $validated = $request->validate([
-            'inventory_id' => 'required|exists:inventory,id',
-            'quantity' => 'required|numeric|min:1',
-            'purpose' => 'required|string|max:255'
-        ]);
-
-        DB::transaction(function () use ($validated) {
-            $inventory = Inventory::findOrFail($validated['inventory_id']);
-            
-            if ($inventory->quantity < $validated['quantity']) {
-                throw new \Exception('Insufficient inventory quantity');
-            }
-
-            $inventory->quantity -= $validated['quantity'];
-            $inventory->save();
-
-            // You might want to log this usage in a separate table
-            // ActivityLog::create([
-            //     'type' => 'inventory_use',
-            //     'description' => sprintf('Used %d %s of %s for %s', 
-            //         $validated['quantity'],
-            //         $inventory->unit,
-            //         $inventory->name,
-            //         $validated['purpose']
-            //     )
-            // ]);
-        });
-
-        return redirect()->route('inventory.index')->with('success', 'Inventory used successfully');
-    }
-
     public function destroy(Request $request, $id)
     {
         $type = $request->input('type');
         
         switch ($type) {
             case 'inventory':
-                $item = Inventory::findOrFail($id);
-                $item->delete();
+                Inventory::findOrFail($id)->delete();
                 break;
 
             case 'budget':
-                $item = Budget::findOrFail($id);
-                $item->delete();
+                $budget = Budget::findOrFail($id);
+                if ($budget->allocated > 0) {
+                    return redirect()->back()->with('error', 'Cannot delete budget with allocated expenses');
+                }
+                $budget->delete();
                 break;
 
             case 'expense':
-                $item = Expense::findOrFail($id);
-                $item->delete();
+                DB::transaction(function () use ($id) {
+                    $expense = Expense::findOrFail($id);
+                    $budget = Budget::findOrFail($expense->budget_id);
+                    
+                    $budget->allocated -= $expense->amount;
+                    $budget->remaining_amount += $expense->amount;
+                    $budget->save();
+                    
+                    $expense->delete();
+                });
                 break;
         }
 
         return redirect()->route('inventory.index', ['tab' => $type])->with('success', 'Item deleted successfully');
     }
-}
+} 

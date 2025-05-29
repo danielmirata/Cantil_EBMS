@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.o_map')
 
 @section('title', 'Barangay Map')
 

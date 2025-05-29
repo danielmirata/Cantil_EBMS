@@ -7,31 +7,51 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class OfficialDocumentRequestController extends Controller
-{
-    public function index()
+{    public function index()
     {
-        $requests = OfficialDocumentRequest::with('user')->latest()->get();
-        return view('captain.documents', compact('requests'));
-    }
-
-    public function store(Request $request)
+        $documents = OfficialDocumentRequest::with('user')->latest()->get();
+        return view('official.documents', compact('documents'));
+    }public function store(Request $request)
     {
         try {
             $validated = $request->validate([
                 'document_type' => 'required|string|max:255',
-                'purpose' => 'required|string',
-                'additional_info' => 'nullable|string',
-                'date_needed' => 'required|date|after:today'
+                'purpose' => 'required|string|min:5|max:500',
+                'additional_info' => 'nullable|string|max:1000',
+                'date_needed' => 'required|date|after:today',
+            ]);            // Set the user ID and status
+            $validated['user_id'] = auth()->id();
+            $validated['status'] = 'Pending';
+            
+            Log::info('Creating document request with data:', $validated);
+            
+            $document = OfficialDocumentRequest::create($validated);
+            
+            Log::info('Document request created:', [
+                'id' => $document->id,
+                'request_id' => $document->request_id,
+                'document_type' => $document->document_type
             ]);
 
-            $validated['user_id'] = auth()->id();
-            
-            OfficialDocumentRequest::create($validated);
+            // Log successful creation
+            Log::info('Document request created successfully', [
+                'user_id' => auth()->id(),
+                'document_type' => $validated['document_type']
+            ]);
 
-            return redirect()->route('documents.index')
+            return redirect()->back()
                 ->with('success', 'Document request submitted successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning('Document request validation failed', [
+                'errors' => $e->errors()
+            ]);
+            return redirect()->back()
+                ->withErrors($e)
+                ->withInput();
         } catch (\Exception $e) {
-            Log::error('Document request creation failed: ' . $e->getMessage());
+            Log::error('Document request creation failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             return redirect()->back()
                 ->with('error', 'Failed to submit document request. Please try again.')
                 ->withInput();

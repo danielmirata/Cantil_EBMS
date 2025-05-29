@@ -1,4 +1,4 @@
-@extends('layouts.inve_layout')
+@extends('layouts.o_inve_layout')
 
 @section('title', 'Inventory Management')
 
@@ -9,22 +9,22 @@
 <div class="border-bottom mb-4">
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a class="nav-link{{ request()->query('tab', 'inventory') == 'inventory' ? ' active' : '' }}" href="{{ route('secretary.inventory.index', ['tab' => 'inventory']) }}">
+            <a class="nav-link{{ request()->query('tab', 'inventory') == 'inventory' ? ' active' : '' }}" href="{{ route('official.inventory.index', ['tab' => 'inventory']) }}">
                 <i class="fas fa-box me-2"></i>Inventory
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link{{ request()->query('tab') == 'budget' ? ' active' : '' }}" href="{{ route('secretary.inventory.index', ['tab' => 'budget']) }}">
+            <a class="nav-link{{ request()->query('tab') == 'budget' ? ' active' : '' }}" href="{{ route('official.inventory.index', ['tab' => 'budget']) }}">
                 <i class="fas fa-wallet me-2"></i>Budget Management
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link{{ request()->query('tab') == 'expenses' ? ' active' : '' }}" href="{{ route('secretary.inventory.index', ['tab' => 'expenses']) }}">
+            <a class="nav-link{{ request()->query('tab') == 'expenses' ? ' active' : '' }}" href="{{ route('official.inventory.index', ['tab' => 'expenses']) }}">
                 <i class="fas fa-receipt me-2"></i>Expenses
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link{{ request()->query('tab') == 'analytics' ? ' active' : '' }}" href="{{ route('secretary.inventory.index', ['tab' => 'analytics']) }}">
+            <a class="nav-link{{ request()->query('tab') == 'analytics' ? ' active' : '' }}" href="{{ route('official.inventory.index', ['tab' => 'analytics']) }}">
                 <i class="fas fa-chart-bar me-2"></i>Analytics
             </a>
         </li>
@@ -118,7 +118,7 @@
         </div>
         <div class="card-body">
             <!-- Filter Form -->
-            <form method="GET" action="{{ route('secretary.inventory.index') }}" class="row g-3 mb-3 align-items-end">
+            <form method="GET" action="{{ route('official.inventory.index') }}" class="row g-3 mb-3 align-items-end">
                 <input type="hidden" name="tab" value="inventory">
                 <div class="col-md-3">
                     <label class="form-label">Category</label>
@@ -179,7 +179,7 @@
                                     <button class="btn btn-sm btn-outline-warning me-2" onclick="useInventoryItem({{ $item->id }}, '{{ $item->name }}', {{ $item->quantity }})">
                                         <i class="fas fa-minus-circle"></i>
                                     </button>
-                                    <form action="{{ route('secretary.inventory.destroy', $item->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('official.inventory.destroy', $item->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <input type="hidden" name="type" value="inventory">
@@ -227,7 +227,7 @@
                                 </div>
                                 <div class="position-absolute top-0 end-0 m-2">
                                     <button class="btn btn-sm btn-outline-primary me-1" onclick="editBudget({{ $budget->id }})"><i class="fas fa-edit"></i></button>
-                                    <form action="{{ route('secretary.inventory.destroy', $budget->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('official.inventory.destroy', $budget->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <input type="hidden" name="type" value="budget">
@@ -248,8 +248,8 @@
 @if($activeTab === 'expenses')
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Expense Management</h4>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#expenseModal">
+            <h4 class="mb-0">Expense Tracking</h4>
+            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#expenseModal">
                 <i class="fas fa-plus me-2"></i>Add Expense
             </button>
         </div>
@@ -263,7 +263,7 @@
                 </button>
             </div>
             <!-- Filter Form -->
-            <form method="GET" action="{{ route('secretary.inventory.index') }}" class="row g-3 mb-3 align-items-end">
+            <form method="GET" action="{{ route('official.inventory.index') }}" class="row g-3 mb-3 align-items-end">
                 <input type="hidden" name="tab" value="expenses">
                 <div class="col-md-3">
                     <label class="form-label">Category</label>
@@ -310,7 +310,7 @@
                                     <button class="btn btn-sm btn-outline-primary me-2" onclick="editExpense({{ $expense->id }})">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <form action="{{ route('secretary.inventory.destroy', $expense->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('official.inventory.destroy', $expense->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <input type="hidden" name="type" value="expense">
@@ -360,7 +360,7 @@
 <!-- Inventory Modal -->
 <div class="modal fade" id="inventoryModal" tabindex="-1" aria-labelledby="inventoryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form method="POST" action="{{ route('inventory.store') }}" id="inventoryForm">
+        <form method="POST" action="{{ route('official.inventory.store') }}" id="inventoryForm">
             @csrf
             <input type="hidden" name="type" value="inventory">
             <input type="hidden" name="_method" value="POST" id="inventoryMethod">
@@ -409,7 +409,7 @@
 <!-- Budget Modal -->
 <div class="modal fade" id="budgetModal" tabindex="-1" aria-labelledby="budgetModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form method="POST" action="{{ route('inventory.store') }}" id="budgetForm">
+        <form method="POST" action="{{ route('official.inventory.store') }}" id="budgetForm">
             @csrf
             <input type="hidden" name="type" value="budget">
             <input type="hidden" name="_method" value="POST" id="budgetMethod">
@@ -444,7 +444,7 @@
 <!-- Expense Modal -->
 <div class="modal fade" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form method="POST" action="{{ route('inventory.store') }}" id="expenseForm">
+        <form method="POST" action="{{ route('official.inventory.store') }}" id="expenseForm">
             @csrf
             <input type="hidden" name="type" value="expense">
             <input type="hidden" name="_method" value="POST" id="expenseMethod">
@@ -505,7 +505,7 @@
 <!-- Use Item Modal -->
 <div class="modal fade" id="useItemModal" tabindex="-1" aria-labelledby="useItemModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form method="POST" action="{{ route('inventory.use') }}" id="useItemForm">
+        <form method="POST" action="{{ route('official.inventory.use') }}" id="useItemForm">
             @csrf
             <input type="hidden" name="item_id" id="useItemId">
             <div class="modal-content">
@@ -575,11 +575,11 @@
 function editInventoryItem(id) {
     console.log('editInventoryItem called', id);
     // Fetch item data and populate form
-    fetch(`/inventory/${id}?type=inventory`)
+    fetch(`/official/inventory/${id}?type=inventory`)
         .then(response => response.json())
         .then(data => {
             const form = document.getElementById('inventoryForm');
-            form.action = `/inventory/${id}`;
+            form.action = `/official/inventory/${id}`;
             document.getElementById('inventoryMethod').value = 'PUT';
             form.querySelector('[name="name"]').value = data.name;
             form.querySelector('[name="category"]').value = data.category;
@@ -595,11 +595,11 @@ function editInventoryItem(id) {
 // Edit Budget
 function editBudget(id) {
     // Fetch budget data and populate form
-    fetch(`/inventory/${id}`)
+    fetch(`/official/inventory/${id}`)
         .then(response => response.json())
         .then(data => {
             const form = document.getElementById('budgetForm');
-            form.action = `/inventory/${id}`;
+            form.action = `/official/inventory/${id}`;
             document.getElementById('budgetMethod').value = 'PUT';
             form.querySelector('[name="name"]').value = data.name;
             form.querySelector('[name="amount"]').value = data.amount;
@@ -612,11 +612,11 @@ function editBudget(id) {
 // Edit Expense
 function editExpense(id) {
     // Fetch expense data and populate form
-    fetch(`/inventory/${id}`)
+    fetch(`/official/inventory/${id}`)
         .then(response => response.json())
         .then(data => {
             const form = document.getElementById('expenseForm');
-            form.action = `/inventory/${id}`;
+            form.action = `/official/inventory/${id}`;
             document.getElementById('expenseMethod').value = 'PUT';
             form.querySelector('[name="budget_id"]').value = data.budget_id;
             form.querySelector('[name="description"]').value = data.description;

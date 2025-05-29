@@ -1,4 +1,4 @@
-@extends('layouts.official')
+@extends('layouts.o_schd_layout')
 
 @section('title', 'Schedule Management')
 
@@ -62,7 +62,9 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2>Schedules</h2>
             <div class="d-flex">
-                <input type="text" id="searchInput" class="form-control me-2" placeholder="Search schedules...">
+                <form action="" method="GET" class="d-flex" style="gap: 0.5rem;">
+                    <input type="text" id="searchInput" name="search" class="form-control me-2" placeholder="Search schedules..." value="{{ isset($search) ? $search : '' }}">
+                </form>
             </div>
         </div>
 
@@ -98,6 +100,9 @@
                     @endforelse
                 </tbody>
             </table>
+            <div class="d-flex justify-content-center mt-4">
+                {{ $schedules->links('pagination::simple-bootstrap-4') }}
+            </div>
         </div>
     </div>
 
@@ -276,6 +281,52 @@
         box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
     }
 
+    /* Pagination Styles */
+    .pagination {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    .pagination .page-item .page-link {
+        color: #2196F3;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        margin: 0 2px;
+        transition: background 0.2s, color 0.2s;
+        font-size: 0.95rem;
+        padding: 0.25rem 0.75rem;
+        min-width: 32px;
+        min-height: 32px;
+        line-height: 1.5;
+    }
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(45deg, #2196F3, #1976D2);
+        color: #fff;
+        border: none;
+        box-shadow: 0 2px 6px rgba(33,150,243,0.15);
+    }
+    .pagination .page-item .page-link:hover {
+        background: #e3f2fd;
+        color: #1976D2;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #bdbdbd;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    /* Reduce icon size in pagination if any */
+    .pagination .page-link svg,
+    .pagination .page-link i {
+        width: 1em;
+        height: 1em;
+        vertical-align: middle;
+    }
+
+    .d-flex .form-control {
+        height: 44px;
+        font-size: 1rem;
+        border-radius: 22px;
+    }
+
     /* Responsive Calendar */
     #calendar {
         height: 500px;
@@ -343,13 +394,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     calendar.render();
 
-    // Search functionality
-    $('#searchInput').on('keyup', function() {
-        const searchText = $(this).val().toLowerCase();
-        $('table tbody tr').each(function() {
-            const rowText = $(this).text().toLowerCase();
-            $(this).toggle(rowText.indexOf(searchText) > -1);
-        });
+    // Submit search form on enter or when input is changed (optional: for instant search)
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.form.submit();
+        }
     });
 });
 </script>

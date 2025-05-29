@@ -4,7 +4,7 @@
         <img src="{{ asset('img/cantil-e-logo.png') }}" alt="Barangay Logo" class="logo">
         
         <div class="brgy-name">Barangay Cantil-E</div>
-        <div class="portal-label">Official Portal</div>
+        <div class="portal-label">Captain Portal</div>
     </div>
     
     <ul class="sidebar-menu">

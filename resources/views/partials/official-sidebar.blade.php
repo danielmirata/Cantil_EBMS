@@ -25,11 +25,10 @@
             </a>
             <ul class="collapse submenu" id="officialSubmenu">
                 <li>
-                    <a href="{#">
+                    <a href="{{ route('official.officials') }}">
                         <i class="fas fa-circle"></i> List of Officials
                     </a>
                 </li>
-                
             </ul>
         </li>
         <li>
@@ -39,30 +38,29 @@
             </a>
             <ul class="collapse submenu" id="residenceSubmenu">
                 <li>
-                    <a href="#">
+                    <a href="{{ route('official.residents') }}">
                         <i class="fas fa-circle"></i> All Residents
                     </a>
                 </li>
-                
             </ul>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('official.documents') }}">
                 <i class="fas fa-file-alt"></i> Documents
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('official.projects') }}">
                 <i class="fas fa-project-diagram"></i> Barangay Projects
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('official.map') }}">
                 <i class="fas fa-map-marked-alt"></i> Barangay Map
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('official.inventory.index') }}">
                 <i class="fas fa-boxes"></i> Inventory
             </a>
         </li>

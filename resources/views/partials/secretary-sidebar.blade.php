@@ -105,12 +105,12 @@
         </li>
         -->
         <li>
-            <a href="{{ route('projects.index') }}">
+            <a href="{{ route('secretary.projects.index') }}">
                 <i class="fas fa-project-diagram"></i> Barangay Projects
             </a>
         </li>
         <li>
-            <a href="{{ route('inventory.index') }}">
+            <a href="{{ route('secretary.inventory.index') }}">
                 <i class="fas fa-boxes"></i> Inventory
             </a>
         </li>
