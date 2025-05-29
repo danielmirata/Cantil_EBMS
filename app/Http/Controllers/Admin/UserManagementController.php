@@ -35,8 +35,14 @@ class UserManagementController extends Controller
             'status' => 'active',
         ]);
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User created successfully.');
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User created successfully.'
+            ]);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
 
     public function update(Request $request, User $user)
@@ -55,8 +61,14 @@ class UserManagementController extends Controller
             'account_type' => $request->account_type,
         ]);
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User updated successfully.');
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User updated successfully.'
+            ]);
+        }
+        
+        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
     public function changePassword(Request $request, User $user)
@@ -69,8 +81,14 @@ class UserManagementController extends Controller
             'password' => Hash::make($request->new_password),
         ]);
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'Password changed successfully.');
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Password changed successfully.'
+            ]);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', 'Password changed successfully.');
     }
 
     public function toggleStatus(User $user)

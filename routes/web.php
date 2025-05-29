@@ -151,6 +151,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     // User Management Routes
     Route::put('/user/{user}', [UserController::class, 'update'])->name('user.update');
     Route::put('/user/{user}/change-password', [UserController::class, 'changePassword'])->name('user.change-password');
+    Route::post('/user/store', [UserController::class, 'store'])->name('user.store');
 
     // Resident Routes
     Route::middleware(['auth'])->prefix('resident')->group(function () {
@@ -367,6 +368,9 @@ Route::middleware(['auth'])->prefix('captain')->group(function () {
     Route::patch('/residents/{resident}/photo', [App\Http\Controllers\Captain\ResidentController::class, 'updatePhoto'])->name('captain.residents.update-photo');
     Route::patch('/residents/{resident}/archive', [App\Http\Controllers\Captain\ResidentController::class, 'archive'])->name('captain.residents.archive');
     Route::patch('/residents/{resident}/restore', [App\Http\Controllers\Captain\ResidentController::class, 'restore'])->name('captain.residents.restore');
+
+    // Documents Routes
+    Route::get('/documents', [App\Http\Controllers\Captain\CaptainDocumentController::class, 'index'])->name('documents.index');
 });
 
 Route::get('/households/{household}/members', [HouseholdController::class, 'getMembers'])->name('households.members');

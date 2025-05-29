@@ -49,4 +49,45 @@ class UserController extends Controller
 
         return redirect()->back()->with('success', 'Password changed successfully.');
     }
+
+    public function store(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'fullname' => ['required', 'string', 'max:255'],
+                'username' => ['required', 'string', 'max:255', 'unique:users'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password' => ['required', 'string', 'min:8', 'confirmed'],
+                'account_type' => ['required', 'string', 'in:administrator,official,captain'],
+            ]);
+
+            $user = User::create([
+                'fullname' => $validated['fullname'],
+                'username' => $validated['username'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'account_type' => $validated['account_type'],
+                'status' => 'active',
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'User created successfully.',
+                    'user' => $user
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'User created successfully.');
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error creating user: ' . $e->getMessage()
+                ], 422);
+            }
+
+            return redirect()->back()->with('error', 'Error creating user: ' . $e->getMessage());
+        }
+    }
 } 

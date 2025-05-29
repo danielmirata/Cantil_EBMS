@@ -57,7 +57,7 @@ class ProjectController extends Controller
 
         Project::create($validated);
 
-        return redirect()->route('projects.index')
+        return redirect()->route('secretary.projects.index')
             ->with('success', 'Project created successfully.');
     }
 
@@ -107,7 +107,7 @@ class ProjectController extends Controller
 
         $project->update($validated);
 
-        return redirect()->route('projects.index')
+        return redirect()->route('secretary.projects.index')
             ->with('success', 'Project updated successfully.');
     }
 

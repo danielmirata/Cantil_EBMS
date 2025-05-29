@@ -191,7 +191,7 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Project Details</h2>
                 <div class="btn-group">
-                    <a href="{{ route('projects.index') }}" class="btn btn-outline-primary">
+                    <a href="{{ route('secretary.projects.index') }}" class="btn btn-outline-primary">
                         <i class="fas fa-arrow-left mr-1"></i>Back to Projects
                     </a>
                     <button type="button" class="btn btn-warning" onclick="editProject({{ $project->id }})">
@@ -428,7 +428,7 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('projects.store') }}" method="POST" id="addProjectForm" enctype="multipart/form-data">
+                <form action="{{ route('secretary.projects.store') }}" method="POST" id="addProjectForm" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <!-- Progress Stepper -->

@@ -347,155 +347,197 @@
 @endforeach
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
-$(document).ready(function() {
-    // Initialize filters
-    let activeFilters = {
-        search: '',
-        accountType: '',
-        status: ''
-    };
-
-    // Function to update active filters display
-    function updateActiveFilters() {
-        const activeFiltersContainer = $('#activeFilters');
-        activeFiltersContainer.empty();
-
-        if (activeFilters.search) {
-            activeFiltersContainer.append(`
-                <div class="filter-badge">
-                    Search: ${activeFilters.search}
-                    <span class="remove-filter" onclick="removeFilter('search')">&times;</span>
-                </div>
-            `);
-        }
-
-        if (activeFilters.accountType) {
-            activeFiltersContainer.append(`
-                <div class="filter-badge">
-                    Account Type: ${activeFilters.accountType}
-                    <span class="remove-filter" onclick="removeFilter('accountType')">&times;</span>
-                </div>
-            `);
-        }
-
-        if (activeFilters.status) {
-            activeFiltersContainer.append(`
-                <div class="filter-badge">
-                    Status: ${activeFilters.status}
-                    <span class="remove-filter" onclick="removeFilter('status')">&times;</span>
-                </div>
-            `);
-        }
-    }
-
-    // Function to apply filters
-    window.applyFilters = function() {
-        activeFilters.search = $('#searchInput').val().toLowerCase();
-        activeFilters.accountType = $('#accountTypeFilter').val();
-        activeFilters.status = $('#statusFilter').val();
-
-        $('table tbody tr').each(function() {
-            const row = $(this);
-            const fullname = row.find('td:eq(0)').text().toLowerCase();
-            const username = row.find('td:eq(1)').text().toLowerCase();
-            const email = row.find('td:eq(2)').text().toLowerCase();
-            const accountType = row.find('td:eq(3) .badge').text().toLowerCase().trim();
-            const status = row.find('td:eq(4) .badge').text().toLowerCase().trim();
-
-            let show = true;
-
-            // Search filter
-            if (activeFilters.search) {
-                show = show && (
-                    fullname.includes(activeFilters.search) ||
-                    username.includes(activeFilters.search) ||
-                    email.includes(activeFilters.search)
-                );
-            }
-
-            // Account type filter
-            if (activeFilters.accountType) {
-                show = show && accountType === activeFilters.accountType.toLowerCase().trim();
-            }
-
-            // Status filter
-            if (activeFilters.status) {
-                show = show && status === activeFilters.status.toLowerCase().trim();
-            }
-
-            row.toggle(show);
+    document.addEventListener('DOMContentLoaded', function() {
+        // Search functionality
+        $("#searchInput").on("keyup", function() {
+            applyFilters();
         });
 
-        updateActiveFilters();
-    };
+        // Handle Add User Form Submission via AJAX
+        $('#addUserModal #registerForm').on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const url = form.attr('action');
+            const method = form.attr('method');
+            const formData = new FormData(form[0]);
 
-    // Function to reset filters
-    window.resetFilters = function() {
-        $('#searchInput').val('');
-        $('#accountTypeFilter').val('');
-        $('#statusFilter').val('');
-        activeFilters = {
-            search: '',
-            accountType: '',
-            status: ''
-        };
-        $('table tbody tr').show();
-        updateActiveFilters();
-    };
+            // Include CSRF token
+            // Ensure you have a meta tag for csrf_token in your layout file, e.g.:
+            // <meta name="csrf-token" content="{{ csrf_token() }}">
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            if (csrfToken) {
+                formData.append('_token', csrfToken);
+            } else {
+                console.error('CSRF token not found!');
+                // Handle the error, maybe show a SweetAlert message
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'CSRF token not found. Please refresh the page.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
 
-    // Function to remove individual filters
-    window.removeFilter = function(filterType) {
-        switch(filterType) {
-            case 'search':
-                $('#searchInput').val('');
-                activeFilters.search = '';
-                break;
-            case 'accountType':
-                $('#accountTypeFilter').val('');
-                activeFilters.accountType = '';
-                break;
-            case 'status':
-                $('#statusFilter').val('');
-                activeFilters.status = '';
-                break;
-        }
-        applyFilters();
-    };
+            $.ajax({
+                url: url,
+                method: method,
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken // Also send CSRF in headers for AJAX
+                },
+                success: function(response) {
+                    // Close the modal
+                    $('#addUserModal').modal('hide');
 
-    // Search input event
-    $('#searchInput').on('keyup', function() {
-        applyFilters();
-    });
+                    // Show success notification
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.message || 'User created successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // Reload the page or update the user list to show the new user
+                         window.location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    console.error('Error creating user:', xhr.responseText);
+                    const errors = xhr.responseJSON.errors;
+                    let errorMessages = 'An error occurred while creating the user.';
+                    if (errors) {
+                        errorMessages = Object.values(errors).join('<br>');
+                    }
 
-    // Filter select events
-    $('#accountTypeFilter, #statusFilter').on('change', function() {
-        applyFilters();
-    });
-});
-
-// Toggle user status
-function toggleUserStatus(userId, currentStatus) {
-    if (confirm('Are you sure you want to ' + (currentStatus === 'active' ? 'deactivate' : 'activate') + ' this user?')) {
-        $.ajax({
-            url: '/admin/users/' + userId + '/toggle-status',
-            type: 'PUT',
-            data: {
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if(response.success) {
-                    location.reload();
-                } else {
-                    alert('Failed to update user status.');
+                    Swal.fire({
+                        title: 'Error!',
+                        html: errorMessages,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 }
-            },
-            error: function(xhr) {
-                alert('An error occurred while updating the user status.');
-            }
+            });
         });
+
+        // Handle toggle user status button clicks
+        window.toggleUserStatus = function(userId, currentStatus) {
+            const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+            Swal.fire({
+                title: 'Change User Status',
+                text: `Are you sure you want to ${newStatus} this user?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: `Yes, ${newStatus} it!`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/admin/users/${userId}/toggle-status`,
+                        method: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            Swal.fire(
+                                'Changed!',
+                                response.message,
+                                'success'
+                            ).then(() => {
+                                window.location.reload();
+                            });
+                        },
+                        error: function(xhr) {
+                            console.error('Error toggling status:', xhr.responseText);
+                            Swal.fire(
+                                'Error!',
+                                'Failed to change user status.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        };
+
+        // Handle password change form submission via AJAX
+        $('[id^="passwordModal"] form').on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const userId = form.data('user-id'); // Assuming you add a data-user-id attribute to the form
+            const url = `/admin/users/${userId}/change-password`;
+            const formData = new FormData(form[0]);
+
+            $.ajax({
+                url: url,
+                method: 'PUT',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    $(`#passwordModal${userId}`).modal('hide');
+                    Swal.fire(
+                        'Success!',
+                        response.message || 'Password changed successfully.',
+                        'success'
+                    );
+                },
+                error: function(xhr) {
+                    console.error('Error changing password:', xhr.responseText);
+                    const errors = xhr.responseJSON.errors;
+                    let errorMessages = 'An error occurred while changing the password.';
+                    if (errors) {
+                        errorMessages = Object.values(errors).join('<br>');
+                    }
+                    Swal.fire(
+                        'Error!',
+                        'Error!',
+                        html: errorMessages,
+                        icon: 'error'
+                    );
+                }
+            });
+        });
+
+        // Show success message if exists
+        @if(session('success'))
+            Swal.fire({
+                title: 'Success!',
+                text: '{{ session('success') }}',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        @endif
+
+        // Show error message if exists
+        @if(session('error'))
+            Swal.fire({
+                title: 'Error!',
+                text: '{{ session('error') }}',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        @endif
+    });
+
+    // Filter function - to be implemented
+    function applyFilters() {
+        // Implementation depends on how filtering is handled (client-side or server-side)
+        console.log("Apply filters clicked");
     }
-}
+
+    // Reset filters function - to be implemented
+    function resetFilters() {
+        // Implementation depends on how filtering is handled (client-side or server-side)
+        console.log("Reset filters clicked");
+    }
+
 </script>
-@endsection 
+@endpush
