@@ -58,9 +58,7 @@
             <h2>Residents</h2>
             <div class="d-flex">
                 <input type="text" id="searchInput" class="form-control search-input me-2" placeholder="Search residents...">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addResidentModal">
-                    <i class="fas fa-plus"></i> Add New Resident
-                </button>
+               
             </div>
         </div>
 
