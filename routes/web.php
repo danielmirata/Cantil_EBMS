@@ -109,6 +109,10 @@ Route::middleware(['web', 'auth'])->group(function () {
         ->name('secretary.residence.archived');
     Route::get('/secretary/residence/{id}', [ResidenceInformationController::class, 'show'])
         ->name('secretary.residence.show');
+    Route::get('/secretary/residence/{id}/edit', [ResidenceInformationController::class, 'edit'])
+        ->name('secretary.residence.edit');
+    Route::patch('/secretary/residence/{id}/update', [ResidenceInformationController::class, 'updateInfo'])
+        ->name('secretary.residence.update');
     Route::patch('/secretary/residence/{resident}/archive', [ResidenceInformationController::class, 'archive'])
         ->name('secretary.residence.archive');
     Route::patch('/secretary/residence/{resident}/restore', [ResidenceInformationController::class, 'restore'])
@@ -121,10 +125,9 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/secretary/official', [OfficialController::class, 'store'])->name('officials.store');
     Route::patch('/secretary/official/{official}/archive', [OfficialController::class, 'archive'])->name('officials.archive');
     Route::patch('/secretary/official/{official}/restore', [OfficialController::class, 'restore'])->name('officials.restore');
-    Route::post('/secretary/official/{official}/profile-picture', [OfficialController::class, 'updateProfilePicture'])->name('officials.update-profile-picture');
-    Route::patch('/officials/{official}/update-photo', [OfficialController::class, 'updatePhoto'])->name('officials.update-photo');
-    Route::patch('/officials/{official}/update-info', [OfficialController::class, 'updateInfo'])->name('officials.update-info');
+    Route::patch('/secretary/officials/{official}/update-info', [OfficialController::class, 'updateInfo'])->name('officials.update-info');
     Route::get('/secretary/officials/{id}', [App\Http\Controllers\Secretary\OfficialController::class, 'show'])->name('secretary.officials.show');
+    Route::get('/secretary/officials/{id}/edit', [App\Http\Controllers\Secretary\OfficialController::class, 'edit'])->name('secretary.officials.edit');
 
     // profile-picture Routes
     Route::get('/profile-picture/{filename}', function ($filename) {
@@ -236,10 +239,12 @@ Route::prefix('officials')->group(function () {
     Route::get('/', [OfficialController::class, 'index'])->name('officials.index');
     Route::get('/create', [OfficialController::class, 'create'])->name('officials.create');
     Route::post('/', [OfficialController::class, 'store'])->name('officials.store');
+    Route::get('/{id}/edit', [OfficialController::class, 'edit'])->name('officials.edit');
+    Route::patch('/{official}', [OfficialController::class, 'update'])->name('officials.update');
     Route::patch('/{official}/archive', [OfficialController::class, 'archive'])->name('officials.archive');
     Route::patch('/{official}/restore', [OfficialController::class, 'restore'])->name('officials.restore');
     Route::get('/archived', [OfficialController::class, 'archived'])->name('officials.archived');
-    Route::post('/{official}/profile-picture', [OfficialController::class, 'updateProfilePicture'])->name('officials.update-profile-picture');
+    Route::post('/{official}/profile-picture', [OfficialController::class, 'updatePhoto'])->name('officials.update-profile-picture');
 });
 
 Route::get('/administrators', [UserController::class, 'showAdministrators'])->name('administrators.show');

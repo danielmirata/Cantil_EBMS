@@ -237,28 +237,31 @@ class OfficialController extends Controller
                 'status' => 'required|in:Active,Inactive'
             ]);
 
-            DB::beginTransaction();
-
-            try {
-                $official->update($validated);
-                DB::commit();
-                return redirect()->back()->with('success', 'Official information updated successfully.');
+            DB::beginTransaction();                try {
+                    $official->update($validated);
+                    DB::commit();
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Official information updated successfully'
+                    ]);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    Log::error('Error updating official information: ' . $e->getMessage());
+                    return response()->json([
+                        'error' => 'There was an error updating the official information. Please try again.'
+                    ], 500);
+                }
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return response()->json([
+                    'errors' => $e->validator->errors()
+                ], 422);
             } catch (\Exception $e) {
-                DB::rollBack();
-                Log::error('Error updating official information: ' . $e->getMessage());
-                return redirect()->back()->with('error', 'There was an error updating the official information. Please try again.');
-            }
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return redirect()->back()
-                ->withErrors($e->validator)
-                ->withInput();
-        } catch (\Exception $e) {
-            Log::error('Error in updateInfo: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'An unexpected error occurred. Please try again.');
+                Log::error('Error in updateInfo: ' . $e->getMessage());
+                return response()->json([
+                    'error' => 'An unexpected error occurred. Please try again.'
+                ], 500);
         }
-    }
-
-    public function show($id)
+    }    public function show($id)
     {
         try {
             $official = Official::with('position')->findOrFail($id);
@@ -266,6 +269,38 @@ class OfficialController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error showing official: ' . $e->getMessage());
             return response()->json(['error' => 'There was an error retrieving the official information.'], 500);
+        }    }
+
+    public function edit($id)
+    {
+        try {
+            \Log::info('Edit method called for official ID: ' . $id);
+            
+            $official = Official::with('position')->findOrFail($id);
+            if (!$official) {
+                throw new \Exception('Official not found');
+            }
+            
+            $positions = Position::all();
+            if ($positions->isEmpty()) {
+                throw new \Exception('No positions available');
+            }
+            
+            \Log::info('Official found: ' . $official->first_name . ' ' . $official->last_name);
+            \Log::info('Number of positions: ' . $positions->count());
+            
+            $view = view('secretary.Official.edit_form', compact('official', 'positions'))->render();
+            \Log::info('View rendered successfully');
+            
+            return response($view);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error in edit method: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return response()->json([
+                'error' => true,
+                'message' => 'Failed to load official information: ' . $e->getMessage()
+            ], 500);
         }
     }
-} 
+}

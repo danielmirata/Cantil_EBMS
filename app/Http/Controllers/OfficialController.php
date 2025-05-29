@@ -99,4 +99,75 @@ class OfficialController extends Controller
 
         return redirect()->back()->with('success', 'Profile picture updated successfully.');
     }
-} 
+
+    public function edit($id)
+    {
+        try {
+            $official = Official::with('position')->findOrFail($id);
+            $positions = Position::all();
+            return view('secretary.Official.edit_form', compact('official', 'positions'));
+        } catch (\Exception $e) {
+            \Log::error('Error retrieving official for edit: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to load official information');
+        }
+    }
+
+    public function update(Request $request, Official $official)
+    {
+        try {
+            $validated = $request->validate([
+                'position_id' => 'required|exists:positions,id',
+                'first_name' => 'required|string|max:255',
+                'middle_name' => 'nullable|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'suffix' => 'nullable|string|max:255',
+                'date_of_birth' => 'required|date',
+                'place_of_birth' => 'required|string|max:255',
+                'gender' => 'required|in:Male,Female',
+                'civil_status' => 'required|in:Single,Married,Widowed,Divorced',
+                'nationality' => 'required|string|max:255',
+                'religion' => 'required|string|max:255',
+                'email' => 'nullable|email|max:255',
+                'contact_number' => 'required|string|max:255',
+                'house_number' => 'required|string|max:255',
+                'street' => 'required|string|max:255',
+                'barangay' => 'required|string|max:255',
+                'municipality' => 'required|string|max:255',
+                'zip' => 'required|string|max:255',
+                'father_name' => 'nullable|string|max:255',
+                'mother_name' => 'nullable|string|max:255',
+                'guardian_name' => 'nullable|string|max:255',
+                'guardian_contact' => 'nullable|string|max:255',
+                'guardian_relation' => 'nullable|string|max:255',
+                'term_start' => 'required|date',
+                'term_end' => 'required|date|after:term_start',
+                'status' => 'required|in:Active,Inactive'
+            ]);
+
+            // Only update profile picture if a new one is uploaded
+            if ($request->hasFile('profile_picture')) {
+                $request->validate([
+                    'profile_picture' => 'image|max:2048'
+                ]);
+
+                // Delete old profile picture if it exists
+                if ($official->profile_picture) {
+                    Storage::disk('public')->delete($official->profile_picture);
+                }
+
+                $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+                $validated['profile_picture'] = $path;
+            }
+
+            $official->update($validated);
+            
+            return redirect()->route('officials.index')
+                ->with('success', 'Official information updated successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Error updating official: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Failed to update official information')
+                ->withInput();
+        }
+    }
+}

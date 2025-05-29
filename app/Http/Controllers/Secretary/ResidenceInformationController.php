@@ -265,6 +265,7 @@ class ResidenceInformationController extends Controller
     public function updateInfo(Request $request, ResidenceInformation $resident)
     {
         try {
+            Log::info('Attempting to update resident information', ['resident_id' => $resident->id, 'request_data' => $request->all()]);
             $validated = $request->validate([
                 'residency_status' => 'required|in:Permanent,Temporary',
                 'voters' => 'required|in:Yes,No',
@@ -295,12 +296,34 @@ class ResidenceInformationController extends Controller
                 'guardian_relation' => 'required|in:Parent,Spouse,Sibling,Relative,Friend'
             ]);
 
+            Log::info('Validation successful for resident update', ['validated_data' => $validated]);
+            
             $resident->update($validated);
             
-            return redirect()->back()->with('success', 'Resident information updated successfully.');
+            Log::info('Resident update attempted', ['resident_id' => $resident->id, 'update_result' => $resident->wasChanged()]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Resident information updated successfully.'
+            ]);
         } catch (\Exception $e) {
             Log::error('Error updating resident information: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error updating resident information. Please try again.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating resident information. Please try again.'
+            ], 500);
+        }
+    }
+
+    public function edit($id)
+    {
+        try {
+            $resident = ResidenceInformation::findOrFail($id);
+            // Return a partial view with the edit form
+            return view('secretary.Residence.edit_form', compact('resident'));
+        } catch (\Exception $e) {
+            Log::error('Error retrieving resident for edit: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to load resident information'], 500);
         }
     }
 }

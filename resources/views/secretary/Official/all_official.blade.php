@@ -148,7 +148,6 @@
             </div>
             <form id="updatePhotoForm" method="POST" enctype="multipart/form-data">
                 @csrf
-                @method('PATCH')
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="profile_picture" class="form-label">Select New Profile Picture</label>
@@ -167,7 +166,7 @@
 
 <!-- Update Information Modal -->
 <div class="modal fade" id="updateInfoModal" tabindex="-1" aria-labelledby="updateInfoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="updateInfoModalLabel">Update Official Information</h5>
@@ -199,13 +198,12 @@
             $("table tbody tr").filter(function() {
                 $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
             });
-        });
-
-        // Handle view official button clicks
+        });        // Handle view official button clicks
         $('.view-official').on('click', function() {
             const officialId = $(this).data('id');
             // Load official information via AJAX
             $.get(`/secretary/officials/${officialId}`, function(data) {
+                $('#officialModal').data('official-id', officialId);  // Store the ID in the modal
                 $('#officialModal .modal-body').html(data);
                 $('#officialModal').modal('show');
             });
@@ -213,12 +211,156 @@
 
         // Handle update info button click
         $('#updateInfoBtn').on('click', function() {
-            const officialId = $(this).data('id');
+            const officialId = $('#officialModal').data('official-id');  // Get the ID from the modal
+            if (!officialId) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Could not find official information.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
             // Load update form via AJAX
-            $.get(`/secretary/officials/${officialId}/edit`, function(data) {
-                $('#updateInfoModal .modal-body').html(data);
-                $('#updateInfoForm').attr('action', `/secretary/officials/${officialId}`);
-                $('#updateInfoModal').modal('show');
+            $.ajax({
+                url: `/secretary/officials/${officialId}/edit`,
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    $('#updateInfoModal .modal-body').html(data);
+                    $('#updateInfoForm').attr('action', `/secretary/officials/${officialId}/update-info`);
+                    $('#updateInfoModal').modal('show');
+                },
+                error: function(xhr) {
+                    console.error('Error loading form:', xhr.responseText);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to load update form. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+
+        // Handle update info form submission via AJAX
+        $('#updateInfoForm').on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const url = form.attr('action');
+            const method = form.attr('method');
+            const formData = new FormData(form[0]);
+
+            $.ajax({
+                url: url,
+                method: method,
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    // Close the update modal
+                    $('#updateInfoModal').modal('hide');
+
+                    // Show success notification
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+
+                    // Reload the official details in the view modal
+                    const officialId = $('#officialModal').data('official-id');
+                    if (officialId) {
+                        $.get(`/secretary/officials/${officialId}`, function(data) {
+                            $('#officialModal .modal-body').html(data);
+                            $('#officialModal').modal('show');
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error updating official info:', xhr.responseText);
+                    const errors = xhr.responseJSON.errors;
+                    let errorMessages = 'An error occurred.';
+                    if (errors) {
+                        errorMessages = Object.values(errors).join('<br>');
+                    }
+
+                    Swal.fire({
+                        title: 'Error!',
+                        html: errorMessages,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+
+        // Handle update photo form submission via AJAX
+        $('#updatePhotoForm').on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const officialId = $('#officialModal').data('official-id');
+            
+            if (!officialId) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Could not find official information to update photo.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            const formData = new FormData(form[0]);
+            
+            $.ajax({
+                url: '{{ route('officials.update-profile-picture', ':officialId') }}'.replace(':officialId', officialId),
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    // Close the photo update modal
+                    $('#updatePhotoModal').modal('hide');
+
+                    // Show success notification
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.message || 'Profile picture updated successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+
+                    // Reload the official details in the view modal
+                    $.get(`/secretary/officials/${officialId}`, function(data) {
+                        $('#officialModal .modal-body').html(data);
+                        $('#officialModal').modal('show');
+                    });
+                },
+                error: function(xhr) {
+                    console.error('Error updating profile picture:', xhr.responseText);
+                    const errors = xhr.responseJSON.errors;
+                    let errorMessages = 'An error occurred while updating the profile picture.';
+                    if (errors) {
+                        errorMessages = Object.values(errors).join('<br>');
+                    }
+
+                    Swal.fire({
+                        title: 'Error!',
+                        html: errorMessages,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
             });
         });
 

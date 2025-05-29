@@ -199,27 +199,136 @@
             var value = $(this).val().toLowerCase();
             $("table tbody tr").filter(function() {
                 $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
-        });
+            });        });
 
         // Handle view resident button clicks
         $('.view-resident').on('click', function() {
             const residentId = $(this).data('id');
             // Load resident information via AJAX
-            $.get(`/secretary/residence/${residentId}`, function(data) {
-                $('#residentModal .modal-body').html(data);
-                $('#residentModal').modal('show');
+            $.ajax({
+                url: `/secretary/residence/${residentId}`,
+                method: 'GET',
+                cache: false, // Prevent AJAX caching
+                success: function(data) {
+                    $('#residentModal').data('resident-id', residentId);
+                    $('#residentModal .modal-body').html(data);
+                    $('#residentModal').modal('show');
+                },
+                error: function(xhr) {
+                    console.error('Error loading resident info:', xhr.responseText);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to load resident information. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });        // Handle update info button click
+        $('#updateInfoBtn').on('click', function() {
+            const residentId = $('#residentModal').data('resident-id');
+            if (!residentId) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Could not find resident information.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+            // Load update form via AJAX
+            $.ajax({
+                url: `/secretary/residence/${residentId}/edit`,
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    $('#updateInfoModal .modal-body').html(data);
+                    $('#updateInfoForm').attr('action', `/secretary/residence/${residentId}/update`);
+                    $('#updateInfoModal').modal('show');
+                },
+                error: function(xhr) {
+                    console.error('Error loading form:', xhr.responseText);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to load update form. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
             });
         });
 
-        // Handle update info button click
-        $('#updateInfoBtn').on('click', function() {
-            const residentId = $(this).data('id');
-            // Load update form via AJAX
-            $.get(`/secretary/residents/${residentId}/edit`, function(data) {
-                $('#updateInfoModal .modal-body').html(data);
-                $('#updateInfoForm').attr('action', `/secretary/residents/${residentId}`);
-                $('#updateInfoModal').modal('show');
+        // Handle update info form submission via AJAX
+        $('#updateInfoForm').on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const url = form.attr('action');
+            const method = form.attr('method');
+            const formData = new FormData(form[0]);
+
+            $.ajax({
+                url: url,
+                method: method,
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    // Close the update modal
+                    $('#updateInfoModal').modal('hide');
+
+                    // Show success notification
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+
+                    // Reload the resident details in the view modal
+                    const residentId = $('#residentModal').data('resident-id');
+                    if (residentId) {
+                        $.ajax({
+                            url: `/secretary/residence/${residentId}`,
+                            method: 'GET',
+                            cache: false, // Prevent AJAX caching
+                            success: function(data) {
+                                $('#residentModal .modal-body').html(data);
+                                // Briefly hide and show modal to force re-render
+                                $('#residentModal').modal('hide');
+                                $('#residentModal').modal('show');
+                            },
+                            error: function(xhr) {
+                                console.error('Error reloading resident info after update:', xhr.responseText);
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: 'Failed to reload updated resident information.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error updating resident info:', xhr.responseText);
+                    const errors = xhr.responseJSON.errors;
+                    let errorMessages = 'An error occurred.';
+                    if (errors) {
+                        errorMessages = Object.values(errors).join('<br>');
+                    }
+
+                    Swal.fire({
+                        title: 'Error!',
+                        html: errorMessages,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
             });
         });
 

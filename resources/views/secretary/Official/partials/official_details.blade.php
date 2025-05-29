@@ -15,6 +15,12 @@
                 @endif
                 <h4 class="mt-2">{{ $official->first_name }} {{ $official->last_name }}</h4>
                 <p class="text-muted">{{ $official->position->position_name ?? 'N/A' }}</p>
+                
+                <div class="d-flex justify-content-center gap-2 mt-3">
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#updatePhotoModal">
+                        <i class="fas fa-edit"></i> Update Photo
+                    </button>
+                </div>
             </div>
         </div>
         <div class="col-md-8">
