@@ -77,7 +77,8 @@ class ProjectController extends Controller
             }
         }
 
-        $validated['documents'] = json_encode($documents);
+        // Store as array instead of JSON string if using array cast
+        $validated['documents'] = $documents; // Remove json_encode()
         $validated['progress'] = $validated['progress'] ?? 0;
 
         Project::create($validated);
