@@ -500,9 +500,12 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth',])->prefix('official')->group(function () {
     // Dashboard
     Route::get('/', [App\Http\Controllers\Dashboard\OfficialDashboardController::class, 'index'])->name('official.dashboard');
-    Route::get('/schedule', [App\Http\Controllers\Official\ScheduleController::class, 'index'])->name('official.schedule');
+   
     Route::post('/projects', [App\Http\Controllers\Official\OfficialProjectController::class, 'store'])->name('official.projects.store');
 });
+
+// Official Schedule Routes
+ Route::get('/schedule', [App\Http\Controllers\Official\ScheduleController::class, 'index'])->name('official.schedule');
 
 // Official Inventory Routes
 Route::middleware(['auth',])->prefix('official/inventory')->name('official.inventory.')->group(function () {
