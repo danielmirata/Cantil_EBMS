@@ -68,6 +68,24 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/captain/dashboard', [CaptainDashboardController::class, 'index'])
         ->name('captain.dashboard');
 
+    // Additional Captain Routes
+    Route::prefix('captain')->name('captain.')->group(function () {
+        Route::get('/schedule', [CaptainDashboardController::class, 'schedule'])->name('schedule');
+        Route::get('/officials', [CaptainDashboardController::class, 'officials'])->name('officials.index');
+        Route::patch('/officials/{official}/update-photo', [OfficialController::class, 'updatePhoto'])->name('officials.update-photo');
+        Route::patch('/officials/{official}', [OfficialController::class, 'update'])->name('officials.update');
+        Route::get('/residents', [CaptainDashboardController::class, 'residents'])->name('residents.index');
+        Route::patch('/residents/{resident}/update-photo', [ResidenceInformationController::class, 'updatePhoto'])->name('residents.update-photo');
+        Route::patch('/residents/{resident}/update-info', [ResidenceInformationController::class, 'updateInfo'])->name('residents.update-info');
+        Route::patch('/residents/{resident}', [ResidenceInformationController::class, 'update'])->name('residents.update');
+        Route::get('/documents', [CaptainDashboardController::class, 'documents'])->name('documents.index');
+        Route::post('/documents/request', [OfficialDocumentRequestController::class, 'store'])->name('document.request.store');
+        Route::put('/documents/request/status', [OfficialDocumentRequestController::class, 'updateStatus'])->name('document.request.update.status');
+        Route::get('/projects', [CaptainDashboardController::class, 'projects'])->name('projects.index');
+        Route::get('/map', [CaptainDashboardController::class, 'map'])->name('map');
+        Route::get('/inventory', [CaptainDashboardController::class, 'inventory'])->name('inventory.index');
+    });
+
     // Official Dashboard
     Route::get('/official/dashboard', [OfficialDashboardController::class, 'index'])
         ->name('official.dashboard');
@@ -119,7 +137,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         ->name('secretary.residence.restore');
 
     // Official Routes
-    Route::get('/secretary/official/new', [OfficialController::class, 'create'])->name('officials.create');
+    Route::get('/secretary/official/new', [App\Http\Controllers\Secretary\OfficialController::class, 'create'])->name('officials.create');
     Route::get('/secretary/official', [OfficialController::class, 'index'])->name('officials.index');
     Route::get('/secretary/official/archived', [OfficialController::class, 'archived'])->name('officials.archived');
     Route::post('/secretary/official', [OfficialController::class, 'store'])->name('officials.store');
@@ -342,7 +360,7 @@ Route::prefix('map-locations')->group(function () {
 });
 
 // Captain Routes
-Route::middleware(['auth'])->prefix('captain')->name('captain.')->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Captain\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/schedule', [App\Http\Controllers\Captain\CScheduleController::class, 'index'])->name('schedule');
     Route::get('/map', [App\Http\Controllers\Captain\MapController::class, 'index'])->name('map');
@@ -368,7 +386,6 @@ Route::middleware(['auth'])->prefix('captain')->name('captain.')->group(function
 
     // Officials Routes
     Route::get('/officials', [App\Http\Controllers\Captain\OfficialController::class, 'index'])->name('officials.index');
-    Route::get('/officials/create', [App\Http\Controllers\Captain\OfficialController::class, 'create'])->name('officials.create');
     Route::post('/officials', [App\Http\Controllers\Captain\OfficialController::class, 'store'])->name('officials.store');
     Route::get('/officials/archived', [App\Http\Controllers\Captain\OfficialController::class, 'archived'])->name('officials.archived');
     Route::get('/officials/{official}', [App\Http\Controllers\Captain\OfficialController::class, 'show'])->name('officials.show');
@@ -395,6 +412,9 @@ Route::middleware(['auth'])->prefix('captain')->name('captain.')->group(function
     Route::post('/documents/request', [App\Http\Controllers\Captain\CaptainDocumentController::class, 'store'])->name('document.request.store');
     Route::put('/documents/request/status', [App\Http\Controllers\Captain\CaptainDocumentController::class, 'updateStatus'])->name('document.request.update.status');
     Route::get('/documents/print/{type}/{id}', [App\Http\Controllers\Captain\CaptainDocumentController::class, 'printDocument'])->name('document.print');
+
+    // Complaints Routes
+    Route::get('/complaints', [App\Http\Controllers\Captain\ComplaintController::class, 'index'])->name('captain.complaints');
 });
 
 Route::get('/households/{household}/members', [HouseholdController::class, 'getMembers'])->name('households.members');

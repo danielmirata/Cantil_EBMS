@@ -303,7 +303,14 @@
       },
       body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => {
+          throw new Error(err.error || 'Error saving location');
+        });
+      }
+      return response.json();
+    })
     .then(location => {
       if (currentLayer) {
         const popupContent = `
@@ -323,7 +330,11 @@
     })
     .catch(error => {
       console.error('Error saving location:', error);
-      alert('Error saving location. Please try again.');
+      alert(error.message || 'Error saving location. Please try again.');
+      if (currentLayer) {
+        map.removeLayer(currentLayer);
+        currentLayer = null;
+      }
     });
   }
 

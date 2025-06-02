@@ -18,11 +18,10 @@ class DocumentRequestController extends Controller
 
             $validated = $request->validate([
                 'document_type' => 'required|string',
-                'first_name' => 'required|string',
-                'last_name' => 'required|string',
+                'fullname' => 'required|string',
                 'contact_number' => 'required|string',
                 'email' => 'nullable|email',
-                'address' => 'required|string',
+                'purok' => 'required|string',
                 'date_needed' => 'required|date',
                 'purpose' => 'required|string',
                 'notes' => 'nullable|string',

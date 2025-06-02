@@ -11,7 +11,7 @@ class CaptainDocumentController extends Controller
 {
     public function index()
     {
-        $requests = DocumentRequest::latest()->get();
+        $requests = DocumentRequest::latest()->paginate(10);
         return view('captain.documents', compact('requests'));
     }
 

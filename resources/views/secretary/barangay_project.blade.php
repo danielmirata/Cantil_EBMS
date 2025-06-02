@@ -868,9 +868,17 @@
             // View Project Function
             window.viewProject = function(id) {
                 $.ajax({
-                    url: `/projects/${id}`,
+                    url: `/secretary/projects/${id}`,
                     type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(response) {
+                        if (!response.project) {
+                            alert('Error: Project data not found');
+                            return;
+                        }
+                        
                         const project = response.project;
                         
                         // Update modal content
@@ -949,12 +957,7 @@
                     },
                     error: function(xhr) {
                         console.error('Error fetching project details:', xhr);
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Failed to load project details. Please try again.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
+                        alert('Error loading project details. Please try again.');
                     }
                 });
             };
@@ -988,9 +991,17 @@
             // Edit Project Function
             window.editProject = function(id) {
                 $.ajax({
-                    url: `/projects/${id}/edit`,
+                    url: `/secretary/projects/${id}/edit`,
                     type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(response) {
+                        if (!response.project) {
+                            alert('Error: Project data not found');
+                            return;
+                        }
+                        
                         const project = response.project;
                         
                         // Populate form fields
@@ -1007,7 +1018,7 @@
                         $('#progress').val(project.progress || 0).trigger('input');
                         
                         // Update form action
-                        $('#addProjectForm').attr('action', `/projects/${id}`);
+                        $('#addProjectForm').attr('action', `/secretary/projects/${id}`);
                         $('#addProjectForm').append('<input type="hidden" name="_method" value="PUT">');
                         
                         // Update modal title
@@ -1028,8 +1039,11 @@
             window.deleteProject = function(id) {
                 if (confirm('Are you sure you want to delete this project?')) {
                     $.ajax({
-                        url: `/projects/${id}`,
+                        url: `/secretary/projects/${id}`,
                         type: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
                         success: function(response) {
                             alert('Project deleted successfully');
                             location.reload();

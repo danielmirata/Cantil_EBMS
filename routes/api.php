@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Auth\ApiAuthController;
 use App\Http\Controllers\Api\DocumentRequestController;
 use App\Http\Controllers\Api\ComplaintController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Api\MapLocationController;
 
 // Mobile API Routes
 Route::post('/mobile/login', [ApiAuthController::class, 'login']);
@@ -37,6 +38,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    // Map Routes
+    Route::get('/map/locations', [MapLocationController::class, 'index']);
+    Route::post('/map/locations', [MapLocationController::class, 'store']);
+    Route::put('/map/locations/{id}', [MapLocationController::class, 'update']);
+    Route::delete('/map/locations/{id}', [MapLocationController::class, 'destroy']);
+    Route::get('/map/households', [MapLocationController::class, 'getHouseholds']);
+    Route::get('/map/purok/{purok}/stats', [MapLocationController::class, 'getPurokStats']);
 });
 
 // Dashboard API Routes
@@ -51,3 +60,4 @@ Route::get('/test', function () {
         'message' => 'API is working'
     ]);
 });
+

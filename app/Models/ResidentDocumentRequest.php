@@ -9,11 +9,10 @@ class ResidentDocumentRequest extends Model
     protected $fillable = [
         'user_id',
         'document_type',
-        'first_name',
-        'last_name',
+        'fullname',
         'contact_number',
         'email',
-        'address',
+        'purok',
         'date_needed',
         'purpose',
         'notes',

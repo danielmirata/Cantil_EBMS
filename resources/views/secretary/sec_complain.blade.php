@@ -116,8 +116,9 @@
                     <thead>
                         <tr>
                             <th>Complaint ID</th>
+                            <th>Full Name</th>
+                            <th>Complainee</th>
                             <th>Complaint Type</th>
-                            <th>Complainant</th>
                             <th>Incident Date</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -127,8 +128,9 @@
                         @forelse($complaints as $complaint)
                             <tr>
                                 <td>#{{ $complaint->id }}</td>
+                                <td>{{ $complaint->fullname }}</td>
+                                <td>{{ $complaint->complainee_name }}</td>
                                 <td>{{ $complaint->complaint_type }}</td>
-                                <td>{{ $complaint->first_name . ' ' . $complaint->last_name }}</td>
                                 <td>{{ \Carbon\Carbon::parse($complaint->incident_date)->format('M d, Y') }}</td>
                                 <td>
                                     <span class="badge bg-{{ getStatusColor($complaint->status ?? 'Pending') }}">
@@ -149,7 +151,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center">No complaints found</td>
+                                <td colspan="7" class="text-center">No complaints found</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -162,58 +164,129 @@
     <div class="modal fade" id="viewModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Complaint Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header" style="background: #0d6efd; color: #fff; align-items: center;">
+                    <i class="fas fa-exclamation-circle me-2" style="font-size: 1.5rem;"></i>
+                    <h5 class="modal-title fw-bold flex-grow-1">Official Complaint Information</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="row mb-2">
-                        <div class="col-md-6"><strong>Complaint ID:</strong> <span id="view-complaint-id"></span></div>
-                        <div class="col-md-6"><strong>Status:</strong> <span id="view-status"></span></div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-6"><strong>First Name:</strong> <span id="view-first-name"></span></div>
-                        <div class="col-md-6"><strong>Last Name:</strong> <span id="view-last-name"></span></div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-6"><strong>Contact Number:</strong> <span id="view-contact-number"></span>
+                <div class="modal-body" style="background: #f8f9fa;">
+                    <div class="row">
+                        <!-- Left Profile Section -->
+                        <div class="col-md-4 d-flex flex-column align-items-center justify-content-start border-end">
+                            <div class="mb-3 mt-3">
+                                <div style="width:120px;height:120px;background:#e9ecef;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                    <i class="fas fa-user-circle" style="font-size:6rem;color:#adb5bd;"></i>
+                                </div>
+                            </div>
+                            <div class="text-center mb-1">
+                                <span class="fw-bold" id="view-fullname" style="font-size:1.2rem;"></span>
+                            </div>
+                            <div class="text-center text-muted mb-3" style="font-size:0.95rem;">
+                                Complainant
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm mb-3" disabled><i class="fas fa-id-badge me-1"></i> ID: <span id="view-complaint-id"></span></button>
                         </div>
-                        <div class="col-md-6"><strong>Email:</strong> <span id="view-email"></span></div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-12"><strong>Address:</strong> <span id="view-address"></span></div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-6"><strong>Complaint Type:</strong> <span id="view-complaint-type"></span>
-                        </div>
-                        <div class="col-md-6"><strong>Incident Date:</strong> <span id="view-incident-date"></span>
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-6"><strong>Incident Time:</strong> <span id="view-incident-time"></span>
-                        </div>
-                        <div class="col-md-6"><strong>Incident Location:</strong> <span
-                                id="view-incident-location"></span></div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-12"><strong>Description:</strong> <span id="view-description"></span></div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-6">
-                            <strong>Evidence Photo:</strong>
-                            <div id="view-evidence-photo" class="mt-2">
-                                <img src="" alt="Evidence Photo" class="img-thumbnail"
-                                    style="max-width: 200px; display: none;">
-                                <span class="no-photo">No photo available</span>
+                        <!-- Right Info Card Section -->
+                        <div class="col-md-8">
+                            <div class="card shadow-sm mt-3 mb-3">
+                                <div class="card-header bg-white border-bottom-0 pb-0">
+                                    <ul class="nav nav-tabs card-header-tabs" id="complaintTab" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab" aria-controls="details" aria-selected="true">
+                                                <i class="fas fa-user me-1"></i> Details
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="incident-tab" data-bs-toggle="tab" data-bs-target="#incident" type="button" role="tab" aria-controls="incident" aria-selected="false">
+                                                <i class="fas fa-exclamation-triangle me-1"></i> Incident
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body tab-content">
+                                    <!-- Details Tab -->
+                                    <div class="tab-pane fade show active" id="details" role="tabpanel" aria-labelledby="details-tab">
+                                        <div class="row mb-2">
+                                            <div class="col-md-6 small text-muted">Contact Number</div>
+                                            <div class="col-md-6 small text-muted">Email</div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6 fw-bold" id="view-contact-number"></div>
+                                            <div class="col-md-6 fw-bold" id="view-email"></div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-md-6 small text-muted">Purok</div>
+                                            <div class="col-md-6 small text-muted">Status</div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6 fw-bold" id="view-purok"></div>
+                                            <div class="col-md-6 fw-bold" id="view-status"></div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-md-6 small text-muted">Complainee Name</div>
+                                            <div class="col-md-6 small text-muted">Complainee Address</div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6 fw-bold" id="view-complainee-name"></div>
+                                            <div class="col-md-6 fw-bold" id="view-complainee-address"></div>
+                                        </div>
+                                    </div>
+                                    <!-- Incident Tab -->
+                                    <div class="tab-pane fade" id="incident" role="tabpanel" aria-labelledby="incident-tab">
+                                        <div class="row mb-2">
+                                            <div class="col-md-6 small text-muted">Complaint Type</div>
+                                            <div class="col-md-6 small text-muted">Incident Date</div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6 fw-bold" id="view-complaint-type"></div>
+                                            <div class="col-md-6 fw-bold" id="view-incident-date"></div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-md-6 small text-muted">Incident Time</div>
+                                            <div class="col-md-6 small text-muted">Incident Location</div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6 fw-bold" id="view-incident-time"></div>
+                                            <div class="col-md-6 fw-bold" id="view-incident-location"></div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-md-6 small text-muted">Declaration</div>
+                                            <div class="col-md-6 small text-muted">Created At</div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6 fw-bold" id="view-declaration"></div>
+                                            <div class="col-md-6 fw-bold" id="view-created-at"></div>
+                                        </div>
+                                    </div>
+                                    <!-- Description (always visible below tabs) -->
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <div class="p-3" style="background:#e9ecef;border-radius:8px;border-left:4px solid #0d6efd;">
+                                                <div class="small text-muted mb-1"><i class="fas fa-align-left me-1"></i>Description</div>
+                                                <div id="view-description" class="fw-bold" style="white-space: pre-wrap;line-height:1.6;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Evidence Photo & Remarks -->
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <div class="small text-muted mb-1">Evidence Photo</div>
+                                            <div id="view-evidence-photo" class="mt-2">
+                                                <img src="" alt="Evidence Photo" class="img-thumbnail" style="max-width: 180px; display: none; border-radius: 8px;">
+                                                <span class="no-photo">No photo available</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="small text-muted mb-1">Remarks</div>
+                                            <div id="view-remarks" class="fw-bold" style="white-space: pre-wrap;line-height:1.6;"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6"><strong>Declaration:</strong> <span id="view-declaration"></span></div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-12"><strong>Created At:</strong> <span id="view-created-at"></span></div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer" style="background: #f8f9fa; border-top: 2px solid #dee2e6;">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary transfer-to-blotter" data-bs-toggle="modal"
                         data-bs-target="#transferToBlotterModal">
@@ -461,13 +534,9 @@
                         <!-- Personal Information -->
                         <h5 class="mb-3">Personal Information</h5>
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">First Name</label>
-                                <input type="text" class="form-control" name="first_name" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Last Name</label>
-                                <input type="text" class="form-control" name="last_name" required>
+                            <div class="col-md-12">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" name="fullname" required>
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -482,8 +551,21 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-12">
-                                <label class="form-label">Complete Address</label>
-                                <textarea class="form-control" name="complete_address" rows="2" required></textarea>
+                                <label class="form-label">Purok</label>
+                                <input type="text" class="form-control" name="purok" required>
+                            </div>
+                        </div>
+
+                        <!-- Complainee Information -->
+                        <h5 class="mt-4 mb-3">Complainee Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Complainee Name</label>
+                                <input type="text" class="form-control" name="complainee_name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Complainee Address</label>
+                                <input type="text" class="form-control" name="complainee_address" required>
                             </div>
                         </div>
 
@@ -561,21 +643,19 @@
 
                 $('#view-complaint-id').text(complaintData.id);
                 $('#view-status').text(complaintData.status || 'Pending');
-                $('#view-first-name').text(complaintData.first_name);
-                $('#view-last-name').text(complaintData.last_name);
+                $('#view-fullname').text(complaintData.fullname);
                 $('#view-contact-number').text(complaintData.contact_number);
                 $('#view-email').text(complaintData.email || 'N/A');
-                $('#view-address').text(complaintData.complete_address);
+                $('#view-purok').text(complaintData.purok);
+                $('#view-complainee-name').text(complaintData.complainee_name);
+                $('#view-complainee-address').text(complaintData.complainee_address);
                 $('#view-complaint-type').text(complaintData.complaint_type);
                 $('#view-incident-date').text(moment(complaintData.incident_date).format('MMMM D, YYYY'));
-                $('#view-incident-time').text(
-                    complaintData.incident_time ?
-                    complaintData.incident_time.substring(11, 16) :
-                    'N/A'
-                );
+                $('#view-incident-time').text(complaintData.incident_time ? complaintData.incident_time.substring(11, 16) : 'N/A');
                 $('#view-incident-location').text(complaintData.incident_location);
                 $('#view-description').text(complaintData.complaint_description);
                 $('#view-declaration').text(complaintData.declaration ? 'Yes' : 'No');
+                $('#view-remarks').text(complaintData.remarks || 'N/A');
                 $('#view-created-at').text(moment(complaintData.created_at).format('MMMM D, YYYY h:mm A'));
 
                 // Set the complaint ID for the transfer form
@@ -587,7 +667,6 @@
                 var noPhotoSpan = photoContainer.find('.no-photo');
 
                 if (complaintData.evidence_photo) {
-                    // If the path already contains 'uploads/evidence_photos', just prepend '/'. Otherwise, build the path.
                     var imagePath = complaintData.evidence_photo.includes('uploads/evidence_photos') ?
                         '/' + complaintData.evidence_photo.replace(/^\/+/, '') :
                         '/uploads/evidence_photos/' + complaintData.evidence_photo.replace(/^.*[\\\/]/, '');

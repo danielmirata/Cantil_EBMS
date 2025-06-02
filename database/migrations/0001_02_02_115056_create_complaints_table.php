@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
-            $table->string('first_name');
-            $table->string('last_name');
+            $table->string('fullname');
             $table->string('contact_number');
             $table->string('email')->nullable();
-            $table->text('complete_address');
+            $table->string('purok');
+            $table->string('complainee_name');
+            $table->string('complainee_address');
             $table->string('complaint_type');
             $table->date('incident_date');
             $table->time('incident_time');

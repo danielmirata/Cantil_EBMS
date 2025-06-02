@@ -48,8 +48,13 @@
             </ul>
         </li>
         <li>
-            <a href="{{ route('documents.index') }}">
+            <a href="{{ route('captain.documents.index') }}">
                 <i class="fas fa-file-alt"></i> Documents
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('captain.complaints') }}">
+                <i class="fas fa-exclamation-circle"></i> Complaints
             </a>
         </li>
         <li>
@@ -63,7 +68,7 @@
             </a>
         </li>
         <li>
-            <a href="{{ route('captain.inventory') }}">
+            <a href="{{ route('captain.inventory.index') }}">
                 <i class="fas fa-boxes"></i> Inventory
             </a>
         </li>

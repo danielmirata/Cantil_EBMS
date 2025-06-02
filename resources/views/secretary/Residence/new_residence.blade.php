@@ -45,7 +45,7 @@
                             <label class="form-label">Residency Status</label>
                             <select class="form-select" name="residency_status" required>
                                 <option value="Permanent">Permanent</option>
-                                <option value="Temporary">Temporary</option>
+                                <option value="Present">Present</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -181,8 +181,20 @@
                                     <input type="text" class="form-control" id="house_number" name="house_number" placeholder="House number" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="street" class="form-label">Street/Purok</label>
-                                    <input type="text" class="form-control" id="street" name="street" placeholder="Street name" required>
+                                    <label for="street" class="form-label">Street/Purok</label>                                 
+                                    <select class="form-select" id="street" name="street" required>
+                                        <option value="">Select Street/Purok...</option>
+                                        <option value="Mapahiyumon">Mapahiyumon</option>
+                                        <option value="Mauswagon">Mauswagon</option>
+                                        <option value="Madasigon">Madasigon</option>
+                                        <option value="Matinabangon">Matinabangon</option>
+                                        <option value="Malipayon">Malipayon</option>
+                                        <option value="Makugihon">Makugihon</option>
+                                        <option value="Maalagaron">Maalagaron</option>
+                                        <option value="Matinagdanon">Matinagdanon</option>
+                                        <option value="Maabi-abihon">Maabi-abihon</option>
+                                        <option value="Twin Heart">Twin Heart</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="barangay" class="form-label">Barangay</label>
@@ -190,11 +202,11 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="municipality" class="form-label">Municipality/City</label>
-                                    <input type="text" class="form-control" id="municipality" name="municipality" placeholder="Municipality/City" required>
+                                    <input type="text" class="form-control" id="municipality" name="municipality" value="Dumaguete City" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="zip" class="form-label">Postal/ZIP Code</label>
-                                    <input type="text" class="form-control" id="zip" name="zip" placeholder="ZIP Code" required>
+                                    <input type="text" class="form-control" id="zip" name="zip" value="6200" required>
                                 </div>
                             </div>
                             <div class="form-navigation">

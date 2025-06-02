@@ -68,8 +68,8 @@ class OfficialController extends Controller
 
     public function archived()
     {
-        $officials = Official::with('position')->whereNotNull('archived_at')->get();
-        return view('captain.officials.archived', compact('officials'));
+        $archived_officials = Official::with('position')->whereNotNull('archived_at')->get();
+        return view('secretary.Official.archive_official', compact('archived_officials'));
     }
 
     public function show(Official $official)

@@ -30,19 +30,4 @@ class Project extends Model
         'end_date' => 'date',
         'budget' => 'decimal:2'
     ];
-
-    public function expenses()
-    {
-        return $this->hasMany(Expense::class);
-    }
-
-    public function getTotalExpensesAttribute()
-    {
-        return $this->expenses()->where('status', 'Approved')->sum('amount');
-    }
-
-    public function getRemainingBudgetAttribute()
-    {
-        return $this->budget - $this->total_expenses;
-    }
-} 
+}

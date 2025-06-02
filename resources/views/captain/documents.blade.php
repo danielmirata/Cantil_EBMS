@@ -130,6 +130,9 @@
                 </tbody>
             </table>
         </div>
+        <div class="d-flex justify-content-center mt-4">
+            {{ $requests->links() }}
+        </div>
     </div>
 </div>
 
@@ -143,7 +146,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="{{ route('document.request.store') }}" method="POST" id="requestForm">
+            <form action="{{ route('captain.document.request.store') }}" method="POST" id="requestForm">
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
@@ -239,7 +242,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="updateStatusForm" action="{{ route('document.request.update.status') }}" method="POST">
+            <form id="updateStatusForm" action="{{ route('captain.document.request.update.status') }}" method="POST">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="request_id" id="update-request-id">
@@ -416,6 +419,37 @@
         padding: 0.5em 0.75em;
         font-weight: 500;
         border-radius: 4px;
+    }
+
+    /* Pagination Styles */
+    .pagination {
+        margin: 0;
+        padding: 0;
+    }
+    .pagination .page-item {
+        margin: 0 2px;
+    }
+    .pagination .page-link {
+        color: #2196F3;
+        border: 1px solid #dee2e6;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #2196F3;
+        border-color: #2196F3;
+        color: white;
+    }
+    .pagination .page-link:hover {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: #2196F3;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
     }
 </style>
 @endsection

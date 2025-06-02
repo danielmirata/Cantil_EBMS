@@ -11,6 +11,43 @@
     <link rel="stylesheet" href="{{ asset('css/secretary-dashboard.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <style>
+        /* Pagination Styles */
+        .pagination {
+            margin: 0;
+            padding: 0;
+        }
+        .pagination li {
+            display: inline-block;
+            margin: 0 2px;
+        }
+        .pagination li a,
+        .pagination li span {
+            display: inline-block;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            color: #007bff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .pagination li a:hover {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .pagination li.active span {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .pagination li.disabled span {
+            color: #6c757d;
+            pointer-events: none;
+            background-color: #fff;
+            border-color: #dee2e6;
+        }
+    </style>
 </head>
 
 <body>
@@ -125,11 +162,11 @@
                     <tbody>
                         @forelse($requests as $request)
                             <tr data-request-type="official" class="request-row">
-                                <td>#{{ $request->request_id }}</td>
+                                <td>#{{ $request->request_id ?? $request->id }}</td>
                                 <td>{{ $request->document_type }}</td>
-                                <td>{{ $request->user->name }}</td>
-                                <td>{{ $request->user->email }}</td>
-                                <td>{{ $request->date_needed->format('M d, Y') }}</td>
+                                <td>{{ $request->user->fullname ?? ($request->first_name . ' ' . $request->last_name ?? '') }}</td>
+                                <td>{{ $request->user->email ?? $request->email }}</td>
+                                <td>{{ isset($request->date_needed) ? (is_object($request->date_needed) ? $request->date_needed->format('M d, Y') : (\Carbon\Carbon::parse($request->date_needed)->format('M d, Y'))) : (isset($request->created_at) ? (is_object($request->created_at) ? $request->created_at->format('M d, Y') : (\Carbon\Carbon::parse($request->created_at)->format('M d, Y'))) : '') }}</td>
                                 <td>
                                     <span class="badge bg-{{ getStatusColor($request->status) }}">
                                         {{ $request->status }}
@@ -152,40 +189,11 @@
                             </tr>
                         @endforelse
 
-                        @forelse($captainRequests as $request)
-                            <tr data-request-type="official" class="request-row">
-                                <td>#{{ $request->id }}</td>
-                                <td>{{ $request->document_type }}</td>
-                                <td>{{ $request->user->name }} <span class="badge bg-info">Captain</span></td>
-                                <td>{{ $request->user->email }}</td>
-                                <td>{{ $request->created_at->format('M d, Y') }}</td>
-                                <td>
-                                    <span class="badge bg-{{ getStatusColor($request->status) }}">
-                                        {{ $request->status }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-info view-request" data-bs-toggle="modal"
-                                        data-bs-target="#viewModal" data-request="{{ json_encode($request) }}">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-primary update-request" data-bs-toggle="modal"
-                                        data-bs-target="#updateStatusModal" data-request="{{ json_encode($request) }}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr data-request-type="official">
-                                <td colspan="7" class="text-center">No captain document requests found</td>
-                            </tr>
-                        @endforelse
-
                         @forelse($residentRequests as $request)
                             <tr data-request-type="resident" class="request-row" style="display: none;">
                                 <td>#{{ $request->request_id }}</td>
                                 <td>{{ $request->document_type }}</td>
-                                <td>{{ $request->first_name . ' ' . $request->last_name }}</td>
+                                <td>{{ $request->fullname }}</td>
                                 <td>{{ $request->email }}</td>
                                 <td>{{ \Carbon\Carbon::parse($request->date_needed)->format('M d, Y') }}</td>
                                 <td>
@@ -211,6 +219,17 @@
                                 <td colspan="7" class="text-center">No resident document requests found</td>
                             </tr>
                         @endforelse
+
+                        <!-- Resident Requests Pagination -->
+                        @if ($residentRequests->hasPages())
+                        <tr class="resident-pagination-row" data-request-type="resident" style="display: none;">
+                            <td colspan="7" class="text-center">
+                                <nav>
+                                    {{ $residentRequests->appends(['official_page' => request('official_page')])->links('pagination::bootstrap-5') }}
+                                </nav>
+                            </td>
+                        </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -380,9 +399,8 @@
                         <div class="col-md-6"><strong>Status:</strong> <span id="resident-status"></span></div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-6"><strong>First Name:</strong> <span id="resident-first-name"></span>
+                        <div class="col-md-6"><strong>Full Name:</strong> <span id="resident-fullname"></span>
                         </div>
-                        <div class="col-md-6"><strong>Last Name:</strong> <span id="resident-last-name"></span></div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-6"><strong>Contact Number:</strong> <span
@@ -541,6 +559,8 @@
                 $('#btn-show-resident').removeClass('active btn-primary').addClass('btn-outline-secondary');
                 $('tr[data-request-type="official"]').show();
                 $('tr[data-request-type="resident"]').hide();
+                $('.official-pagination-row').show();
+                $('.resident-pagination-row').hide();
             });
 
             $('#btn-show-resident').on('click', function() {
@@ -548,10 +568,22 @@
                 $('#btn-show-official').removeClass('active btn-primary').addClass('btn-outline-primary');
                 $('tr[data-request-type="resident"]').show();
                 $('tr[data-request-type="official"]').hide();
+                $('.resident-pagination-row').show();
+                $('.official-pagination-row').hide();
             });
 
             // Show official requests by default
             $('#btn-show-official').click();
+
+            // Handle search functionality
+            $('#searchInput').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                var requestType = $('#btn-show-official').hasClass('active') ? 'official' : 'resident';
+                
+                $('tr[data-request-type="' + requestType + '"]').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
 
             // Handle view resident modal data
             $('.view-resident-request').on('click', function() {
@@ -560,11 +592,10 @@
 
                 $('#resident-request-id').text(requestData.request_id);
                 $('#resident-status').text(requestData.status);
-                $('#resident-first-name').text(requestData.first_name);
-                $('#resident-last-name').text(requestData.last_name);
+                $('#resident-fullname').text(requestData.fullname);
                 $('#resident-contact-number').text(requestData.contact_number);
                 $('#resident-email').text(requestData.email || 'N/A');
-                $('#resident-address').text(requestData.address);
+                $('#resident-address').text(requestData.purok);
                 $('#resident-document-type').text(requestData.document_type);
                 $('#resident-date-needed').text(moment(requestData.date_needed).format('MMMM D, YYYY'));
                 $('#resident-purpose').text(requestData.purpose);

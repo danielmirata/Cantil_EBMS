@@ -22,11 +22,12 @@ class ComplaintController extends Controller
             }
 
             $validated = $request->validate([
-                'first_name' => 'required|string',
-                'last_name' => 'required|string',
+                'fullname' => 'required|string',
                 'contact_number' => 'required|string',
                 'email' => 'nullable|email',
-                'complete_address' => 'required|string',
+                'purok' => 'required|string',
+                'complainee_name' => 'required|string',
+                'complainee_address' => 'required|string',
                 'complaint_type' => 'required|string',
                 'incident_date' => 'required|date',
                 'incident_time' => 'required',

@@ -14,20 +14,30 @@ class OfficialDocumentRequestController extends Controller
 {
     public function index()
     {
-        $requests = OfficialDocumentRequest::with('user')
-            ->latest()
-            ->get()
-            ->map(function ($request) {
-                $request->date_needed = Carbon::parse($request->date_needed);
-                return $request;
-            });
-            
-        // Get resident document requests
-        $residentRequests = ResidentDocumentRequest::latest()->get();
-        
-        // Get captain document requests
+        // Fetch both collections
+        $officialRequests = OfficialDocumentRequest::with('user')->latest()->get();
         $captainRequests = DocumentRequest::with('user')->latest()->get();
-            
+
+        // Merge and sort by created_at (desc)
+        $allOfficialRequests = $officialRequests->concat($captainRequests)->sortByDesc(function($item) {
+            return $item->created_at;
+        })->values();
+
+        // Paginate manually with custom page name
+        $page = request()->get('official_page', 1);
+        $perPage = 10;
+        $paginatedOfficialRequests = new \Illuminate\Pagination\LengthAwarePaginator(
+            $allOfficialRequests->forPage($page, $perPage),
+            $allOfficialRequests->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'pageName' => 'official_page', 'query' => request()->query()]
+        );
+
+        // Get resident document requests with custom page name
+        $residentPage = request()->get('resident_page', 1);
+        $residentRequests = ResidentDocumentRequest::latest()->paginate(10, ['*'], 'resident_page', $residentPage);
+
         // Get counts for the stats cards
         $stats = [
             'total_requests' => OfficialDocumentRequest::count() + 
@@ -50,7 +60,11 @@ class OfficialDocumentRequestController extends Controller
                                  DocumentRequest::where('status', 'Rejected')->count(),
         ];
 
-        return view('secretary.sec_documents', compact('requests', 'residentRequests', 'captainRequests', 'stats'));
+        return view('secretary.sec_documents', [
+            'requests' => $paginatedOfficialRequests,
+            'residentRequests' => $residentRequests,
+            'stats' => $stats
+        ]);
     }
 
     public function store(Request $request)
