@@ -35,7 +35,7 @@ use App\Http\Controllers\Official\DashboardController;
 use App\Http\Controllers\Official\ScheduleController as OfficialScheduleController;
 use App\Http\Controllers\Official\OfficialController as OfficialOfficialController;
 use App\Http\Controllers\Official\DocumentController;
-use App\Http\Controllers\Official\Controller as OfficialProjectController;
+use App\Http\Controllers\Official\ProjectController as OfficialProjectController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\Official\InventoryController as OfficialInventoryController;
 use App\Http\Controllers\Official\OfficialFeatureController;
@@ -498,11 +498,16 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Official Portal Routes
-Route::middleware(['auth',])->prefix('official')->group(function () {
-    // Dashboard
-    Route::get('/', [App\Http\Controllers\Dashboard\OfficialDashboardController::class, 'index'])->name('official.dashboard');
-   
-    Route::post('/projects', [App\Http\Controllers\Official\OfficialProjectController::class, 'store'])->name('official.projects.store');
+Route::middleware(['auth'])->prefix('official')->name('official.')->group(function () {
+    // Existing official routes...
+    
+    // Project management routes
+    Route::get('/projects', [OfficialProjectController::class, 'index'])->name('projects.index');
+    Route::post('/projects', [OfficialProjectController::class, 'store'])->name('projects.store');
+    Route::get('/projects/{id}', [OfficialProjectController::class, 'show'])->name('projects.show');
+    Route::get('/projects/{id}/edit', [OfficialProjectController::class, 'edit'])->name('projects.edit');
+    Route::put('/projects/{id}', [OfficialProjectController::class, 'update'])->name('projects.update');
+    Route::delete('/projects/{id}', [OfficialProjectController::class, 'destroy'])->name('projects.destroy');
 });
 
 // Official Schedule Routes
