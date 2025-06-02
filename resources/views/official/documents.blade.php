@@ -221,7 +221,8 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-            </div>            <form id="updateStatusForm" action="{{ route('official.document.request.update.status') }}" method="POST">
+            </div>            
+            <form id="updateStatusForm" action="{{ route('official.document.request.update.status') }}" method="POST">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="request_id" id="update-request-id">
@@ -242,7 +243,21 @@
                         <label for="additional_info">Additional Information</label>
                         <textarea class="form-control" id="update-additional-info" name="additional_info" rows="2"></textarea>
                     </div>
-                    
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select class="form-control" id="update-status" name="status" required>
+                            <option value="">Select Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Ready for Pickup">Ready for Pickup</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="remarks">Remarks (Optional)</label>
+                        <textarea class="form-control" id="update-remarks" name="remarks" rows="2"></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -371,7 +386,7 @@
             
             $.ajax({
                 url: $(this).attr('action'),
-                method: 'POST',
+                method: 'PUT',
                 data: formData,
                 success: function(response) {
                     $('#updateStatusModal').modal('hide');

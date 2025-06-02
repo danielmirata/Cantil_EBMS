@@ -19,7 +19,13 @@ class OfficialDocumentRequestController extends Controller
                 'purpose' => 'required|string|min:5|max:500',
                 'additional_info' => 'nullable|string|max:1000',
                 'date_needed' => 'required|date|after:today',
-            ]);            // Set the user ID and status
+            ], [
+                'document_type.required' => 'Please select a document type.',
+                'purpose.required' => 'Purpose is required.',
+                'purpose.min' => 'Purpose must be at least 5 characters.',
+                'date_needed.required' => 'Date needed is required.',
+                'date_needed.after' => 'Date needed must be a future date.',
+            ]);            // Set the user ID and default status
             $validated['user_id'] = auth()->id();
             $validated['status'] = 'Pending';
             
@@ -27,36 +33,63 @@ class OfficialDocumentRequestController extends Controller
             
             $document = OfficialDocumentRequest::create($validated);
             
-            Log::info('Document request created:', [
+            Log::info('Document request created successfully:', [
                 'id' => $document->id,
                 'request_id' => $document->request_id,
-                'document_type' => $document->document_type
+                'document_type' => $document->document_type,
+                'user_id' => $document->user_id
             ]);
 
-            // Log successful creation
-            Log::info('Document request created successfully', [
-                'user_id' => auth()->id(),
-                'document_type' => $validated['document_type']
-            ]);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Document request submitted successfully.',
+                    'data' => $document
+                ], 201);
+            }
 
             return redirect()->back()
-                ->with('success', 'Document request submitted successfully.');
+                ->with('success', 'Document request submitted successfully. Your request ID is: ' . $document->request_id);
+            
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::warning('Document request validation failed', [
+                'user_id' => auth()->id(),
                 'errors' => $e->errors()
             ]);
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed.',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            
             return redirect()->back()
                 ->withErrors($e)
                 ->withInput();
+            
         } catch (\Exception $e) {
             Log::error('Document request creation failed: ' . $e->getMessage(), [
+                'user_id' => auth()->id(),
+                'request_data' => $request->except(['_token']),
                 'trace' => $e->getTraceAsString()
             ]);
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to submit document request. Please try again.'
+                ], 500);
+            }
+            
             return redirect()->back()
                 ->with('error', 'Failed to submit document request. Please try again.')
                 ->withInput();
         }
     }
+
+    
 
     public function updateStatus(Request $request)
     {
@@ -106,4 +139,4 @@ class OfficialDocumentRequestController extends Controller
             return response()->json(['error' => 'Failed to update document request. Please try again.'], 500);
         }
     }
-} 
+}

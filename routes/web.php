@@ -295,12 +295,13 @@ Route::put('/budget/{budget}', [BudgetController::class, 'update'])->name('budge
 Route::delete('/budget/{budget}', [BudgetController::class, 'destroy'])->name('budget.destroy');
 Route::get('/budget/{budget}', [BudgetController::class, 'show'])->name('budget.show');
 
-// Document Request Routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/documents', [OfficialDocumentRequestController::class, 'index'])->name('documents.index');
-    Route::post('/documents/request', [OfficialDocumentRequestController::class, 'store'])->name('official.document.request.store');
-    Route::put('/documents/request/status', [OfficialDocumentRequestController::class, 'updateStatus'])->name('official.document.request.update.status');
+// Official Document Request Routes
+Route::middleware(['auth'])->prefix('official')->name('official.')->group(function () {
+    Route::get('/documents', [OfficialDocumentRequestController::class, 'index'])->name('documents');
+    Route::post('/document/request', [OfficialDocumentRequestController::class, 'store'])->name('document.request.store');
+    Route::put('/document/request/status', [OfficialDocumentRequestController::class, 'updateStatus'])->name('document.request.update.status');
 });
+
 
 // Document printing routes
 Route::middleware(['auth'])->group(function () {
