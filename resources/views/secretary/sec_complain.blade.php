@@ -550,11 +550,23 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-12">
-                                <label class="form-label">Purok</label>
-                                <input type="text" class="form-control" name="purok" required>
-                            </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Purok</label>
+                            <select class="form-select" name="purok" required>
+                                <option value="">Select Street/Purok...</option>
+                                <option value="Mapahiyumon">Mapahiyumon</option>
+                                <option value="Mauswagon">Mauswagon</option>
+                                <option value="Madasigon">Madasigon</option>
+                                <option value="Matinabangon">Matinabangon</option>
+                                <option value="Malipayon">Malipayon</option>
+                                <option value="Makugihon">Makugihon</option>
+                                <option value="Maalagaron">Maalagaron</option>
+                                <option value="Matinagdanon">Matinagdanon</option>
+                                <option value="Maabi-abihon">Maabi-abihon</option>
+                                <option value="Twin Heart">Twin Heart</option>
+                            </select>
                         </div>
+                    </div>
 
                         <!-- Complainee Information -->
                         <h5 class="mt-4 mb-3">Complainee Information</h5>
