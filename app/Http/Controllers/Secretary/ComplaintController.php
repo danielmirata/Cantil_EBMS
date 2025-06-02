@@ -58,11 +58,11 @@ class ComplaintController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'fullname' => 'required|string|max:255',
+          
             'contact_number' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
-            'complete_address' => 'required|string|max:500',
+            'purok' => 'required|string|max:500',
             'complaint_type' => 'required|string|max:255',
             'incident_date' => 'required|date',
             'incident_time' => 'required',
