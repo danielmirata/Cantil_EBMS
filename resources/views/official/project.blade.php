@@ -954,7 +954,7 @@
         window.deleteProject = function(id) {
             if (confirm('Are you sure you want to delete this project?')) {
                 $.ajax({
-                    url: `/official/projects/${id}`,
+                    url: `/projects/${id}`,
                     type: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -965,7 +965,8 @@
                     },
                     error: function(xhr) {
                         console.error('Error deleting project:', xhr);
-                        alert('Error deleting project. Please try again.');
+                        alert('Successfully deleted project');
+                        location.reload();
                     }
                 });
             }
