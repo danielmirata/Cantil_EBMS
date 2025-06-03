@@ -108,6 +108,16 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/secretary/residence/store', [ResidenceInformationController::class, 'store'])
         ->name('secretary.residence.store');
 
+    // Secretary Inventory Routes
+    Route::prefix('secretary/inventory')->name('secretary.inventory.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Secretary\InventoryController::class, 'index'])->name('index');
+        Route::post('/', [App\Http\Controllers\Secretary\InventoryController::class, 'store'])->name('store');
+        Route::get('/{id}', [App\Http\Controllers\Secretary\InventoryController::class, 'show'])->name('show');
+        Route::put('/{id}', [App\Http\Controllers\Secretary\InventoryController::class, 'update'])->name('update');
+        Route::delete('/{id}', [App\Http\Controllers\Secretary\InventoryController::class, 'destroy'])->name('destroy');
+        Route::post('/use', [App\Http\Controllers\Secretary\InventoryController::class, 'use'])->name('use');
+    });
+
     // Inventory Routes
     Route::prefix('inventory')->group(function () {
         Route::get('/', [InventoryController::class, 'index'])->name('inventory.index');
@@ -244,10 +254,8 @@ Route::middleware(['web', 'auth'])->group(function () {
     // Secretary Inventory Routes
     Route::prefix('secretary/inventory')->name('secretary.inventory.')->group(function () {
         Route::get('/', [App\Http\Controllers\Secretary\InventoryController::class, 'index'])->name('index');
-        Route::get('/create', [App\Http\Controllers\Secretary\InventoryController::class, 'create'])->name('create');
         Route::post('/', [App\Http\Controllers\Secretary\InventoryController::class, 'store'])->name('store');
         Route::get('/{id}', [App\Http\Controllers\Secretary\InventoryController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [App\Http\Controllers\Secretary\InventoryController::class, 'edit'])->name('edit');
         Route::put('/{id}', [App\Http\Controllers\Secretary\InventoryController::class, 'update'])->name('update');
         Route::delete('/{id}', [App\Http\Controllers\Secretary\InventoryController::class, 'destroy'])->name('destroy');
     });

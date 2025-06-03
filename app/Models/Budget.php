@@ -8,13 +8,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Budget extends Model
 {
-    use HasFactory, SoftDeletes;
-
-    protected $fillable = [
+    use HasFactory, SoftDeletes;    protected $fillable = [
         'name',
         'amount',
         'allocated',
-        'remaining_amount',
         'period'
     ];
 
@@ -35,8 +32,18 @@ class Budget extends Model
         return ($this->used_amount / $this->amount) * 100;
     }
 
+    public function getAvailableAttribute()
+    {
+        return $this->amount - $this->allocated;
+    }
+
+    public function canAllocate($amount)
+    {
+        return ($this->allocated + $amount) <= $this->amount;
+    }
+
     public function expenses()
     {
         return $this->hasMany(Expense::class);
     }
-} 
+}

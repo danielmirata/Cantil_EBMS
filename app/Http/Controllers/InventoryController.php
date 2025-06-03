@@ -207,7 +207,7 @@ class InventoryController extends Controller
     public function use(Request $request)
     {
         $validated = $request->validate([
-            'inventory_id' => 'required|exists:inventory,id',
+            'inventory_id' => 'required|exists:inventories,id',
             'quantity' => 'required|numeric|min:1',
             'purpose' => 'required|string|max:255'
         ]);
