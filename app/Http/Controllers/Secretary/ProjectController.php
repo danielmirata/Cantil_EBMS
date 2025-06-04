@@ -75,7 +75,7 @@ class ProjectController extends Controller
     public function show(string $id)
     {
         $project = Project::findOrFail($id);
-        return view('secretary.projects.show', compact('project')); // Assuming a show view
+        return response()->json(['project' => $project]);
     }
 
     /**
@@ -84,7 +84,7 @@ class ProjectController extends Controller
     public function edit(string $id)
     {
         $project = Project::findOrFail($id);
-        return view('secretary.projects.edit', compact('project')); // Assuming an edit view
+        return response()->json(['project' => $project]);
     }
 
     /**

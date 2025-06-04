@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/secretary-dashboard.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <style>
         @media print {
@@ -763,7 +764,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
             let currentStep = 1;
@@ -870,9 +870,6 @@
                 $.ajax({
                     url: `/secretary/projects/${id}`,
                     type: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
                     success: function(response) {
                         if (!response.project) {
                             alert('Error: Project data not found');
@@ -884,13 +881,6 @@
                         // Update modal content
                         $('#viewProjectName').text(project.project_name);
                         $('#viewLocation').text(project.location || 'Not specified');
-                        if (project.id) {
-                            $('#viewOnMapBtn').show().off('click').on('click', function() {
-                                window.location.href = `/secretary/map?project=${project.id}`;
-                            });
-                        } else {
-                            $('#viewOnMapBtn').hide();
-                        }
                         $('#viewTimeline').text(`${formatDate(project.start_date)} - ${formatDate(project.end_date)}`);
                         $('#viewDescription').text(project.description);
                         $('#viewBudget').text(`₱${formatNumber(project.budget)}`);
@@ -907,7 +897,6 @@
                             const documentsList = $('<ul class="list-unstyled"></ul>');
                             project.documents.forEach(doc => {
                                 let fileName = doc.path || doc.name || doc;
-                                // Remove leading 'project-documents/' if present
                                 fileName = fileName.replace(/^project-documents[\\/]/, '');
                                 const docUrl = `/storage/project-documents/${fileName}`;
                                 const docName = doc.name || doc.original_name || doc.path || doc;
@@ -962,40 +951,11 @@
                 });
             };
 
-            // Helper function to format dates
-            function formatDate(dateString) {
-                return new Date(dateString).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                });
-            }
-
-            // Helper function to format numbers
-            function formatNumber(number) {
-                return new Intl.NumberFormat('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }).format(number);
-            }
-
-            // Helper function to format dates for input[type=date]
-            function toDateInputValue(date) {
-                if (!date) return '';
-                const d = new Date(date);
-                const month = ('0' + (d.getMonth() + 1)).slice(-2);
-                const day = ('0' + d.getDate()).slice(-2);
-                return d.getFullYear() + '-' + month + '-' + day;
-            }
-
             // Edit Project Function
             window.editProject = function(id) {
                 $.ajax({
                     url: `/secretary/projects/${id}/edit`,
                     type: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
                     success: function(response) {
                         if (!response.project) {
                             alert('Error: Project data not found');
@@ -1041,9 +1001,6 @@
                     $.ajax({
                         url: `/secretary/projects/${id}`,
                         type: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
                         success: function(response) {
                             alert('Project deleted successfully');
                             location.reload();
@@ -1055,6 +1012,30 @@
                     });
                 }
             };
+
+            // Helper functions
+            function formatDate(dateString) {
+                return new Date(dateString).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+
+            function formatNumber(number) {
+                return new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(number);
+            }
+
+            function toDateInputValue(date) {
+                if (!date) return '';
+                const d = new Date(date);
+                const month = ('0' + (d.getMonth() + 1)).slice(-2);
+                const day = ('0' + d.getDate()).slice(-2);
+                return d.getFullYear() + '-' + month + '-' + day;
+            }
 
             // Progress slider sync for Add/Edit modal
             $('#progress').on('input', function() {
